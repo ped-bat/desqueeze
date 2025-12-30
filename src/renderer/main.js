@@ -110,26 +110,28 @@ function displayResults(successCount, failedCount, elapsedTime) {
 		timeStr = `${minutes}m ${seconds}s`;
 	}
 
-	// Build results HTML with Tailwind classes
+	// Build results HTML with daisyUI components
 	const fileWord = successCount === 1 ? "file" : "files";
 	let resultsHtml = `
-		<div class="p-5 bg-gray-100 rounded-lg text-gray-800">
-			<h2 class="text-xl font-bold text-green-600 mb-3">✓ Success!</h2>
-			<div class="mb-2">
-				<span class="font-semibold">${successCount}</span> ${fileWord} generated in <span class="font-semibold">${timeStr}</span>
+		<div class="alert alert-success">
+			<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+			<div>
+				<h3 class="font-bold">Success!</h3>
+				<div class="text-sm"><span class="font-semibold">${successCount}</span> ${fileWord} generated in <span class="font-semibold">${timeStr}</span></div>
 			</div>
+		</div>
 	`;
 
 	if (failedCount > 0) {
 		const failedWord = failedCount === 1 ? "file" : "files";
 		resultsHtml += `
-			<div class="text-red-600">
-				<span class="font-semibold">${failedCount}</span> ${failedWord} failed to process
+			<div class="alert alert-error mt-3">
+				<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+				<span><span class="font-semibold">${failedCount}</span> ${failedWord} failed to process</span>
 			</div>
 		`;
 	}
 
-	resultsHtml += `</div>`;
 	container.innerHTML = resultsHtml;
 }
 
