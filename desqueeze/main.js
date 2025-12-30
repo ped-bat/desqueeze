@@ -3,6 +3,9 @@ const path = require("path");
 const { exiftool } = require("exiftool-vendored");
 const { registerIpcHandlers } = require("./electron/ipc");
 
+// Suppress Chromium DevTools warnings (Autofill API not available in Electron)
+app.commandLine.appendSwitch("disable-features", "AutofillServerCommunication");
+
 // Keep a global reference of the window object
 let win;
 
@@ -26,7 +29,7 @@ function createWindow() {
 
 	win.loadFile(path.join(__dirname, "index.html"));
 
-	// Open DevTools for debugging (remove in production)
+	// Open DevTools for debugging (Cmd+Option+I to open manually)
 	win.webContents.openDevTools();
 
 	win.on("closed", () => {

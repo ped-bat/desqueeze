@@ -13,7 +13,7 @@ function getDNGLabPath() {
 	const binaryName = platform === "win32" ? "dnglab.exe" : "dnglab";
 	const basePath = app.isPackaged
 		? process.resourcesPath
-		: path.join(__dirname, "..");
+		: path.join(__dirname, "../..");
 	return path.join(
 		basePath,
 		app.isPackaged ? "bin" : "resources/bin",
