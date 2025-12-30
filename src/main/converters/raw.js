@@ -1,9 +1,13 @@
-const path = require("path");
-const { app } = require("electron");
-const { promisify } = require("util");
-const { exec } = require("child_process");
-const fs = require("fs").promises;
-const { exiftool } = require("exiftool-vendored");
+import path from "path";
+import { app } from "electron";
+import { promisify } from "util";
+import { exec } from "child_process";
+import fs from "fs/promises";
+import { exiftool } from "exiftool-vendored";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const execAsync = promisify(exec);
 
@@ -68,7 +72,4 @@ async function setDefaultScale(filePath, ratioX, ratioY) {
 	]);
 }
 
-module.exports = {
-	convertToDNG,
-	setDefaultScale,
-};
+export { convertToDNG, setDefaultScale };

@@ -1,6 +1,6 @@
-const sharp = require("sharp");
-const fs = require("fs").promises;
-const { exiftool } = require("exiftool-vendored");
+import sharp from "sharp";
+import fs from "fs/promises";
+import { exiftool } from "exiftool-vendored";
 
 // Stretch bitmap using Sharp and save as TIFF
 async function stretchBitmap(inputPath, outputPath, stretchFactor) {
@@ -46,6 +46,4 @@ async function stretchBitmap(inputPath, outputPath, stretchFactor) {
 	return outputPath;
 }
 
-module.exports = {
-	stretchBitmap,
-};
+export { stretchBitmap };

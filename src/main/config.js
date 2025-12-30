@@ -1,5 +1,5 @@
 // Supported RAW formats for DNG conversion
-const RAW_FORMATS = new Set([
+export const RAW_FORMATS = new Set([
 	".3fr",
 	".ari",
 	".arw",
@@ -28,7 +28,7 @@ const RAW_FORMATS = new Set([
 ]);
 
 // Supported Bitmap formats for Sharp stretch conversion
-const BITMAP_FORMATS = new Set([
+export const BITMAP_FORMATS = new Set([
 	".jpg",
 	".jpeg",
 	".png",
@@ -38,16 +38,8 @@ const BITMAP_FORMATS = new Set([
 ]);
 
 // Default aspect ratio values for desqueezing
-const DEFAULT_RATIO_X = 1.33;
-const DEFAULT_RATIO_Y = 1;
+export const DEFAULT_RATIO_X = 1.33;
+export const DEFAULT_RATIO_Y = 1;
 
 // Premium feature flag
-const PREMIUM = true;
-
-module.exports = {
-	RAW_FORMATS,
-	BITMAP_FORMATS,
-	DEFAULT_RATIO_X,
-	DEFAULT_RATIO_Y,
-	PREMIUM,
-};
+export const PREMIUM = true;

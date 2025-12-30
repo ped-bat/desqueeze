@@ -1,9 +1,9 @@
-const { ipcMain, dialog } = require("electron");
-const { RAW_FORMATS, BITMAP_FORMATS, PREMIUM } = require("./config");
-const { desqueeze } = require("./processors/desqueeze");
+import { ipcMain, dialog } from "electron";
+import { RAW_FORMATS, BITMAP_FORMATS, PREMIUM } from "./config.js";
+import { desqueeze } from "./processors/desqueeze.js";
 
 // Register all IPC handlers
-function registerIpcHandlers(win) {
+export function registerIpcHandlers(win) {
 	// File selection dialog
 	ipcMain.handle("select-image-file", async () => {
 		const allFormats = new Set([...RAW_FORMATS, ...BITMAP_FORMATS]);
@@ -61,5 +61,3 @@ function registerIpcHandlers(win) {
 		});
 	});
 }
-
-module.exports = { registerIpcHandlers };

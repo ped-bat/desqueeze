@@ -1,8 +1,8 @@
-const path = require("path");
-const fs = require("fs").promises;
-const { RAW_FORMATS, BITMAP_FORMATS } = require("../config");
-const { convertToDNG, setDefaultScale } = require("../converters/raw");
-const { stretchBitmap } = require("../converters/bitmap");
+import path from "path";
+import fs from "fs/promises";
+import { RAW_FORMATS, BITMAP_FORMATS } from "../config.js";
+import { convertToDNG, setDefaultScale } from "../converters/raw.js";
+import { stretchBitmap } from "../converters/bitmap.js";
 
 // Process RAW files: Convert to DNG + set DefaultScale metadata
 async function processRAW(filePath, ext, ratioX, ratioY) {
@@ -56,8 +56,4 @@ async function desqueeze(filePath, ratioX, ratioY) {
 	}
 }
 
-module.exports = {
-	desqueeze,
-	processRAW,
-	processBitmap,
-};
+export { desqueeze, processRAW, processBitmap };

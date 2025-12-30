@@ -1,7 +1,11 @@
-const { app, BrowserWindow } = require("electron");
-const path = require("path");
-const { exiftool } = require("exiftool-vendored");
-const { registerIpcHandlers } = require("./electron/ipc");
+import { app, BrowserWindow } from "electron";
+import path from "path";
+import { exiftool } from "exiftool-vendored";
+import { registerIpcHandlers } from "./ipc.js";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Suppress Chromium DevTools warnings (Autofill API not available in Electron)
 app.commandLine.appendSwitch("disable-features", "AutofillServerCommunication");
@@ -17,7 +21,7 @@ function createWindow() {
 		backgroundColor: "#000000",
 		show: false,
 		webPreferences: {
-			preload: path.join(__dirname, "electron/preload.js"),
+			preload: path.join(__dirname, "../preload/index.js"),
 			contextIsolation: true,
 			nodeIntegration: false,
 		},
@@ -27,10 +31,17 @@ function createWindow() {
 		win.show();
 	});
 
-	win.loadFile(path.join(__dirname, "index.html"));
+	// Load the renderer HTML (electron-vite handles dev vs prod)
+	if (process.env.NODE_ENV === "development") {
+		win.loadURL(process.env.ELECTRON_RENDERER_URL);
+	} else {
+		win.loadFile(path.join(__dirname, "../renderer/index.html"));
+	}
 
 	// Open DevTools for debugging (Cmd+Option+I to open manually)
-	win.webContents.openDevTools();
+	if (process.env.NODE_ENV === "development") {
+		win.webContents.openDevTools();
+	}
 
 	win.on("closed", () => {
 		win = null;

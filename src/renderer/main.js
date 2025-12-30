@@ -1,4 +1,4 @@
-// Example: Select and read metadata from an image file
+// Select and process images for desqueezing
 
 async function selectAndReadMetadata() {
 	try {
@@ -110,33 +110,27 @@ function displayResults(successCount, failedCount, elapsedTime) {
 		timeStr = `${minutes}m ${seconds}s`;
 	}
 
-	// Build results HTML
+	// Build results HTML with Tailwind classes
 	const fileWord = successCount === 1 ? "file" : "files";
 	let resultsHtml = `
-		<div class="results-box">
-			<h2>✓ Success!</h2>
-			<div class="result-item">
-				<strong>${successCount}</strong> ${fileWord} generated in <strong>${timeStr}</strong>
+		<div class="p-5 bg-gray-100 rounded-lg text-gray-800">
+			<h2 class="text-xl font-bold text-green-600 mb-3">✓ Success!</h2>
+			<div class="mb-2">
+				<span class="font-semibold">${successCount}</span> ${fileWord} generated in <span class="font-semibold">${timeStr}</span>
 			</div>
 	`;
 
 	if (failedCount > 0) {
 		const failedWord = failedCount === 1 ? "file" : "files";
 		resultsHtml += `
-			<div class="result-item error">
-				<strong>${failedCount}</strong> ${failedWord} failed to process
+			<div class="text-red-600">
+				<span class="font-semibold">${failedCount}</span> ${failedWord} failed to process
 			</div>
 		`;
 	}
 
 	resultsHtml += `</div>`;
 	container.innerHTML = resultsHtml;
-}
-
-function escapeHtml(text) {
-	const div = document.createElement("div");
-	div.textContent = text;
-	return div.innerHTML;
 }
 
 // Attach event listener when DOM is loaded

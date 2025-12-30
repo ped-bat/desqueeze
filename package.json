@@ -1,25 +1,29 @@
 {
 	"name": "desqueeze",
 	"version": "0.0.1",
-	"main": "main.js",
+	"main": "out/main/index.js",
 	"devDependencies": {
+		"@tailwindcss/vite": "^4.1.18",
 		"electron": "^39.2.7",
 		"electron-builder": "^26.0.12",
-		"exiftool-vendored": "^34.2.0"
+		"electron-vite": "^5.0.0",
+		"exiftool-vendored": "^34.2.0",
+		"tailwindcss": "^4.1.18",
+		"vite": "^7.3.0"
 	},
 	"scripts": {
-		"start": "electron .",
+		"dev": "electron-vite dev",
+		"build": "electron-vite build",
+		"start": "electron-vite preview",
 		"setup": "node setup-binary.js",
-		"pack": "electron-builder --dir",
-		"dist": "electron-builder",
-		"sharp": "node test2.js"
+		"pack": "electron-vite build && electron-builder --dir",
+		"dist": "electron-vite build && electron-builder"
 	},
 	"build": {
 		"appId": "com.desqueeze.app",
 		"productName": "Desqueeze",
 		"files": [
-			"**/*",
-			"!**/*.md"
+			"out/**/*"
 		],
 		"extraResources": [
 			{

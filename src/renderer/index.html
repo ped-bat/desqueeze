@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta
+			http-equiv="Content-Security-Policy"
+			content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'"
+		/>
+		<title>Desqueeze app</title>
+		<link rel="stylesheet" href="./styles.css" />
+	</head>
+	<body class="bg-black text-white min-h-screen p-8">
+		<h1 class="text-3xl font-bold mb-6">Hello, Desqueeze!</h1>
+		<div class="flex gap-5 mb-5">
+			<div class="flex flex-col gap-1">
+				<label for="ratio-x" class="text-sm text-gray-400"
+					>Ratio X:</label
+				>
+				<input
+					type="number"
+					id="ratio-x"
+					value="1.33"
+					step="0.01"
+					min="0.01"
+					class="px-3 py-2 border border-gray-600 rounded bg-gray-800 text-white text-base w-24 focus:outline-none focus:border-blue-500"
+				/>
+			</div>
+			<div class="flex flex-col gap-1">
+				<label for="ratio-y" class="text-sm text-gray-400"
+					>Ratio Y:</label
+				>
+				<input
+					type="number"
+					id="ratio-y"
+					value="1"
+					step="0.01"
+					min="0.01"
+					class="px-3 py-2 border border-gray-600 rounded bg-gray-800 text-white text-base w-24 focus:outline-none focus:border-blue-500"
+				/>
+			</div>
+		</div>
+		<button
+			id="select-btn"
+			class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-medium transition-colors"
+		>
+			Select Image & Read Metadata
+		</button>
+		<div id="metadata-display" class="mt-6"></div>
+		<script type="module" src="./main.js"></script>
+	</body>
+</html>
