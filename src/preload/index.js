@@ -7,4 +7,5 @@ contextBridge.exposeInMainWorld("api", {
 		ipcRenderer.invoke("desqueeze-file", filePath, ratioX, ratioY),
 	showErrorDialog: (title, message) =>
 		ipcRenderer.invoke("show-error-dialog", title, message),
+	playCompletionSound: () => ipcRenderer.invoke("play-completion-sound"),
 });

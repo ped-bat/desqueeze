@@ -1,4 +1,4 @@
-import { ipcMain, dialog } from "electron";
+import { ipcMain, dialog, shell } from "electron";
 import { RAW_FORMATS, BITMAP_FORMATS, PREMIUM } from "./config.js";
 import { desqueeze } from "./processors/desqueeze.js";
 
@@ -59,5 +59,10 @@ export function registerIpcHandlers(win) {
 			message: message,
 			buttons: ["OK"],
 		});
+	});
+
+	// Play completion sound
+	ipcMain.handle("play-completion-sound", () => {
+		shell.beep();
 	});
 }

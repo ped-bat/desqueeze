@@ -1,5 +1,36 @@
 // Select and process images for desqueezing
 
+// Sound settings
+function isSoundEnabled() {
+	const toggle = document.getElementById("sound-toggle");
+	return toggle ? toggle.checked : true;
+}
+
+function playCompletionSound() {
+	if (!isSoundEnabled()) return;
+
+	const audio = new Audio("./assets/audio/complete.wav");
+	audio.play().catch((err) => {
+		console.warn("Could not play sound:", err);
+	});
+}
+
+function initSoundToggle() {
+	const toggle = document.getElementById("sound-toggle");
+	if (!toggle) return;
+
+	// Load saved preference
+	const saved = localStorage.getItem("soundEnabled");
+	if (saved !== null) {
+		toggle.checked = saved === "true";
+	}
+
+	// Save preference on change
+	toggle.addEventListener("change", () => {
+		localStorage.setItem("soundEnabled", toggle.checked);
+	});
+}
+
 async function selectAndReadMetadata() {
 	try {
 		// Get ratio values from inputs
@@ -76,6 +107,8 @@ async function selectAndReadMetadata() {
 				successful.map((r) => r.outputFile)
 			);
 			displayResults(successful.length, failed.length, elapsedTime);
+			// Play completion sound
+			playCompletionSound();
 		} else if (failed.length > 0) {
 			console.error(
 				"All files failed:",
@@ -141,4 +174,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	if (button) {
 		button.addEventListener("click", selectAndReadMetadata);
 	}
+
+	// Initialize sound toggle
+	initSoundToggle();
 });
