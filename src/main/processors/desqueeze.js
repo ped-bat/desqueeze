@@ -4,36 +4,34 @@ import { RAW_FORMATS, BITMAP_FORMATS } from "../config.js";
 import { convertToDNG, setDefaultScale } from "../converters/raw.js";
 import { stretchBitmap } from "../converters/bitmap.js";
 
+// Ensure desqueezed output folder exists and return output path
+async function getOutputPath(filePath, ext, outputExt = ext) {
+	const dir = path.dirname(filePath);
+	const outputDir = path.join(dir, "desqueezed");
+	await fs.mkdir(outputDir, { recursive: true });
+	const baseName = path.basename(filePath, ext);
+	return path.join(outputDir, `${baseName}-desqueezed${outputExt}`);
+}
+
 // Process RAW files: Convert to DNG + set DefaultScale metadata
 async function processRAW(filePath, ext, ratioX, ratioY) {
-	let outputPath;
+	const outputPath = await getOutputPath(filePath, ext, ".dng");
 
-	// Convert non-DNG RAW files to DNG
 	if (ext !== ".dng") {
 		console.log("Converting RAW to DNG...");
-		outputPath = await convertToDNG(filePath);
+		await convertToDNG(filePath, outputPath);
 	} else {
-		// For existing DNG, create a copy with -desqueezed suffix
-		const outputDir = path.dirname(filePath);
-		const baseName = path.basename(filePath, ext);
-		outputPath = path.join(outputDir, `${baseName}-desqueezed.dng`);
 		await fs.copyFile(filePath, outputPath);
 	}
 
-	// Set DefaultScale metadata for anamorphic correction
 	await setDefaultScale(outputPath, ratioX, ratioY);
-
 	console.log("RAW processed:", outputPath);
 	return outputPath;
 }
 
 // Process Bitmap files: Stretch pixels + save as TIFF
 async function processBitmap(filePath, ext, ratioX, ratioY) {
-	const outputDir = path.dirname(filePath);
-	const baseName = path.basename(filePath, ext);
-	const outputPath = path.join(outputDir, `${baseName}-desqueezed.tiff`);
-
-	// Calculate stretch factor from ratios
+	const outputPath = await getOutputPath(filePath, ext, ".tiff");
 	const stretchFactor = ratioX / ratioY;
 
 	console.log("Stretching bitmap with factor:", stretchFactor);

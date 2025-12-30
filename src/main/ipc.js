@@ -125,4 +125,19 @@ export function registerIpcHandlers(win) {
 		}
 		return allFiles;
 	});
+
+	// Filter out already-desqueezed files
+	ipcMain.handle("filter-desqueezed", (event, filePaths) => {
+		const toProcess = [];
+		const skipped = [];
+		for (const fp of filePaths) {
+			const name = path.basename(fp).toLowerCase();
+			if (name.includes("-desqueezed")) {
+				skipped.push(fp);
+			} else {
+				toProcess.push(fp);
+			}
+		}
+		return { toProcess, skippedCount: skipped.length };
+	});
 }

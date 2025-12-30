@@ -53,7 +53,7 @@ async function getValidatedRatios() {
 
 // === File Processing ===
 
-async function processFiles(filePaths, ratioX, ratioY) {
+async function processFiles(filePaths, ratioX, ratioY, skippedCount = 0) {
 	const startTime = performance.now();
 	const results = await Promise.all(
 		filePaths.map((fp) => window.api.desqueezeFile(fp, ratioX, ratioY))
@@ -63,9 +63,9 @@ async function processFiles(filePaths, ratioX, ratioY) {
 	const successCount = results.filter((r) => r.success).length;
 	const failedCount = results.length - successCount;
 
-	if (successCount > 0) {
-		displayResults(successCount, failedCount, elapsed);
-		playSound();
+	if (successCount > 0 || skippedCount > 0) {
+		displayResults(successCount, failedCount, elapsed, skippedCount);
+		if (successCount > 0) playSound();
 	} else if (failedCount > 0) {
 		alert(`Error: ${results.find((r) => !r.success).error}`);
 	}
@@ -74,7 +74,19 @@ async function processFiles(filePaths, ratioX, ratioY) {
 async function handleFiles(filePaths) {
 	const ratios = await getValidatedRatios();
 	if (!ratios || filePaths.length === 0) return;
-	await processFiles(filePaths, ratios.ratioX, ratios.ratioY);
+
+	// Filter out already-desqueezed files
+	const { toProcess, skippedCount } = await window.api.filterDesqueezed(
+		filePaths
+	);
+
+	if (toProcess.length === 0 && skippedCount > 0) {
+		displayResults(0, 0, 0, skippedCount);
+		return;
+	}
+	if (toProcess.length === 0) return;
+
+	await processFiles(toProcess, ratios.ratioX, ratios.ratioY, skippedCount);
 }
 
 // === UI ===
@@ -90,25 +102,53 @@ function formatTime(seconds) {
 	return `${Math.floor(seconds / 60)}m ${(seconds % 60).toFixed(0)}s`;
 }
 
-function displayResults(successCount, failedCount, elapsed) {
+function displayMessage(message, type = "warning") {
+	const container = document.getElementById("metadata-display");
+	if (!container) return;
+	container.innerHTML = `<div class="alert alert-${type} transition-opacity duration-500"><span>${message}</span></div>`;
+	scheduleFadeOut(container);
+}
+
+function scheduleFadeOut(container, delay = 4000) {
+	setTimeout(() => {
+		const alerts = container.querySelectorAll(".alert");
+		alerts.forEach((alert) => alert.classList.add("opacity-0"));
+		setTimeout(() => (container.innerHTML = ""), 500);
+	}, delay);
+}
+
+function displayResults(successCount, failedCount, elapsed, skippedCount = 0) {
 	const container = document.getElementById("metadata-display");
 	if (!container) return;
 
 	const plural = (n) => (n === 1 ? "file" : "files");
+	const skippedText =
+		skippedCount > 0
+			? `, ${skippedCount} ${plural(skippedCount)} already desqueezed`
+			: "";
+
+	const hasSuccess = successCount > 0;
+	const mainMessage = hasSuccess
+		? `✓ <strong>${successCount}</strong> ${plural(
+				successCount
+		  )} generated in <strong>${formatTime(elapsed)}</strong>${skippedText}`
+		: `${skippedCount} ${plural(skippedCount)} already desqueezed`;
+
 	container.innerHTML = `
-		<div class="alert alert-success">
-			<span>✓ <strong>${successCount}</strong> ${plural(
-		successCount
-	)} generated in <strong>${formatTime(elapsed)}</strong></span>
+		<div class="alert ${
+			hasSuccess ? "alert-success" : "alert-warning"
+		} transition-opacity duration-500">
+			<span>${mainMessage}</span>
 		</div>
 		${
 			failedCount > 0
-				? `<div class="alert alert-error mt-3"><span>✗ <strong>${failedCount}</strong> ${plural(
+				? `<div class="alert alert-error mt-3 transition-opacity duration-500"><span>✗ <strong>${failedCount}</strong> ${plural(
 						failedCount
 				  )} failed</span></div>`
 				: ""
 		}
 	`;
+	scheduleFadeOut(container);
 }
 
 // === Drop Zone ===
@@ -120,11 +160,14 @@ function initDropZone() {
 	// Click to open file dialog
 	dropZone.addEventListener("click", async () => {
 		const selection = await window.api.selectImageFile();
-		if (selection) {
-			await handleFiles(
-				Array.isArray(selection) ? selection : [selection]
-			);
+		if (
+			!selection ||
+			(Array.isArray(selection) && selection.length === 0)
+		) {
+			displayMessage("No files were selected");
+			return;
 		}
+		await handleFiles(Array.isArray(selection) ? selection : [selection]);
 	});
 
 	// Drag and drop
@@ -152,14 +195,14 @@ function initDropZone() {
 			.map((f) => window.api.getPathForFile(f))
 			.filter(Boolean);
 
-		if (paths.length === 0) return;
+		if (paths.length === 0) {
+			displayMessage("No files were selected");
+			return;
+		}
 
 		const expanded = await window.api.expandDroppedPaths(paths);
 		if (expanded.length === 0) {
-			await window.api.showErrorDialog(
-				"No Supported Files",
-				"No supported image files were found."
-			);
+			displayMessage("No supported image files were found");
 			return;
 		}
 		await handleFiles(expanded);

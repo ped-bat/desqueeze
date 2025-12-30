@@ -27,10 +27,7 @@ function getDNGLabPath() {
 }
 
 // Convert RAW to DNG using bundled DNGLab binary
-async function convertToDNG(inputPath) {
-	const outputDir = path.dirname(inputPath);
-	const baseName = path.basename(inputPath, path.extname(inputPath));
-	const outputPath = path.join(outputDir, `${baseName}-desqueezed.dng`);
+async function convertToDNG(inputPath, outputPath) {
 
 	// Get the bundled dnglab binary path
 	const dnglabPath = getDNGLabPath();
