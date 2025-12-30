@@ -1,11 +1,11 @@
 const path = require("path");
 const fs = require("fs").promises;
-const { RAW_FORMATS, BITMAP_FORMATS, ratioX, ratioY } = require("../config");
+const { RAW_FORMATS, BITMAP_FORMATS } = require("../config");
 const { convertToDNG, setDefaultScale } = require("../converters/raw");
 const { stretchBitmap } = require("../converters/bitmap");
 
 // Process RAW files: Convert to DNG + set DefaultScale metadata
-async function processRAW(filePath, ext) {
+async function processRAW(filePath, ext, ratioX, ratioY) {
 	let outputPath;
 
 	// Convert non-DNG RAW files to DNG
@@ -28,26 +28,29 @@ async function processRAW(filePath, ext) {
 }
 
 // Process Bitmap files: Stretch pixels + save as TIFF
-async function processBitmap(filePath, ext) {
+async function processBitmap(filePath, ext, ratioX, ratioY) {
 	const outputDir = path.dirname(filePath);
 	const baseName = path.basename(filePath, ext);
 	const outputPath = path.join(outputDir, `${baseName}-desqueezed.tiff`);
 
-	console.log("Stretching bitmap...");
-	await stretchBitmap(filePath, outputPath, ratioX);
+	// Calculate stretch factor from ratios
+	const stretchFactor = ratioX / ratioY;
+
+	console.log("Stretching bitmap with factor:", stretchFactor);
+	await stretchBitmap(filePath, outputPath, stretchFactor);
 
 	console.log("Bitmap processed:", outputPath);
 	return outputPath;
 }
 
 // Main desqueeze function - routes to appropriate processor
-async function desqueeze(filePath) {
+async function desqueeze(filePath, ratioX, ratioY) {
 	const ext = path.extname(filePath).toLowerCase();
 
 	if (RAW_FORMATS.has(ext)) {
-		return await processRAW(filePath, ext);
+		return await processRAW(filePath, ext, ratioX, ratioY);
 	} else if (BITMAP_FORMATS.has(ext)) {
-		return await processBitmap(filePath, ext);
+		return await processBitmap(filePath, ext, ratioX, ratioY);
 	} else {
 		throw new Error(`File format ${ext} is not supported`);
 	}

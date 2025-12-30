@@ -37,13 +37,13 @@ const BITMAP_FORMATS = new Set([
 	".webp",
 ]);
 
-// Aspect ratio values for desqueezing
-const ratioX = 1.33;
-const ratioY = 1;
+// Default aspect ratio values for desqueezing
+const DEFAULT_RATIO_X = 1.33;
+const DEFAULT_RATIO_Y = 1;
 
 module.exports = {
 	RAW_FORMATS,
 	BITMAP_FORMATS,
-	ratioX,
-	ratioY,
+	DEFAULT_RATIO_X,
+	DEFAULT_RATIO_Y,
 };

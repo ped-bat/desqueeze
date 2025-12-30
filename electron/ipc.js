@@ -27,20 +27,33 @@ function registerIpcHandlers(win) {
 	});
 
 	// Main desqueeze handler
-	ipcMain.handle("desqueeze-file", async (event, filePath) => {
-		try {
-			const outputPath = await desqueeze(filePath);
-			return {
-				success: true,
-				originalFile: filePath,
-				outputFile: outputPath,
-			};
-		} catch (error) {
-			return {
-				success: false,
-				error: error.message,
-			};
+	ipcMain.handle(
+		"desqueeze-file",
+		async (event, filePath, ratioX, ratioY) => {
+			try {
+				const outputPath = await desqueeze(filePath, ratioX, ratioY);
+				return {
+					success: true,
+					originalFile: filePath,
+					outputFile: outputPath,
+				};
+			} catch (error) {
+				return {
+					success: false,
+					error: error.message,
+				};
+			}
 		}
+	);
+
+	// Error dialog handler
+	ipcMain.handle("show-error-dialog", async (event, title, message) => {
+		await dialog.showMessageBox(win, {
+			type: "error",
+			title: title,
+			message: message,
+			buttons: ["OK"],
+		});
 	});
 }
 

@@ -12,9 +12,29 @@
 	</head>
 	<body>
 		<h1>Hello, Desqueeze!</h1>
-		<button id="select-btn">
-			Select Image & Read Metadata
-		</button>
+		<div class="ratio-inputs">
+			<div class="input-group">
+				<label for="ratio-x">Ratio X:</label>
+				<input
+					type="number"
+					id="ratio-x"
+					value="1.33"
+					step="0.01"
+					min="0.01"
+				/>
+			</div>
+			<div class="input-group">
+				<label for="ratio-y">Ratio Y:</label>
+				<input
+					type="number"
+					id="ratio-y"
+					value="1"
+					step="0.01"
+					min="0.01"
+				/>
+			</div>
+		</div>
+		<button id="select-btn">Select Image & Read Metadata</button>
 		<div id="metadata-display"></div>
 		<script src="renderer.js"></script>
 	</body>
