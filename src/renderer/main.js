@@ -1,180 +1,180 @@
-// Select and process images for desqueezing
+// Desqueeze app - Renderer process
 
-// Sound settings
-function isSoundEnabled() {
-	const toggle = document.getElementById("sound-toggle");
-	return toggle ? toggle.checked : true;
-}
+// === Preferences ===
 
-function playCompletionSound() {
-	if (!isSoundEnabled()) return;
-
-	const audio = new Audio("./assets/audio/complete.wav");
-	audio.play().catch((err) => {
-		console.warn("Could not play sound:", err);
-	});
-}
-
-function initSoundToggle() {
-	const toggle = document.getElementById("sound-toggle");
+function initToggle(id, storageKey, defaultValue, onChange) {
+	const toggle = document.getElementById(id);
 	if (!toggle) return;
 
-	// Load saved preference
-	const saved = localStorage.getItem("soundEnabled");
-	if (saved !== null) {
-		toggle.checked = saved === "true";
-	}
+	const saved = localStorage.getItem(storageKey);
+	toggle.checked = saved !== null ? saved === "true" : defaultValue;
+	onChange?.(toggle.checked);
 
-	// Save preference on change
 	toggle.addEventListener("change", () => {
-		localStorage.setItem("soundEnabled", toggle.checked);
+		localStorage.setItem(storageKey, toggle.checked);
+		onChange?.(toggle.checked);
 	});
 }
 
-async function selectAndReadMetadata() {
-	try {
-		// Get ratio values from inputs
-		const ratioXInput = document.getElementById("ratio-x");
-		const ratioYInput = document.getElementById("ratio-y");
-		const ratioX = parseFloat(ratioXInput.value);
-		const ratioY = parseFloat(ratioYInput.value);
+// === Validation ===
 
-		// Validate ratios
-		if (isNaN(ratioX) || isNaN(ratioY) || ratioX <= 0 || ratioY <= 0) {
-			await window.api.showErrorDialog(
-				"Invalid Input",
-				"Please enter valid positive numbers for both ratios."
-			);
-			return;
-		}
+async function getValidatedRatios() {
+	const ratioX = parseFloat(document.getElementById("ratio-x").value);
+	const ratioY = parseFloat(document.getElementById("ratio-y").value);
 
-		// Check if ratios are the same
-		if (ratioX === ratioY) {
-			await window.api.showErrorDialog(
-				"Invalid Ratios",
-				"Ratio X and Ratio Y cannot be the same value. This would not change the photo's width."
-			);
-			return;
-		}
+	if (isNaN(ratioX) || isNaN(ratioY) || ratioX <= 0 || ratioY <= 0) {
+		await window.api.showErrorDialog(
+			"Invalid Input",
+			"Please enter valid positive numbers for both ratios."
+		);
+		return null;
+	}
 
-		// Check stretch factor limit
-		const stretchFactor = ratioX / ratioY;
-		if (stretchFactor > 2.5) {
-			await window.api.showErrorDialog(
-				"Stretch Factor Too High",
-				`The stretch factor (${stretchFactor.toFixed(
-					2
-				)}) exceeds the maximum allowed value of 2.5.`
-			);
-			return;
-		}
+	if (ratioX === ratioY) {
+		await window.api.showErrorDialog(
+			"Invalid Ratios",
+			"Ratio X and Ratio Y cannot be the same value."
+		);
+		return null;
+	}
 
-		// Open file dialog
-		const selection = await window.api.selectImageFile();
+	if (ratioX / ratioY > 2.5) {
+		await window.api.showErrorDialog(
+			"Stretch Factor Too High",
+			`The stretch factor (${(ratioX / ratioY).toFixed(
+				2
+			)}) exceeds the maximum of 2.5.`
+		);
+		return null;
+	}
 
-		if (!selection) {
-			console.log("No file selected");
-			return;
-		}
+	return { ratioX, ratioY };
+}
 
-		// Normalize to array for consistent handling
-		const filePaths = Array.isArray(selection) ? selection : [selection];
+// === File Processing ===
 
-		console.log("Selected files:", filePaths);
-		console.log("Using ratios:", { ratioX, ratioY });
+async function processFiles(filePaths, ratioX, ratioY) {
+	const startTime = performance.now();
+	const results = await Promise.all(
+		filePaths.map((fp) => window.api.desqueezeFile(fp, ratioX, ratioY))
+	);
+	const elapsed = (performance.now() - startTime) / 1000;
 
-		// Process all files with timing
-		const startTime = performance.now();
-		const results = [];
-		for (const filePath of filePaths) {
-			const result = await window.api.desqueezeFile(
-				filePath,
-				ratioX,
-				ratioY
-			);
-			results.push(result);
-		}
-		const endTime = performance.now();
-		const elapsedTime = (endTime - startTime) / 1000; // Convert to seconds
+	const successCount = results.filter((r) => r.success).length;
+	const failedCount = results.length - successCount;
 
-		// Check results
-		const successful = results.filter((r) => r.success);
-		const failed = results.filter((r) => !r.success);
-
-		if (successful.length > 0) {
-			console.log(
-				"Processed files:",
-				successful.map((r) => r.outputFile)
-			);
-			displayResults(successful.length, failed.length, elapsedTime);
-			// Play completion sound
-			playCompletionSound();
-		} else if (failed.length > 0) {
-			console.error(
-				"All files failed:",
-				failed.map((r) => r.error)
-			);
-			alert(`Error: ${failed[0].error}`);
-		}
-	} catch (error) {
-		console.error("Error:", error);
-		alert(`Error: ${error.message}`);
+	if (successCount > 0) {
+		displayResults(successCount, failedCount, elapsed);
+		playSound();
+	} else if (failedCount > 0) {
+		alert(`Error: ${results.find((r) => !r.success).error}`);
 	}
 }
 
-function displayResults(successCount, failedCount, elapsedTime) {
+async function handleFiles(filePaths) {
+	const ratios = await getValidatedRatios();
+	if (!ratios || filePaths.length === 0) return;
+	await processFiles(filePaths, ratios.ratioX, ratios.ratioY);
+}
+
+// === UI ===
+
+function playSound() {
+	if (!document.getElementById("sound-toggle")?.checked) return;
+	new Audio("./assets/audio/complete.wav").play().catch(() => {});
+}
+
+function formatTime(seconds) {
+	if (seconds < 1) return `${(seconds * 1000).toFixed(0)}ms`;
+	if (seconds < 60) return `${seconds.toFixed(2)}s`;
+	return `${Math.floor(seconds / 60)}m ${(seconds % 60).toFixed(0)}s`;
+}
+
+function displayResults(successCount, failedCount, elapsed) {
 	const container = document.getElementById("metadata-display");
+	if (!container) return;
 
-	if (!container) {
-		console.log("No display container found");
-		console.log("Success:", successCount, "Failed:", failedCount);
-		return;
-	}
-
-	// Format elapsed time
-	let timeStr;
-	if (elapsedTime < 1) {
-		timeStr = `${(elapsedTime * 1000).toFixed(0)}ms`;
-	} else if (elapsedTime < 60) {
-		timeStr = `${elapsedTime.toFixed(2)}s`;
-	} else {
-		const minutes = Math.floor(elapsedTime / 60);
-		const seconds = (elapsedTime % 60).toFixed(0);
-		timeStr = `${minutes}m ${seconds}s`;
-	}
-
-	// Build results HTML with daisyUI components
-	const fileWord = successCount === 1 ? "file" : "files";
-	let resultsHtml = `
+	const plural = (n) => (n === 1 ? "file" : "files");
+	container.innerHTML = `
 		<div class="alert alert-success">
-			<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-			<div>
-				<h3 class="font-bold">Success!</h3>
-				<div class="text-sm"><span class="font-semibold">${successCount}</span> ${fileWord} generated in <span class="font-semibold">${timeStr}</span></div>
-			</div>
+			<span>✓ <strong>${successCount}</strong> ${plural(
+		successCount
+	)} generated in <strong>${formatTime(elapsed)}</strong></span>
 		</div>
+		${
+			failedCount > 0
+				? `<div class="alert alert-error mt-3"><span>✗ <strong>${failedCount}</strong> ${plural(
+						failedCount
+				  )} failed</span></div>`
+				: ""
+		}
 	`;
-
-	if (failedCount > 0) {
-		const failedWord = failedCount === 1 ? "file" : "files";
-		resultsHtml += `
-			<div class="alert alert-error mt-3">
-				<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-				<span><span class="font-semibold">${failedCount}</span> ${failedWord} failed to process</span>
-			</div>
-		`;
-	}
-
-	container.innerHTML = resultsHtml;
 }
 
-// Attach event listener when DOM is loaded
-document.addEventListener("DOMContentLoaded", () => {
-	const button = document.getElementById("select-btn");
-	if (button) {
-		button.addEventListener("click", selectAndReadMetadata);
-	}
+// === Drop Zone ===
 
-	// Initialize sound toggle
-	initSoundToggle();
+function initDropZone() {
+	const dropZone = document.getElementById("drop-zone");
+	if (!dropZone) return;
+
+	// Click to open file dialog
+	dropZone.addEventListener("click", async () => {
+		const selection = await window.api.selectImageFile();
+		if (selection) {
+			await handleFiles(
+				Array.isArray(selection) ? selection : [selection]
+			);
+		}
+	});
+
+	// Drag and drop
+	["dragenter", "dragover", "dragleave", "drop"].forEach((e) =>
+		dropZone.addEventListener(e, (ev) => {
+			ev.preventDefault();
+			ev.stopPropagation();
+		})
+	);
+
+	["dragenter", "dragover"].forEach((e) =>
+		dropZone.addEventListener(e, () =>
+			dropZone.classList.add("border-primary", "bg-base-200")
+		)
+	);
+
+	["dragleave", "drop"].forEach((e) =>
+		dropZone.addEventListener(e, () =>
+			dropZone.classList.remove("border-primary", "bg-base-200")
+		)
+	);
+
+	dropZone.addEventListener("drop", async (e) => {
+		const paths = Array.from(e.dataTransfer.files)
+			.map((f) => window.api.getPathForFile(f))
+			.filter(Boolean);
+
+		if (paths.length === 0) return;
+
+		const expanded = await window.api.expandDroppedPaths(paths);
+		if (expanded.length === 0) {
+			await window.api.showErrorDialog(
+				"No Supported Files",
+				"No supported image files were found."
+			);
+			return;
+		}
+		await handleFiles(expanded);
+	});
+}
+
+// === Init ===
+
+document.addEventListener("DOMContentLoaded", () => {
+	initToggle("sound-toggle", "soundEnabled", true);
+	initToggle("theme-toggle", "theme", false, (isLight) => {
+		document.documentElement.setAttribute(
+			"data-theme",
+			isLight ? "light" : "dark"
+		);
+	});
+	initDropZone();
 });

@@ -1,24 +1,46 @@
-import { ipcMain, dialog, shell } from "electron";
+import { ipcMain, dialog } from "electron";
 import { RAW_FORMATS, BITMAP_FORMATS, PREMIUM } from "./config.js";
 import { desqueeze } from "./processors/desqueeze.js";
+import path from "path";
+import fs from "fs/promises";
+
+// All supported formats (created once)
+const ALL_FORMATS = new Set([...RAW_FORMATS, ...BITMAP_FORMATS]);
+const EXTENSIONS = Array.from(ALL_FORMATS).map((ext) => ext.replace(".", ""));
+
+// Get all supported files from a directory recursively
+async function getFilesFromDirectory(dirPath, extensions) {
+	const files = [];
+	const entries = await fs.readdir(dirPath, { withFileTypes: true });
+
+	for (const entry of entries) {
+		const fullPath = path.join(dirPath, entry.name);
+		if (entry.isDirectory()) {
+			const subFiles = await getFilesFromDirectory(fullPath, extensions);
+			files.push(...subFiles);
+		} else if (entry.isFile()) {
+			const ext = path.extname(entry.name).toLowerCase();
+			if (extensions.has(ext)) {
+				files.push(fullPath);
+			}
+		}
+	}
+
+	return files;
+}
 
 // Register all IPC handlers
 export function registerIpcHandlers(win) {
 	// File selection dialog
 	ipcMain.handle("select-image-file", async () => {
-		const allFormats = new Set([...RAW_FORMATS, ...BITMAP_FORMATS]);
-		const extensions = Array.from(allFormats).map((ext) =>
-			ext.replace(".", "")
-		);
-
 		const properties = PREMIUM
-			? ["openFile", "multiSelections"]
+			? ["openFile", "openDirectory", "multiSelections"]
 			: ["openFile"];
 
 		const result = await dialog.showOpenDialog(win, {
 			properties,
 			filters: [
-				{ name: "Supported Images", extensions },
+				{ name: "Supported Images", extensions: EXTENSIONS },
 				{ name: "All Files", extensions: ["*"] },
 			],
 		});
@@ -27,8 +49,25 @@ export function registerIpcHandlers(win) {
 			return null;
 		}
 
-		// Return array for premium, single path for non-premium
-		return PREMIUM ? result.filePaths : result.filePaths[0];
+		if (PREMIUM) {
+			// Expand directories to get all supported files
+			const allFiles = [];
+			for (const selectedPath of result.filePaths) {
+				const stat = await fs.stat(selectedPath);
+				if (stat.isDirectory()) {
+					const dirFiles = await getFilesFromDirectory(
+						selectedPath,
+						ALL_FORMATS
+					);
+					allFiles.push(...dirFiles);
+				} else {
+					allFiles.push(selectedPath);
+				}
+			}
+			return allFiles.length > 0 ? allFiles : null;
+		}
+
+		return result.filePaths[0];
 	});
 
 	// Main desqueeze handler
@@ -55,14 +94,35 @@ export function registerIpcHandlers(win) {
 	ipcMain.handle("show-error-dialog", async (event, title, message) => {
 		await dialog.showMessageBox(win, {
 			type: "error",
-			title: title,
-			message: message,
+			title,
+			message,
 			buttons: ["OK"],
 		});
 	});
 
-	// Play completion sound
-	ipcMain.handle("play-completion-sound", () => {
-		shell.beep();
+	// Expand dropped paths (handles both files and folders)
+	ipcMain.handle("expand-dropped-paths", async (event, paths) => {
+		const allFiles = [];
+		for (const droppedPath of paths) {
+			try {
+				const stat = await fs.stat(droppedPath);
+				if (stat.isDirectory()) {
+					allFiles.push(
+						...(await getFilesFromDirectory(
+							droppedPath,
+							ALL_FORMATS
+						))
+					);
+				} else if (
+					stat.isFile() &&
+					ALL_FORMATS.has(path.extname(droppedPath).toLowerCase())
+				) {
+					allFiles.push(droppedPath);
+				}
+			} catch (err) {
+				console.error(`Error processing path ${droppedPath}:`, err);
+			}
+		}
+		return allFiles;
 	});
 }
