@@ -1,0 +1,47 @@
+{
+	"name": "desqueeze",
+	"version": "0.0.1",
+	"main": "main.js",
+	"devDependencies": {
+		"electron": "^39.2.7",
+		"electron-builder": "^26.0.12",
+		"exiftool-vendored": "^34.2.0"
+	},
+	"scripts": {
+		"start": "electron .",
+		"setup": "node setup-binary.js",
+		"pack": "electron-builder --dir",
+		"dist": "electron-builder",
+		"sharp": "node test2.js"
+	},
+	"build": {
+		"appId": "com.desqueeze.app",
+		"productName": "Desqueeze",
+		"files": [
+			"**/*",
+			"!**/*.md"
+		],
+		"extraResources": [
+			{
+				"from": "resources/bin",
+				"to": "bin",
+				"filter": [
+					"**/*"
+				]
+			}
+		],
+		"mac": {
+			"target": "dmg",
+			"category": "public.app-category.photography"
+		},
+		"win": {
+			"target": "nsis"
+		},
+		"linux": {
+			"target": "AppImage"
+		}
+	},
+	"dependencies": {
+		"sharp": "^0.34.5"
+	}
+}

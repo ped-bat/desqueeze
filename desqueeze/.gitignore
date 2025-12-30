@@ -1,0 +1,2 @@
+# Don't ignore the bundled binaries - we want to commit them
+!resources/bin/**/*

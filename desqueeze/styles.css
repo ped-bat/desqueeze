@@ -1,0 +1,17 @@
+html {
+	color: white;
+}
+h1 {
+	color: chocolate;
+}
+
+.results-box {
+	padding: 20px;
+	background: #f5f5f5;
+	border-radius: 8px;
+	color: #333;
+}
+
+.result-item {
+	margin-bottom: 15px;
+}
