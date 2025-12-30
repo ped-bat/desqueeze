@@ -39,30 +39,49 @@ async function selectAndReadMetadata() {
 		}
 
 		// Open file dialog
-		const filePath = await window.api.selectImageFile();
+		const selection = await window.api.selectImageFile();
 
-		if (!filePath) {
+		if (!selection) {
 			console.log("No file selected");
 			return;
 		}
 
-		console.log("Selected file:", filePath);
+		// Normalize to array for consistent handling
+		const filePaths = Array.isArray(selection) ? selection : [selection];
+
+		console.log("Selected files:", filePaths);
 		console.log("Using ratios:", { ratioX, ratioY });
 
-		// Desqueeze the file
-		const result = await window.api.desqueezeFile(filePath, ratioX, ratioY);
+		// Process all files with timing
+		const startTime = performance.now();
+		const results = [];
+		for (const filePath of filePaths) {
+			const result = await window.api.desqueezeFile(
+				filePath,
+				ratioX,
+				ratioY
+			);
+			results.push(result);
+		}
+		const endTime = performance.now();
+		const elapsedTime = (endTime - startTime) / 1000; // Convert to seconds
 
-		if (result.success) {
-			console.log("Output file:", result.outputFile);
+		// Check results
+		const successful = results.filter((r) => r.success);
+		const failed = results.filter((r) => !r.success);
 
-			// Extract filename from output path
-			const parts = result.outputFile.split(/[\\/]/);
-			const filename = parts[parts.length - 1];
-
-			displayResults(filename, result.outputFile);
-		} else {
-			console.error("Error:", result.error);
-			alert(`Error: ${result.error}`);
+		if (successful.length > 0) {
+			console.log(
+				"Processed files:",
+				successful.map((r) => r.outputFile)
+			);
+			displayResults(successful.length, failed.length, elapsedTime);
+		} else if (failed.length > 0) {
+			console.error(
+				"All files failed:",
+				failed.map((r) => r.error)
+			);
+			alert(`Error: ${failed[0].error}`);
 		}
 	} catch (error) {
 		console.error("Error:", error);
@@ -70,28 +89,48 @@ async function selectAndReadMetadata() {
 	}
 }
 
-function displayResults(filename, outputPath) {
+function displayResults(successCount, failedCount, elapsedTime) {
 	const container = document.getElementById("metadata-display");
 
 	if (!container) {
 		console.log("No display container found");
-		console.log("Filename:", filename);
-		console.log("Output:", outputPath);
+		console.log("Success:", successCount, "Failed:", failedCount);
 		return;
 	}
 
-	// Clear previous content and display results
-	container.innerHTML = `
-		<h2>Success!</h2>
+	// Format elapsed time
+	let timeStr;
+	if (elapsedTime < 1) {
+		timeStr = `${(elapsedTime * 1000).toFixed(0)}ms`;
+	} else if (elapsedTime < 60) {
+		timeStr = `${elapsedTime.toFixed(2)}s`;
+	} else {
+		const minutes = Math.floor(elapsedTime / 60);
+		const seconds = (elapsedTime % 60).toFixed(0);
+		timeStr = `${minutes}m ${seconds}s`;
+	}
+
+	// Build results HTML
+	const fileWord = successCount === 1 ? "file" : "files";
+	let resultsHtml = `
 		<div class="results-box">
+			<h2>✓ Success!</h2>
 			<div class="result-item">
-				<strong>Output File:</strong> ${escapeHtml(filename)}
+				<strong>${successCount}</strong> ${fileWord} generated in <strong>${timeStr}</strong>
 			</div>
-			<div class="result-item">
-				<strong>Path:</strong> ${escapeHtml(outputPath)}
-			</div>
-		</div>
 	`;
+
+	if (failedCount > 0) {
+		const failedWord = failedCount === 1 ? "file" : "files";
+		resultsHtml += `
+			<div class="result-item error">
+				<strong>${failedCount}</strong> ${failedWord} failed to process
+			</div>
+		`;
+	}
+
+	resultsHtml += `</div>`;
+	container.innerHTML = resultsHtml;
 }
 
 function escapeHtml(text) {

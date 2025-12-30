@@ -41,9 +41,13 @@ const BITMAP_FORMATS = new Set([
 const DEFAULT_RATIO_X = 1.33;
 const DEFAULT_RATIO_Y = 1;
 
+// Premium feature flag
+const PREMIUM = true;
+
 module.exports = {
 	RAW_FORMATS,
 	BITMAP_FORMATS,
 	DEFAULT_RATIO_X,
 	DEFAULT_RATIO_Y,
+	PREMIUM,
 };

@@ -1,5 +1,5 @@
 const { ipcMain, dialog } = require("electron");
-const { RAW_FORMATS, BITMAP_FORMATS } = require("./config");
+const { RAW_FORMATS, BITMAP_FORMATS, PREMIUM } = require("./config");
 const { desqueeze } = require("./processors/desqueeze");
 
 // Register all IPC handlers
@@ -11,8 +11,12 @@ function registerIpcHandlers(win) {
 			ext.replace(".", "")
 		);
 
+		const properties = PREMIUM
+			? ["openFile", "multiSelections"]
+			: ["openFile"];
+
 		const result = await dialog.showOpenDialog(win, {
-			properties: ["openFile"],
+			properties,
 			filters: [
 				{ name: "Supported Images", extensions },
 				{ name: "All Files", extensions: ["*"] },
@@ -23,7 +27,8 @@ function registerIpcHandlers(win) {
 			return null;
 		}
 
-		return result.filePaths[0];
+		// Return array for premium, single path for non-premium
+		return PREMIUM ? result.filePaths : result.filePaths[0];
 	});
 
 	// Main desqueeze handler
