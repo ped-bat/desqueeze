@@ -18,6 +18,7 @@ function createWindow() {
 		frame: true,
 		width: 800,
 		height: 600,
+		center: true,
 		backgroundColor: "#000000",
 		show: false,
 		webPreferences: {

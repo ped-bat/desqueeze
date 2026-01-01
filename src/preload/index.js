@@ -9,6 +9,5 @@ contextBridge.exposeInMainWorld("api", {
 	getPathForFile: (file) => webUtils.getPathForFile(file),
 	expandDroppedPaths: (paths) =>
 		ipcRenderer.invoke("expand-dropped-paths", paths),
-	filterDesqueezed: (paths) =>
-		ipcRenderer.invoke("filter-desqueezed", paths),
+	filterDesqueezed: (paths) => ipcRenderer.invoke("filter-desqueezed", paths),
 });
