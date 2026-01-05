@@ -2,6 +2,22 @@
 
 // === Preferences ===
 
+function initRatioInput(id, storageKey, defaultValue) {
+	const input = document.getElementById(id);
+	if (!input) return;
+
+	const saved = localStorage.getItem(storageKey);
+	if (saved !== null) {
+		input.value = saved;
+	} else {
+		input.value = defaultValue;
+	}
+
+	input.addEventListener("change", () => {
+		localStorage.setItem(storageKey, input.value);
+	});
+}
+
 function initToggle(id, storageKey, defaultValue, onChange) {
 	const toggle = document.getElementById(id);
 	if (!toggle) return;
@@ -219,5 +235,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			isLight ? "light" : "dark"
 		);
 	});
+	initRatioInput("ratio-x", "ratioX", "1.33");
+	initRatioInput("ratio-y", "ratioY", "1");
 	initDropZone();
 });
