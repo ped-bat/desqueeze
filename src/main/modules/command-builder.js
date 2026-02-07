@@ -107,7 +107,7 @@ function buildColorimetricSection(connectionSpace) {
  * Build additional options section
  */
 function buildOptionsSection() {
-	return "--override";
+	return ["--override"];
 }
 
 // ============================================================================
@@ -122,11 +122,9 @@ function buildOptionsSection() {
  * @returns {string} Complete command string
  */
 function buildMakeDNGCommand(metadata, inputPath, outputPath) {
-	const dnglabPath = getDNGLabPath();
-
 	// Build each section - now passing full metadata for dual-illuminant detection
 	const sections = [
-		buildBaseSection(dnglabPath, inputPath, outputPath),
+		buildBaseSection(inputPath, outputPath),
 		buildMatrixSection(metadata),
 		buildIlluminantSection(metadata),
 		buildLinearizationSection(metadata.colorDepth, metadata.colorSpace),
@@ -134,8 +132,8 @@ function buildMakeDNGCommand(metadata, inputPath, outputPath) {
 		buildOptionsSection(),
 	];
 
-	// Filter out null sections and join
-	return sections.filter(Boolean).join(" ");
+	// Filter out empty arrays/nulls and flatten
+	return sections.flat().filter(Boolean);
 }
 
 /**

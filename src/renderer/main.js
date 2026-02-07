@@ -1,5 +1,44 @@
 // Desqueeze app - Renderer process
 
+// === Utils ===
+function pLimit(concurrency) {
+	const queue = [];
+	let activeCount = 0;
+
+	const next = () => {
+		activeCount--;
+		if (queue.length > 0) {
+			queue.shift()();
+		}
+	};
+
+	const run = async (fn, resolve, reject) => {
+		activeCount++;
+		const result = (async () => fn())();
+		try {
+			const value = await result;
+			resolve(value);
+		} catch (err) {
+			reject(err);
+		}
+		next();
+	};
+
+	const enqueue = (fn, resolve, reject) => {
+		queue.push(run.bind(null, fn, resolve, reject));
+		if (activeCount < concurrency && queue.length > 0) {
+			queue.shift()();
+		}
+	};
+
+	const generator = (fn, ...args) =>
+		new Promise((resolve, reject) => {
+			enqueue(() => fn(...args), resolve, reject);
+		});
+
+	return generator;
+}
+
 // === Preferences ===
 
 function initRatioInput(id, storageKey, defaultValue) {
@@ -58,14 +97,23 @@ async function getValidatedRatios() {
 		}
 	}
 
-	if (ratioX / ratioY > 2.5) {
+	if (ratioX / ratioY > 5.0) {
 		await window.api.showErrorDialog(
 			"Stretch Factor Too High",
 			`The stretch factor (${(ratioX / ratioY).toFixed(
 				2
-			)}) exceeds the maximum of 2.5.`
+			)}) exceeds the maximum of 5.0.`
 		);
 		return null;
+	}
+
+	if (ratioX / ratioY > 3.0) {
+		const proceed = confirm(
+			`The stretch factor is quite high (${(ratioX / ratioY).toFixed(2)}).\n` +
+			"Typical anamorphic lenses are 2x or less.\n\n" +
+			"Do you want to continue?"
+		);
+		if (!proceed) return null;
 	}
 
 	return { ratioX, ratioY };
@@ -74,10 +122,15 @@ async function getValidatedRatios() {
 // === File Processing ===
 
 async function processFiles(filePaths, ratioX, ratioY, skippedCount = 0) {
+	const limit = pLimit(3); // Process max 3 files at a time
 	const startTime = performance.now();
+	
 	const results = await Promise.all(
-		filePaths.map((fp) => window.api.desqueezeFile(fp, ratioX, ratioY))
+		filePaths.map((fp) => 
+			limit(() => window.api.desqueezeFile(fp, ratioX, ratioY))
+		)
 	);
+	
 	const elapsed = (performance.now() - startTime) / 1000;
 
 	const successCount = results.filter((r) => r.success).length;

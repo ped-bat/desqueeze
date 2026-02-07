@@ -8,7 +8,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Suppress Chromium DevTools warnings (Autofill API not available in Electron)
-app.commandLine.appendSwitch("disable-features", "AutofillServerCommunication");
+app.commandLine.appendSwitch("disable-features", "AutofillServerCommunication,Autofill");
 
 // Keep a global reference of the window object
 let win;

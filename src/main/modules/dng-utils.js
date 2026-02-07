@@ -11,15 +11,16 @@
 import path from "path";
 import { app } from "electron";
 import { promisify } from "util";
-import { exec } from "child_process";
+import { execFile } from "child_process";
 import fs from "fs/promises";
 import { exiftool } from "exiftool-vendored";
 import { fileURLToPath } from "url";
+import log from "../logger.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
 
 // ============================================================================
 // Path Utilities
@@ -53,7 +54,8 @@ async function verifyDNGLabBinary() {
 	try {
 		await fs.access(dnglabPath);
 		return dnglabPath;
-	} catch {
+	} catch (error) {
+		log.error(`DNGLab binary check failed: ${error.message}`);
 		throw new Error(`DNGLab binary not found at: ${dnglabPath}`);
 	}
 }
@@ -64,18 +66,19 @@ async function verifyDNGLabBinary() {
 
 /**
  * Run a DNGLab command
- * @param {string} command - Full command string to execute
+ * @param {string[]} args - Command arguments
  * @returns {Promise<{stdout: string, stderr: string}>}
  */
-async function runDNGLabCommand(command) {
-	console.log("Running:", command);
+async function runDNGLabCommand(args) {
+	const dnglabPath = await verifyDNGLabBinary();
+	log.info("Running DNGLab:", args.join(" "));
 
-	const { stdout, stderr } = await execAsync(command, {
+	const { stdout, stderr } = await execFileAsync(dnglabPath, args, {
 		maxBuffer: 10 * 1024 * 1024,
 	});
 
-	if (stderr) console.log("DNGLab stderr:", stderr);
-	if (stdout) console.log("DNGLab stdout:", stdout);
+	if (stderr) log.warn("DNGLab stderr:", stderr);
+	if (stdout) log.info("DNGLab stdout:", stdout);
 
 	return { stdout, stderr };
 }
@@ -91,19 +94,24 @@ async function runDNGLabCommand(command) {
  * @returns {Promise<string>} Path to created DNG file
  */
 async function convertRAWToDNG(inputPath, outputPath) {
-	const dnglabPath = await verifyDNGLabBinary();
+	const args = [
+		"convert",
+		"--dng-preview", "true",
+		"--override",
+		inputPath,
+		outputPath
+	];
 
-	const command = `"${dnglabPath}" convert --embed-raw false --dng-preview true --override "${inputPath}" "${outputPath}"`;
-
-	await runDNGLabCommand(command);
+	await runDNGLabCommand(args);
 
 	// Verify output was created
 	try {
 		await fs.access(outputPath);
-		console.log("DNG file created:", outputPath);
+		log.info("DNG file created:", outputPath);
 		return outputPath;
-	} catch {
-		throw new Error(`DNG file was not created at: ${outputPath}`);
+	} catch (error) {
+		log.error(`Failed to verify DNG creation: ${error.message}`);
+		throw new Error(`DNG file was not created at: ${outputPath}. Check logs for details.`);
 	}
 }
 
@@ -111,19 +119,20 @@ async function convertRAWToDNG(inputPath, outputPath) {
  * Convert bitmap to DNG using DNGLab makedng
  * @param {string} inputPath - Path to input bitmap file
  * @param {string} outputPath - Path for output DNG file
- * @param {string} command - Pre-built command from command-builder
+ * @param {string[]} commandArgs - Pre-built command arguments from command-builder
  * @returns {Promise<string>} Path to created DNG file
  */
-async function convertBitmapToDNG(inputPath, outputPath, command) {
-	await runDNGLabCommand(command);
+async function convertBitmapToDNG(inputPath, outputPath, commandArgs) {
+	await runDNGLabCommand(commandArgs);
 
 	// Verify output was created
 	try {
 		await fs.access(outputPath);
-		console.log("DNG file created:", outputPath);
+		log.info("DNG file created:", outputPath);
 		return outputPath;
-	} catch {
-		throw new Error(`DNG file was not created at: ${outputPath}`);
+	} catch (error) {
+		log.error(`Failed to verify DNG creation: ${error.message}`);
+		throw new Error(`DNG file was not created at: ${outputPath}. Check logs for details.`);
 	}
 }
 
@@ -135,11 +144,11 @@ async function convertBitmapToDNG(inputPath, outputPath, command) {
  * @param {number} ratioY - Vertical ratio component
  */
 async function stretchDNG(dngPath, ratioX, ratioY) {
-	console.log(`Setting DefaultScale to ${ratioX} ${ratioY}...`);
+	log.info(`Setting DefaultScale to ${ratioX} ${ratioY}...`);
 	await exiftool.write(dngPath, { DefaultScale: `${ratioX} ${ratioY}` }, [
 		"-overwrite_original",
 	]);
-	console.log("DefaultScale applied successfully");
+	log.info("DefaultScale applied successfully");
 }
 
 /**
@@ -149,19 +158,21 @@ async function stretchDNG(dngPath, ratioX, ratioY) {
  * @param {string[]} preserveTags - Tags to preserve in DNG (not overwrite)
  */
 async function copyMetadataToDNG(sourcePath, dngPath, preserveTags = ["DefaultScale"]) {
-	console.log("Copying metadata from original file...");
+	log.info("Copying metadata from original file...");
 
 	const excludeArgs = preserveTags.map((tag) => `--${tag}`);
 
+	// Copy all metadata, including maker notes which contain camera processing info
 	await exiftool.write(dngPath, {}, [
 		"-overwrite_original",
 		"-TagsFromFile",
 		sourcePath,
 		"-all:all",
+		"-unsafe",  // Include maker notes (camera-specific processing)
 		...excludeArgs,
 	]);
 
-	console.log("Metadata copied successfully");
+	log.info("Metadata copied successfully");
 }
 
 export {

@@ -10,6 +10,7 @@ import fs from "fs/promises";
 import os from "os";
 import sharp from "sharp";
 import { RAW_FORMATS, BITMAP_FORMATS } from "../config.js";
+import log from "../logger.js";
 
 // Import modules
 import {
@@ -58,7 +59,7 @@ async function processRAW(filePath, ext, ratioX, ratioY) {
 
 	// Convert to DNG (or copy if already DNG)
 	if (ext !== ".dng") {
-		console.log("Converting RAW to DNG...");
+		log.info("Converting RAW to DNG...");
 		await convertRAWToDNG(filePath, outputPath);
 	} else {
 		await fs.copyFile(filePath, outputPath);
@@ -67,7 +68,7 @@ async function processRAW(filePath, ext, ratioX, ratioY) {
 	// Apply stretch via DefaultScale
 	await stretchDNG(outputPath, ratioX, ratioY);
 
-	console.log("RAW processed:", outputPath);
+	log.info("RAW processed:", outputPath);
 	return outputPath;
 }
 
@@ -87,7 +88,7 @@ async function processBitmap(filePath, ext, ratioX, ratioY) {
 	const outputPath = await getOutputPath(filePath, ext, ".dng");
 
 	// Step 1: Analyze the image
-	console.log("Analyzing bitmap...");
+	log.info("Analyzing bitmap...");
 	const analyzer = new ImageAnalyzer(filePath);
 	const metadata = await analyzer.analyze();
 	analyzer.printSummary();
@@ -97,40 +98,40 @@ async function processBitmap(filePath, ext, ratioX, ratioY) {
 	let tempFile = null;
 	
 	if (metadata.hasAlpha) {
-		console.log("Image has alpha channel - converting to RGB...");
+		log.info("Image has alpha channel - converting to RGB...");
 		tempFile = path.join(os.tmpdir(), `desqueeze-${Date.now()}.png`);
 		await sharp(filePath)
 			.flatten({ background: { r: 255, g: 255, b: 255 } }) // White background
 			.toFile(tempFile);
 		inputForDNG = tempFile;
-		console.log("Temporary RGB file created:", tempFile);
+		log.info("Temporary RGB file created:", tempFile);
 	}
 
 	try {
 		// Step 3: Build the conversion command
-		const command = buildMakeDNGCommand(metadata, inputForDNG, outputPath);
-		console.log("Command:", command);
+		const commandArgs = buildMakeDNGCommand(metadata, inputForDNG, outputPath);
+		log.info("Command:", commandArgs.join(" "));
 
 		// Step 4: Convert to DNG
-		await convertBitmapToDNG(inputForDNG, outputPath, command);
+		await convertBitmapToDNG(inputForDNG, outputPath, commandArgs);
 
 		// Step 5: Apply stretch via DefaultScale
 		const stretchFactor = ratioX / ratioY;
 		await stretchDNG(outputPath, stretchFactor, 1);
 
 		// Step 6: Copy original metadata (preserving DNG-specific tags)
-		await copyMetadataToDNG(filePath, outputPath, ["DefaultScale"]);
+		//await copyMetadataToDNG(filePath, outputPath, ["DefaultScale"]);
 
-		console.log("Bitmap processed:", outputPath);
+		log.info("Bitmap processed:", outputPath);
 		return outputPath;
 	} finally {
 		// Clean up temp file
 		if (tempFile) {
 			try {
 				await fs.unlink(tempFile);
-				console.log("Cleaned up temp file");
+				log.info("Cleaned up temp file");
 			} catch (e) {
-				// Ignore cleanup errors
+				log.warn(`Failed to clean up temp file ${tempFile}: ${e.message}`);
 			}
 		}
 	}

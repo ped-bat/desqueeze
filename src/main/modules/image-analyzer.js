@@ -8,6 +8,7 @@
 import sharp from "sharp";
 import icc from "icc";
 import { exiftool } from "exiftool-vendored";
+import log from "../logger.js";
 
 class ImageAnalyzer {
 	constructor(filePath) {
@@ -33,7 +34,7 @@ class ImageAnalyzer {
 			try {
 				iccProfile = icc.parse(sharpMeta.icc);
 			} catch (e) {
-				console.warn("Failed to parse ICC profile:", e.message);
+				log.warn("Failed to parse ICC profile:", e.message);
 			}
 		}
 
@@ -251,21 +252,21 @@ class ImageAnalyzer {
 	 */
 	printSummary() {
 		if (!this.metadata) {
-			console.log("No metadata available. Call analyze() first.");
+			log.warn("No metadata available. Call analyze() first.");
 			return;
 		}
 
 		const m = this.metadata;
-		console.log("Image Analysis:");
-		console.log(`  File:             ${this.filePath}`);
-		console.log(`  Dimensions:       ${m.width}x${m.height}`);
-		console.log(`  Format:           ${m.format}`);
-		console.log(`  Color Depth:      ${m.colorDepth.bits}-bit`);
-		console.log(`  Color Space:      ${m.colorSpace.name}`);
-		console.log(`  Illuminant:       ${m.illuminant}`);
-		console.log(`  Connection Space: ${m.connectionSpace}`);
-		console.log(`  ICC Profile:      ${m.iccProfile || "None"}`);
-		console.log(`  Dual Illuminant:  ${m.needsDualIlluminant ? "Yes" : "No"}`);
+		log.info("Image Analysis:");
+		log.info(`  File:             ${this.filePath}`);
+		log.info(`  Dimensions:       ${m.width}x${m.height}`);
+		log.info(`  Format:           ${m.format}`);
+		log.info(`  Color Depth:      ${m.colorDepth.bits}-bit`);
+		log.info(`  Color Space:      ${m.colorSpace.name}`);
+		log.info(`  Illuminant:       ${m.illuminant}`);
+		log.info(`  Connection Space: ${m.connectionSpace}`);
+		log.info(`  ICC Profile:      ${m.iccProfile || "None"}`);
+		log.info(`  Dual Illuminant:  ${m.needsDualIlluminant ? "Yes" : "No"}`);
 	}
 }
 

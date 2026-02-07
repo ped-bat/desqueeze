@@ -3,6 +3,7 @@ import { RAW_FORMATS, BITMAP_FORMATS, PREMIUM } from "./config.js";
 import { desqueeze } from "./processors/desqueeze.js";
 import path from "path";
 import fs from "fs/promises";
+import log from "./logger.js";
 
 // All supported formats (created once)
 const ALL_FORMATS = new Set([...RAW_FORMATS, ...BITMAP_FORMATS]);
@@ -74,14 +75,32 @@ export function registerIpcHandlers(win) {
 	ipcMain.handle(
 		"desqueeze-file",
 		async (event, filePath, ratioX, ratioY) => {
+			log.info(`Request to desqueeze: ${filePath} (${ratioX}x${ratioY})`);
+
+			// Input Validation
+			if (typeof filePath !== "string" || filePath.trim() === "") {
+				log.error("Invalid filePath received");
+				return { success: false, error: "Invalid file path" };
+			}
+			if (typeof ratioX !== "number" || ratioX <= 0) {
+				log.error("Invalid ratioX received");
+				return { success: false, error: "Invalid horizontal ratio" };
+			}
+			if (typeof ratioY !== "number" || ratioY <= 0) {
+				log.error("Invalid ratioY received");
+				return { success: false, error: "Invalid vertical ratio" };
+			}
+
 			try {
 				const outputPath = await desqueeze(filePath, ratioX, ratioY);
+				log.info(`Desqueeze successful: ${outputPath}`);
 				return {
 					success: true,
 					originalFile: filePath,
 					outputFile: outputPath,
 				};
 			} catch (error) {
+				log.error(`Desqueeze failed for ${filePath}: ${error.message}`);
 				return {
 					success: false,
 					error: error.message,
@@ -102,6 +121,11 @@ export function registerIpcHandlers(win) {
 
 	// Expand dropped paths (handles both files and folders)
 	ipcMain.handle("expand-dropped-paths", async (event, paths) => {
+		if (!Array.isArray(paths)) {
+			log.error("expand-dropped-paths received non-array input");
+			return [];
+		}
+
 		const allFiles = [];
 		for (const droppedPath of paths) {
 			try {
@@ -120,7 +144,7 @@ export function registerIpcHandlers(win) {
 					allFiles.push(droppedPath);
 				}
 			} catch (err) {
-				console.error(`Error processing path ${droppedPath}:`, err);
+				log.error(`Error processing path ${droppedPath}: ${err.message}`);
 			}
 		}
 		return allFiles;
