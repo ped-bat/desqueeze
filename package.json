@@ -9,6 +9,7 @@
 		"electron-builder": "^26.0.12",
 		"electron-vite": "^5.0.0",
 		"exiftool-vendored": "^34.2.0",
+		"icc": "^3.0.0",
 		"tailwindcss": "^4.1.18",
 		"vite": "^7.3.0"
 	},

@@ -47,11 +47,15 @@ async function getValidatedRatios() {
 	}
 
 	if (ratioX === ratioY) {
-		await window.api.showErrorDialog(
-			"Invalid Ratios",
-			"Ratio X and Ratio Y cannot be the same value."
+		// Allow same ratio for testing (no stretch applied)
+		const proceed = confirm(
+			"Ratio X and Ratio Y are the same - no stretch will be applied.\n\n" +
+			"This is useful for testing the DNG conversion without stretching.\n\n" +
+			"Do you want to continue?"
 		);
-		return null;
+		if (!proceed) {
+			return null;
+		}
 	}
 
 	if (ratioX / ratioY > 2.5) {
