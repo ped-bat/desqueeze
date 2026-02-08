@@ -1,8 +1,8 @@
 /**
  * BitmapProcessor - Processes bitmap files through the desqueeze pipeline
  *
- * Pipeline (DNG):   Analyze → Flatten alpha → makedng → Metadata copy → DefaultScale → Cleanup
- * Pipeline (other): Analyze → Flatten alpha → Sharp pixel-stretch + export → Cleanup
+ * Pipeline (DNG):   Analyze → Flatten alpha (if RGBA) → makedng → Metadata copy → DefaultScale → Cleanup
+ * Pipeline (other): Analyze → Sharp pixel-stretch + export (Sharp handles alpha) → Cleanup
  */
 
 import log from "../logger.js";
@@ -62,12 +62,14 @@ class BitmapProcessor extends BaseProcessor {
 		const metadata = await analyzer.analyze();
 		analyzer.printSummary();
 
-		// Step 2: Pre-process alpha channel if needed (dnglab doesn't support RGBA)
+		// Step 2: Pre-process alpha channel if needed.
+		// dnglab makedng doesn't support RGBA, so we MUST flatten for DNG output.
+		// For other formats (JPG, WebP), Sharp handles flattening automatically during export.
 		let inputForDNG = filePath;
 		let alphaTemp = null;
 
-		if (metadata.hasAlpha) {
-			log.info("Image has alpha channel — converting to RGB...");
+		if (isDng && metadata.hasAlpha) {
+			log.info("Image has alpha channel — converting to RGB for DNG conversion...");
 			alphaTemp = getTempFilePath(".png");
 			await this._sharp.flattenAlpha(filePath, alphaTemp);
 			inputForDNG = alphaTemp;
@@ -79,7 +81,8 @@ class BitmapProcessor extends BaseProcessor {
 			if (isDng) {
 				return await this._produceDng(filePath, ext, inputForDNG, metadata, stretchFactor);
 			}
-			return await this._produceExport(filePath, ext, inputForDNG, metadata, stretchFactor, outputOpts);
+			// For non-DNG, we use the original filePath (Sharp handles alpha)
+			return await this._produceExport(filePath, ext, filePath, metadata, stretchFactor, outputOpts);
 		} finally {
 			if (alphaTemp) await safeUnlink(alphaTemp);
 		}

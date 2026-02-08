@@ -6,6 +6,7 @@
  */
 
 import path from "path";
+import PQueue from "p-queue";
 import log from "../logger.js";
 import { AppConfig } from "../config.js";
 import { validateFilePath, validateRatios } from "../utils/validation.js";
@@ -29,6 +30,9 @@ class DesqueezeProcessor {
 		this._bitmapProcessor = deps.bitmapProcessor || new BitmapProcessor({ dngOps });
 		this._dngOps = dngOps;
 		this._rawConverter = rawConverter;
+
+		// Centralized concurrency queue
+		this._queue = new PQueue({ concurrency: AppConfig.MAX_CONCURRENCY });
 	}
 
 	/**
@@ -62,7 +66,7 @@ class DesqueezeProcessor {
 	}
 
 	/**
-	 * Process a file through the desqueeze pipeline.
+	 * Process a file through the desqueeze pipeline (queued).
 	 *
 	 * @param {string} filePath - Input file path
 	 * @param {number} ratioX - Horizontal stretch ratio
@@ -75,18 +79,20 @@ class DesqueezeProcessor {
 		validateFilePath(filePath);
 		validateRatios(ratioX, ratioY);
 
-		const ext = path.extname(filePath).toLowerCase();
-		const outputOpts = this._buildOutputOpts(outputRaw);
+		return this._queue.add(async () => {
+			const ext = path.extname(filePath).toLowerCase();
+			const outputOpts = this._buildOutputOpts(outputRaw);
 
-		if (AppConfig.RAW_FORMATS.has(ext)) {
-			return this._rawProcessor.process(filePath, ext, ratioX, ratioY, outputOpts);
-		}
+			if (AppConfig.RAW_FORMATS.has(ext)) {
+				return this._rawProcessor.process(filePath, ext, ratioX, ratioY, outputOpts);
+			}
 
-		if (AppConfig.BITMAP_FORMATS.has(ext)) {
-			return this._bitmapProcessor.process(filePath, ext, ratioX, ratioY, outputOpts);
-		}
+			if (AppConfig.BITMAP_FORMATS.has(ext)) {
+				return this._bitmapProcessor.process(filePath, ext, ratioX, ratioY, outputOpts);
+			}
 
-		throw new Error(`File format "${ext}" is not supported.`);
+			throw new Error(`File format "${ext}" is not supported.`);
+		});
 	}
 }
 

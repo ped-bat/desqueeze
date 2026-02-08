@@ -7,7 +7,9 @@
  *   - dnglab    — RAW → DNG conversion
  *   - dcraw_emu — RAW → TIFF rendering (LibRaw)
  *
- * Usage: npm run setup
+ * Usage:
+ *   npm run setup            — copy missing binaries only
+ *   npm run setup -- --force — re-copy all binaries from system PATH
  */
 
 import fs from "fs";
@@ -20,6 +22,7 @@ const __dirname = path.dirname(__filename);
 
 const platform = process.platform;
 const binDir = path.join(__dirname, "resources", "bin", platform);
+const force = process.argv.includes("--force");
 
 // Create directory if it doesn't exist
 if (!fs.existsSync(binDir)) {
@@ -29,6 +32,7 @@ if (!fs.existsSync(binDir)) {
 
 /**
  * Find a binary in PATH and copy it to resources/bin/{platform}/.
+ * When --force is passed, always re-copies even if the binary already exists.
  *
  * @param {string} name - Binary name (e.g. "dnglab", "dcraw_emu")
  * @param {string} installHint - Instructions shown when the binary is missing
@@ -36,38 +40,58 @@ if (!fs.existsSync(binDir)) {
 function setupBinary(name, installHint) {
 	const binaryName = platform === "win32" ? `${name}.exe` : name;
 	const targetPath = path.join(binDir, binaryName);
+	const exists = fs.existsSync(targetPath);
 
 	console.log(`\n── ${name} ──`);
 
-	// Check if binary already exists in resources
-	if (fs.existsSync(targetPath)) {
+	// Skip copy if binary already exists and --force was not passed
+	if (exists && !force) {
 		const stats = fs.statSync(targetPath);
 		console.log(`✓ Already bundled at: ${targetPath}`);
 		console.log(`  Size: ${(stats.size / 1024 / 1024).toFixed(2)} MB`);
+		console.log(`  (run with --force to re-copy from system)`);
 		return;
 	}
 
 	// Try to find binary in PATH
 	const whichCmd = platform === "win32" ? "where" : "which";
-	try {
-		const systemPath = execSync(`${whichCmd} ${name}`, { encoding: "utf-8" }).trim();
-		console.log(`Found in PATH: ${systemPath}`);
 
-		fs.copyFileSync(systemPath, targetPath);
+	let systemPath;
+	try {
+		systemPath = execSync(`${whichCmd} ${name}`, { encoding: "utf-8" }).trim();
+	} catch {
+		console.error(`❌ ${name} not found in PATH`);
+		console.error(installHint);
+		return;
+	}
+
+	console.log(`Found in PATH: ${systemPath}`);
+
+	// Resolve symlinks so we copy the actual binary, not a dangling link
+	const resolvedPath = fs.realpathSync(systemPath);
+	if (resolvedPath !== systemPath) {
+		console.log(`  Resolved symlink → ${resolvedPath}`);
+	}
+
+	try {
+		// Remove existing file first to avoid EACCES on overwrite
+		if (exists) fs.unlinkSync(targetPath);
+		fs.copyFileSync(resolvedPath, targetPath);
 		fs.chmodSync(targetPath, 0o755);
 
 		const stats = fs.statSync(targetPath);
-		console.log(`✓ Copied to: ${targetPath}`);
+		const verb = exists ? "Updated" : "Copied";
+		console.log(`✓ ${verb}: ${targetPath}`);
 		console.log(`  Size: ${(stats.size / 1024 / 1024).toFixed(2)} MB`);
 	} catch (error) {
-		console.error(`❌ ${name} not found in PATH`);
-		console.error(installHint);
+		console.error(`❌ Failed to copy ${name}: ${error.message}`);
 	}
 }
 
 // ── Setup all binaries ─────────────────────────────────────
 
-console.log("Setting up binaries for packaging...");
+if (force) console.log("Setting up binaries (--force: re-copying all)...");
+else console.log("Setting up binaries for packaging...");
 
 setupBinary("dnglab", [
 	"\nPlease install dnglab first:",

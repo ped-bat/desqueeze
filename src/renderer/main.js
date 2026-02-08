@@ -250,13 +250,12 @@ async function getValidatedRatios() {
 // === File Processing ===
 
 async function processFiles(filePaths, ratioX, ratioY, skippedCount = 0) {
-	const limit = pLimit(CONFIG.MAX_CONCURRENCY);
 	const startTime = performance.now();
 	const outputOpts = getOutputOptions();
 	
 	const results = await Promise.all(
 		filePaths.map((fp) => 
-			limit(() => window.api.desqueezeFile(fp, ratioX, ratioY, outputOpts))
+			window.api.desqueezeFile(fp, ratioX, ratioY, outputOpts)
 		)
 	);
 	

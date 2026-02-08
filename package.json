@@ -9,13 +9,15 @@
 		"electron-builder": "^26.0.12",
 		"electron-vite": "^5.0.0",
 		"tailwindcss": "^4.1.18",
-		"vite": "^7.3.0"
+		"vite": "^7.3.0",
+		"vitest": "^4.0.18"
 	},
 	"scripts": {
 		"dev": "electron-vite dev",
 		"build": "electron-vite build",
 		"start": "electron-vite preview",
 		"setup": "node setup-binary.js",
+		"test": "node scripts/check-binaries.js && vitest run",
 		"pack": "electron-vite build && electron-builder --dir",
 		"dist": "electron-vite build && electron-builder"
 	},
@@ -49,6 +51,7 @@
 		"electron-log": "^5.1.2",
 		"exiftool-vendored": "^34.2.0",
 		"icc": "^3.0.0",
+		"p-queue": "^9.1.0",
 		"sharp": "^0.34.5"
 	}
 }

@@ -33,3 +33,4 @@ npm-debug.log*
 # Test DNG output artifacts (generated, not source)
 makedng-tests-good/
 makedng-whitepoint-tests/
+tests/fixtures/desqueezed/
