@@ -1,2 +1,38 @@
 @import "tailwindcss";
-@plugin "daisyui";
+@plugin "daisyui" {
+	logs: false;
+}
+
+html,
+body,
+[data-theme] {
+	background: rgba(0, 0, 0, 0.45) !important;
+}
+
+/* Hide scrollbars */
+::-webkit-scrollbar {
+	display: none;
+}
+
+body {
+	overflow-y: auto;
+}
+
+/* Draggable title bar area */
+.titlebar-drag {
+	-webkit-app-region: drag;
+	height: 48px;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 50;
+}
+
+/* Prevent buttons/inputs inside titlebar from being draggable */
+.titlebar-drag button,
+.titlebar-drag input,
+.titlebar-drag select,
+.titlebar-drag a {
+	-webkit-app-region: no-drag;
+}

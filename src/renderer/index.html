@@ -10,7 +10,8 @@
 		<title>Desqueeze app</title>
 		<link rel="stylesheet" href="./styles.css" />
 	</head>
-	<body class="min-h-screen p-8">
+	<body class="min-h-screen p-8 pt-14">
+		<div class="titlebar-drag"></div>
 		<h1 class="text-3xl font-bold mb-6">Desqueeze</h1>
 		<div class="flex gap-5 mb-5">
 			<div class="form-control w-28">
@@ -161,12 +162,6 @@
 					checked
 				/>
 				<span class="label-text">Play sounds</span>
-			</label>
-		</div>
-		<div class="form-control mt-2">
-			<label class="label cursor-pointer justify-start gap-3">
-				<input type="checkbox" id="theme-toggle" class="toggle" />
-				<span class="label-text">Light mode</span>
 			</label>
 		</div>
 		<div id="metadata-display" class="mt-6"></div>

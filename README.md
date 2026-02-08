@@ -36,13 +36,21 @@ Common anamorphic squeeze factors:
 - **Color-accurate** — dual-illuminant DNG profiles for proper D65↔D50 chromatic adaptation
 - **Cross-platform** — macOS, Windows, and Linux
 
+<!-- BEGIN:RAW_FORMATS -->
 ### Supported RAW Formats
 
 `.3fr` `.ari` `.arw` `.cr2` `.cr3` `.crw` `.dcr` `.dcs` `.dng` `.erf` `.iiq` `.kdc` `.mef` `.mos` `.mrw` `.nef` `.nrw` `.orf` `.pef` `.raf` `.raw` `.rw2` `.sr2` `.srf` `.srw`
+<!-- END:RAW_FORMATS -->
 
 ### Supported Bitmap Formats
 
 `.jpg` `.jpeg` `.png` `.tif` `.tiff` `.webp`
+
+<!-- BEGIN:SUPPORTED_CAMERAS -->
+### Supported Cameras
+
+825 cameras from 32 manufacturers — see [cameras.json](resources/cameras.json) for the full list.
+<!-- END:SUPPORTED_CAMERAS -->
 
 ---
 

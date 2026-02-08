@@ -6,7 +6,8 @@
  */
 
 import path from "path";
-import PQueue from "p-queue";
+import PQueueModule from "p-queue";
+const PQueue = PQueueModule.default || PQueueModule;
 import log from "../logger.js";
 import { AppConfig } from "../config.js";
 import { validateFilePath, validateRatios } from "../utils/validation.js";

@@ -31,11 +31,13 @@ class AppManager {
 	 */
 	createWindow() {
 		this._win = new BrowserWindow({
-			frame: true,
-			width: 800,
-			height: 800,
+			width: 1120,
+			height: 720,
 			center: true,
-			backgroundColor: "#000000",
+			titleBarStyle: "hiddenInset",
+			trafficLightPosition: { x: 16, y: 16 },
+			vibrancy: "under-window",
+			visualEffectState: "active",
 			show: false,
 			webPreferences: {
 				preload: path.join(__dirname, "../preload/index.js"),

@@ -414,12 +414,6 @@ function initDropZone() {
 
 document.addEventListener("DOMContentLoaded", () => {
 	initToggle("sound-toggle", "soundEnabled", true);
-	initToggle("theme-toggle", "theme", false, (isLight) => {
-		document.documentElement.setAttribute(
-			"data-theme",
-			isLight ? "light" : "dark"
-		);
-	});
 	initRatioInput("ratio-x", "ratioX", CONFIG.DEFAULT_RATIO_X);
 	initRatioInput("ratio-y", "ratioY", CONFIG.DEFAULT_RATIO_Y);
 	initOutputFormat();

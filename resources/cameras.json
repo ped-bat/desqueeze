@@ -1,0 +1,5777 @@
+[
+	{
+		"make": "ARRI",
+		"model": "A-MINI",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "ARRI",
+		"model": "ALEXA",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "ARRI",
+		"model": "ALEXA65",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "ARRI",
+		"model": "ALEXALF",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Apple",
+		"model": "QuickTake 100",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Apple",
+		"model": "QuickTake 150",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 1000D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 100D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 10D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 1100D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 1200D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 1300D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 2000D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 200D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 20D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 250D",
+		"formats": "craw, raw",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 3000D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 300D DIGITAL",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 30D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 350D DIGITAL",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 350D Digital",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 4000D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 400D DIGITAL",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 40D",
+		"formats": "sRaw2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 450D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 500D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 50D",
+		"formats": "sRaw1, sRaw2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 550D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 5D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 5D Mark II",
+		"formats": "sRaw1, sRaw2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 5D Mark III",
+		"formats": "sRaw1, sRaw2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 5D Mark IV",
+		"formats": "sRaw1, sRaw2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 5DS",
+		"formats": "sRaw1, sRaw2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 5DS R",
+		"formats": "sRaw1, sRaw2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 600D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 60D",
+		"formats": "sRaw1, sRaw2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 650D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 6D",
+		"formats": "sRaw1, sRaw2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 6D Mark II",
+		"formats": "sRaw1, sRaw2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 700D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 70D",
+		"formats": "sRaw1, sRaw2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 750D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 760D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 77D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 7D",
+		"formats": "sRaw1, sRaw2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 7D Mark II",
+		"formats": "sRaw1, sRaw2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 8000D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 800D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 80D",
+		"formats": "sRaw1, sRaw2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 850D",
+		"formats": "craw, raw",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 90D",
+		"formats": "craw, raw",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS D30",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS D60",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS DIGITAL REBEL",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS DIGITAL REBEL SL1",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS DIGITAL REBEL T1i",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS DIGITAL REBEL T2i",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS DIGITAL REBEL T3",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS DIGITAL REBEL T3i",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS DIGITAL REBEL T4i",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS DIGITAL REBEL T5",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS DIGITAL REBEL T5i",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS DIGITAL REBEL T6",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS DIGITAL REBEL T6i",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS DIGITAL REBEL T6s",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS DIGITAL REBEL XS",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS DIGITAL REBEL XSi",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS DIGITAL REBEL XT",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS DIGITAL REBEL XTi",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS KISS M",
+		"formats": "craw, raw",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Kiss",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Kiss Digital",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Kiss Digital F",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Kiss Digital N",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Kiss Digital X",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Kiss Digital X2",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Kiss Digital X3",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Kiss Digital X4",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Kiss Digital X5",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Kiss Digital X50",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Kiss Digital X6i",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Kiss Digital X7",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Kiss Digital X70",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Kiss Digital X7i",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Kiss Digital X80",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Kiss Digital X8i",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Kiss F",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Kiss N",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Kiss X",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Kiss X2",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Kiss X3",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Kiss X4",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Kiss X5",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Kiss X50",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Kiss X6i",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Kiss X7",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Kiss X70",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Kiss X7i",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Kiss X80",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Kiss X8i",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Kiss X9",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS M",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS M10",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS M100",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS M2",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS M200",
+		"formats": "craw, raw",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS M3",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS M5",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS M50",
+		"formats": "craw, raw",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS M50m2",
+		"formats": "craw, raw",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS M6",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS M6 Mark II",
+		"formats": "craw, raw",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS R",
+		"formats": "craw, raw",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS R10",
+		"formats": "craw, raw",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS R100",
+		"formats": "craw, raw",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS R3",
+		"formats": "craw, raw",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS R50",
+		"formats": "craw, raw",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS R6",
+		"formats": "craw, raw",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS R6m2",
+		"formats": "craw, raw",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS R7",
+		"formats": "craw, raw",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS R8",
+		"formats": "craw, raw",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS REBEL",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS REBEL SL1",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS REBEL T1i",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS REBEL T2i",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS REBEL T3",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS REBEL T3i",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS REBEL T4i",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS REBEL T5",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS REBEL T5i",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS REBEL T6",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS REBEL T6i",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS REBEL T7",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS REBEL T7i",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS REBEL XS",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS REBEL XSi",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS REBEL XT",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS REBEL XTi",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS RP",
+		"formats": "craw, raw",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Rebel SL2",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Rebel SL3",
+		"formats": "craw, raw",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Rebel T100",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Rebel T6",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Rebel T6i",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Rebel T6s",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Rebel T7",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Rebel T7i",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Rebel T8i",
+		"formats": "craw, raw",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS-1D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS-1D Mark II",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS-1D Mark II N",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS-1D Mark III",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS-1D Mark IV",
+		"formats": "sRaw1, sRaw2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS-1D X",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS-1D X Mark II",
+		"formats": "sRaw1, sRaw2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS-1D X Mark III",
+		"formats": "craw, crm, raw",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS-1DS",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS-1Ds Mark II",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS-1Ds Mark III",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon IXY 220F",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot D10",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot G1",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot G1 X",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot G1 X Mark II",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot G1 X Mark III",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot G10",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot G11",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot G12",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot G15",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot G16",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot G2",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot G3",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot G3 X",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot G5",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot G5 X",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot G5 X Mark II",
+		"formats": "craw, raw",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot G6",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot G7 X",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot G7 X CRW",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot G7 X Mark II",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot G7 X Mark III",
+		"formats": "craw, raw",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot G9",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot G9 X",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot G9 X Mark II",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot Pro1",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot S100",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot S100 CRW",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot S100V",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot S110",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot S120",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot S2 IS",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot S30",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot S40",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot S45",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot S50",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot S60",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot S70",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot S90",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot S95",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot SX1 IS",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot SX150 IS",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot SX220 HS",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot SX260 HS",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot SX40 HS",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot SX50 HS",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot SX60 HS",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot SX70 HS",
+		"formats": "craw, raw",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot SX710 HS",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "EOS D2000C",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "PowerShot A3300 IS",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "PowerShot A610",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "PowerShot A620",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "PowerShot A630",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "PowerShot A640",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "PowerShot A650",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "PowerShot A720 IS",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "PowerShot S3 IS",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "PowerShot SX110 IS",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "EASTMAN KODAK COMPANY",
+		"model": "KODAK EASYSHARE Z1015 IS DIGITAL CAMERA",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "EASTMAN KODAK COMPANY",
+		"model": "KODAK EasyShare Z981 Digital Camera",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "EASTMAN KODAK COMPANY",
+		"model": "KODAK EasyShare Z990 Digital Camera",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "EASTMAN KODAK COMPANY",
+		"model": "KODAK P712 ZOOM DIGITAL CAMERA",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "EASTMAN KODAK COMPANY",
+		"model": "KODAK P880 ZOOM DIGITAL CAMERA",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Eastman Kodak Company",
+		"model": "Kodak DC120 ZOOM Digital Camera",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Eastman Kodak Company",
+		"model": "Kodak Digital Science DC50 Zoom Camera",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "DBP for GX680",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "FinePix E550",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "FinePix E900",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "FinePix F550EXR",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "FinePix F600EXR",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "FinePix F700",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "FinePix F770EXR",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "FinePix F900EXR",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "FinePix HS10 HS11",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "FinePix HS20EXR",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "FinePix HS30EXR",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "FinePix HS33EXR",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "FinePix HS50EXR",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "FinePix S1",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "FinePix S100FS",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "FinePix S200EXR",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "FinePix S3Pro",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "FinePix S5000",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "FinePix S5200",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "FinePix S5500",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "FinePix S5600",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "FinePix S5Pro",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "FinePix S6500fd",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "FinePix S7000",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "FinePix S9500",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "FinePix S9600",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "FinePix SL1000",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "FinePix X100",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "FinePixS2Pro",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "GFX 100",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "GFX 50R",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "GFX 50S",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "GFX100 II",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "GFX100RF",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "GFX100S",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "GFX100S II",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "GFX50S II",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-A1",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-A10",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-A2",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-A3",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-A5",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-A7",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-E1",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-E2",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-E2S",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-E3",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-E4",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-E5",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-H1",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-H2",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-H2S",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-M1",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-M5",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-Pro1",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-Pro2",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-Pro3",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-S1",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-S10",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-S20",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-T1",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-T10",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-T100",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-T2",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-T20",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-T200",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-T3",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-T30",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-T30 II",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-T4",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-T5",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-T50",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X10",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X100F",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X100S",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X100T",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X100V",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X100VI",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X20",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X30",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X70",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "XF1",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "XF10",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "XQ1",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "XQ2",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Hasselblad",
+		"model": "CFV 100C/907X",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Hasselblad",
+		"model": "Hasselblad 500 mech.",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Hasselblad",
+		"model": "Hasselblad CFV 100C",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Hasselblad",
+		"model": "Hasselblad CFV-50",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Hasselblad",
+		"model": "Hasselblad H3D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Hasselblad",
+		"model": "Hasselblad H4D-40",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Hasselblad",
+		"model": "Hasselblad H4D-50",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Hasselblad",
+		"model": "Hasselblad H5D-40",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Hasselblad",
+		"model": "Hasselblad H5D-50c",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Hasselblad",
+		"model": "Hasselblad H6D-100cMS",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Hasselblad",
+		"model": "Hasselblad X1D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Hasselblad",
+		"model": "Hasselblad X2D 100C",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Hasselblad",
+		"model": "X1D II 50C",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Hasselblad",
+		"model": "X2D 100C",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "KONICA MINOLTA",
+		"model": "ALPHA-7 DIGITAL",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "KONICA MINOLTA",
+		"model": "DYNAX 7D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "KONICA MINOLTA",
+		"model": "DiMAGE A200",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "KONICA MINOLTA",
+		"model": "MAXXUM 7D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Kodak",
+		"model": "DCS Pro 14N",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Kodak",
+		"model": "DCS Pro 14nx",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Kodak",
+		"model": "DCS Pro SLR/c",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Kodak",
+		"model": "DCS Pro SLR/n",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Kodak",
+		"model": "DCS560C",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Kodak",
+		"model": "DCS760C",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Konica Minolta Camera, Inc.",
+		"model": "DiMAGE A2",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Konica Minolta Photo Imaging, Inc.",
+		"model": "DiMAGE G600",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "LEICA",
+		"model": "C (Typ 112)",
+		"formats": "3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "LEICA",
+		"model": "D-LUX (Typ 109)",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "LEICA",
+		"model": "D-LUX 3",
+		"formats": "16:9",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "LEICA",
+		"model": "D-LUX 4",
+		"formats": "3:2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "LEICA",
+		"model": "D-LUX 5",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "LEICA",
+		"model": "DIGILUX 2",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "LEICA",
+		"model": "DIGILUX 3",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "LEICA",
+		"model": "V-LUX (Typ 114)",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "LEICA",
+		"model": "V-LUX 1",
+		"formats": "3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "LEICA",
+		"model": "V-LUX 4",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "LEICA CAMERA AG",
+		"model": "C-Lux",
+		"formats": "3:2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "LEICA CAMERA AG",
+		"model": "D-Lux 7",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "LEICA CAMERA AG",
+		"model": "V-Lux 5",
+		"formats": "3:2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Leaf",
+		"model": "Credo 40",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Leaf",
+		"model": "Credo 50",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Leaf",
+		"model": "Credo 60",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Leaf",
+		"model": "Credo 80",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Leaf",
+		"model": "Leaf Aptus 22",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Leaf",
+		"model": "Leaf Aptus 75",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Mamiya-OP Co.,Ltd.",
+		"model": "MAMIYA ZD",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Minolta Co., Ltd.",
+		"model": "DiMAGE 7",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Minolta Co., Ltd.",
+		"model": "DiMAGE 7Hi",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Minolta Co., Ltd.",
+		"model": "DiMAGE 7i",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Minolta Co., Ltd.",
+		"model": "DiMAGE A1",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON",
+		"model": "COOLPIX B700",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON",
+		"model": "COOLPIX P330",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON",
+		"model": "COOLPIX P340",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON",
+		"model": "COOLPIX P6000",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON",
+		"model": "COOLPIX P7000",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON",
+		"model": "COOLPIX P7100",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON",
+		"model": "COOLPIX P7800",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON",
+		"model": "E5400",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON",
+		"model": "E5700",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON",
+		"model": "E8400",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON",
+		"model": "E8800",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "COOLPIX A",
+		"formats": "14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "COOLPIX A1000",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "COOLPIX P1000",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "COOLPIX P950",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON 1 AW1",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON 1 J1",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON 1 J2",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON 1 J3",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON 1 J5",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON 1 S2",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON 1 V1",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON 1 V2",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON 1 V3",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D1",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D100",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D1X",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D200",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D2H",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D2Hs",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D2X",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D2Xs",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D3",
+		"formats": "12bit, 14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D300",
+		"formats": "12bit, 14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D3000",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D300S",
+		"formats": "12bit, 14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D3100",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D3200",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D3300",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D3400",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D3500",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D3S",
+		"formats": "12bit, 14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D3X",
+		"formats": "14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D4",
+		"formats": "12bit, 14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D40",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D40X",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D4S",
+		"formats": "12bit, 14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D5",
+		"formats": "14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D50",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D500",
+		"formats": "12bit, 14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D5000",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D5100",
+		"formats": "14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D5200",
+		"formats": "14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D5300",
+		"formats": "12bit, 14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D5500",
+		"formats": "12bit, 14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D5600",
+		"formats": "12bit, 14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D6",
+		"formats": "12bit, 14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D60",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D600",
+		"formats": "12bit, 14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D610",
+		"formats": "12bit, 14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D70",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D700",
+		"formats": "12bit, 14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D7000",
+		"formats": "12bit, 14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D70s",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D7100",
+		"formats": "12bit, 14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D7200",
+		"formats": "12bit, 14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D750",
+		"formats": "12bit, 14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D7500",
+		"formats": "12bit, 14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D780",
+		"formats": "12bit, 14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D80",
+		"formats": "12bit, 16bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D800",
+		"formats": "12bit, 14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D800E",
+		"formats": "12bit, 14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D810",
+		"formats": "12bit, 14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D850",
+		"formats": "12bit, 14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON D90",
+		"formats": "12bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON Df",
+		"formats": "12bit, 14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON Z 30",
+		"formats": "12bit, 14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON Z 5",
+		"formats": "12bit, 14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON Z 50",
+		"formats": "12bit, 14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON Z 6",
+		"formats": "12bit, 14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON Z 6_2",
+		"formats": "12bit, 14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON Z 7",
+		"formats": "12bit, 14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON Z 7_2",
+		"formats": "12bit, 14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON Z 8",
+		"formats": "14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON Z 9",
+		"formats": "12bit, 14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON Z f",
+		"formats": "14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON Z fc",
+		"formats": "12bit, 14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON Z50_2",
+		"formats": "14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON Z5_2",
+		"formats": "14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON Z6_3",
+		"formats": "14bit",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS CORPORATION",
+		"model": "C5060WZ",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS CORPORATION",
+		"model": "C8080WZ",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS CORPORATION",
+		"model": "E-1",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS CORPORATION",
+		"model": "E-M10 Mark III",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS CORPORATION",
+		"model": "E-M10MarkII",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS CORPORATION",
+		"model": "E-M10MarkIIIS",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS CORPORATION",
+		"model": "E-M10MarkIV",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS CORPORATION",
+		"model": "E-M1MarkII",
+		"formats": "highres",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS CORPORATION",
+		"model": "E-M1MarkIII",
+		"formats": "highres",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS CORPORATION",
+		"model": "E-M1X",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS CORPORATION",
+		"model": "E-M5MarkIII",
+		"formats": "highres",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS CORPORATION",
+		"model": "E-PL10",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS CORPORATION",
+		"model": "E-PL8",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS CORPORATION",
+		"model": "E-PL9",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS CORPORATION",
+		"model": "PEN-F",
+		"formats": "highres",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS CORPORATION",
+		"model": "TG-4",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS CORPORATION",
+		"model": "TG-5",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS CORPORATION",
+		"model": "TG-6",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "C7070WZ",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "E-3",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "E-30",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "E-300",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "E-330",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "E-400",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "E-410",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "E-420",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "E-450",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "E-5",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "E-500",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "E-510",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "E-520",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "E-600",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "E-620",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "E-M1",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "E-M10",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "E-M5",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "E-M5MarkII",
+		"formats": "highres",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "E-P1",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "E-P2",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "E-P3",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "E-P5",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "E-PL1",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "E-PL2",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "E-PL3",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "E-PL5",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "E-PL6",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "E-PL7",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "E-PM1",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "E-PM2",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "SH-2",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "SP320",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "SP350",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "SP500UZ",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "SP510UZ",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "SP565UZ",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "SP570UZ",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "STYLUS1",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "STYLUS1,1s",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "XZ-1",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "XZ-10",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "XZ-2",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS OPTICAL CO.,LTD",
+		"model": "C5050Z",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS OPTICAL CO.,LTD",
+		"model": "E-10",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OLYMPUS OPTICAL CO.,LTD",
+		"model": "E-20,E-20N,E-20P",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OM Digital Solutions",
+		"model": "OM-1",
+		"formats": "highres",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OM Digital Solutions",
+		"model": "OM-1MarkII",
+		"formats": "highres",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OM Digital Solutions",
+		"model": "OM-3",
+		"formats": "highres",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OM Digital Solutions",
+		"model": "OM-5",
+		"formats": "highres",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "OM Digital Solutions",
+		"model": "TG-7",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "PENTAX",
+		"model": "PENTAX 645D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "PENTAX",
+		"model": "PENTAX K-5",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "PENTAX",
+		"model": "PENTAX K-5 II",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "PENTAX",
+		"model": "PENTAX K-5 II s",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "PENTAX",
+		"model": "PENTAX K-7",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "PENTAX",
+		"model": "PENTAX K-m",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "PENTAX",
+		"model": "PENTAX K-r",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "PENTAX",
+		"model": "PENTAX K-x",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "PENTAX",
+		"model": "PENTAX K200D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "PENTAX",
+		"model": "PENTAX K20D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "PENTAX Corporation",
+		"model": "PENTAX *ist D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "PENTAX Corporation",
+		"model": "PENTAX *ist DL",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "PENTAX Corporation",
+		"model": "PENTAX *ist DL2",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "PENTAX Corporation",
+		"model": "PENTAX *ist DS",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "PENTAX Corporation",
+		"model": "PENTAX K100D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "PENTAX Corporation",
+		"model": "PENTAX K100D Super",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "PENTAX Corporation",
+		"model": "PENTAX K10D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "PENTAX Corporation",
+		"model": "PENTAX K110D",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-FZ10002",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-FZ45",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-FZ80",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-FZ82",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-G100",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-G110",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-G9",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-G90",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-G91",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-G95",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-G9M2",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-GF10",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-GH5",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-GH5M2",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-GH5S",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-GH6",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-GH7",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-GX7MK3",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-GX800",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-GX850",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-GX880",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-GX9",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-LX100M2",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-S1",
+		"formats": "3:2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-S1H",
+		"formats": "3:2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-S1R",
+		"formats": "3:2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-S1RM2",
+		"formats": "3:2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-S5",
+		"formats": "3:2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-S5M2",
+		"formats": "3:2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-S5M2X",
+		"formats": "3:2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-S9",
+		"formats": "3:2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-TZ200",
+		"formats": "3:2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-TZ200D",
+		"formats": "3:2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-TZ202",
+		"formats": "3:2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-TZ202D",
+		"formats": "3:2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-TZ220",
+		"formats": "3:2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-TZ220D",
+		"formats": "3:2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-TZ90",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-TZ91",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-TZ95",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-TZ95D",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-TZ96",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-ZS200",
+		"formats": "3:2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-ZS200D",
+		"formats": "3:2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-ZS220",
+		"formats": "3:2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-ZS220D",
+		"formats": "3:2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-ZS80",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-CM1",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-FX150",
+		"formats": "16:9, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-FZ100",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-FZ1000",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-FZ10002",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-FZ150",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-FZ18",
+		"formats": "16:9, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-FZ200",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-FZ2000",
+		"formats": "3:2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-FZ2500",
+		"formats": "3:2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-FZ28",
+		"formats": "16:9, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-FZ30",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-FZ300",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-FZ330",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-FZ35",
+		"formats": "16:9, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-FZ38",
+		"formats": "16:9, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-FZ45",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-FZ50",
+		"formats": "16:9, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-FZ70",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-FZ72",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-FZ8",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-G1",
+		"formats": "16:9, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-G10",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-G2",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-G3",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-G5",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-G6",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-G7",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-G70",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-G80",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-G81",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-G85",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-GF1",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-GF2",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-GF3",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-GF5",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-GF6",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-GF7",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-GF8",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-GH1",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-GH2",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-GH3",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-GH4",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-GM1",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-GM1S",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-GM5",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-GX1",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-GX7",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-GX7MK2",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-GX8",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-GX80",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-GX85",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-L1",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-L10",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-LF1",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-LX1",
+		"formats": "16:9",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-LX10",
+		"formats": "3:2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-LX100",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-LX15",
+		"formats": "3:2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-LX2",
+		"formats": "16:9",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-LX3",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-LX5",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-LX7",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-TX1",
+		"formats": "3:2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-TZ100",
+		"formats": "3:2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-TZ101",
+		"formats": "3:2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-TZ110",
+		"formats": "3:2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-TZ60",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-TZ61",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-TZ70",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-TZ71",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-TZ80",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-TZ81",
+		"formats": "4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-ZS100",
+		"formats": "3:2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-ZS110",
+		"formats": "3:2",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-ZS40",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-ZS50",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Panasonic",
+		"model": "DMC-ZS60",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Phase One",
+		"model": "IQ4 150MP",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Phase One",
+		"model": "iXM-100",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Phase One",
+		"model": "iXM-RS150F",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Phase One A/S",
+		"model": "H 25",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Phase One A/S",
+		"model": "IQ140",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Phase One A/S",
+		"model": "IQ150",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Phase One A/S",
+		"model": "IQ180",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Phase One A/S",
+		"model": "IQ3 100MP",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Phase One A/S",
+		"model": "IQ3 100MP Trichr",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Phase One A/S",
+		"model": "P20+",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Phase One A/S",
+		"model": "P25",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Phase One A/S",
+		"model": "P25+",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Phase One A/S",
+		"model": "P30",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Phase One A/S",
+		"model": "P45",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Phase One A/S",
+		"model": "P45+",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Phase One A/S",
+		"model": "P65+",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Phase One A/S",
+		"model": "iXU-RS1000 NIR",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Phase One A/S",
+		"model": "iXU180",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "RICOH IMAGING COMPANY, LTD.",
+		"model": "PENTAX 645Z",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "RICOH IMAGING COMPANY, LTD.",
+		"model": "PENTAX K-1",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "RICOH IMAGING COMPANY, LTD.",
+		"model": "PENTAX K-1 Mark II",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "RICOH IMAGING COMPANY, LTD.",
+		"model": "PENTAX K-3",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "RICOH IMAGING COMPANY, LTD.",
+		"model": "PENTAX K-3 II",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "RICOH IMAGING COMPANY, LTD.",
+		"model": "PENTAX K-3 Mark III",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "RICOH IMAGING COMPANY, LTD.",
+		"model": "PENTAX K-3 Mark III Monochrome",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "RICOH IMAGING COMPANY, LTD.",
+		"model": "PENTAX K-70",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "RICOH IMAGING COMPANY, LTD.",
+		"model": "PENTAX K-S1",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "RICOH IMAGING COMPANY, LTD.",
+		"model": "PENTAX K-S2",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "RICOH IMAGING COMPANY, LTD.",
+		"model": "PENTAX KF",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "RICOH IMAGING COMPANY, LTD.",
+		"model": "PENTAX KP",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SAMSUNG",
+		"model": "EX1",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SAMSUNG",
+		"model": "EX2F",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SAMSUNG",
+		"model": "NX mini",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SAMSUNG",
+		"model": "NX1",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SAMSUNG",
+		"model": "NX100",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SAMSUNG",
+		"model": "NX1000",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SAMSUNG",
+		"model": "NX1100",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SAMSUNG",
+		"model": "NX20",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SAMSUNG",
+		"model": "NX200",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SAMSUNG",
+		"model": "NX2000",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SAMSUNG",
+		"model": "NX210",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SAMSUNG",
+		"model": "NX30",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SAMSUNG",
+		"model": "NX300",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SAMSUNG",
+		"model": "NX3000",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SAMSUNG",
+		"model": "NX300M",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SAMSUNG",
+		"model": "NX3300",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SAMSUNG",
+		"model": "NX500",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SAMSUNG",
+		"model": "WB2000",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SEIKO EPSON CORP.",
+		"model": "R-D1",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SEIKO EPSON CORP.",
+		"model": "R-D1s",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SEIKO EPSON CORP.",
+		"model": "R-D1x",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSC-F828",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSC-HX95",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSC-HX99",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSC-R1",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSC-RX0",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSC-RX0M2",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSC-RX1",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSC-RX10",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSC-RX100",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSC-RX100M2",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSC-RX100M3",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSC-RX100M4",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSC-RX100M5",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSC-RX100M5A",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSC-RX100M6",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSC-RX100M7",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSC-RX100M7A",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSC-RX10M2",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSC-RX10M3",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSC-RX10M4",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSC-RX1R",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSC-RX1RM2",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSLR-A100",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSLR-A200",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSLR-A230",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSLR-A290",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSLR-A300",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSLR-A330",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSLR-A350",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSLR-A380",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSLR-A390",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSLR-A450",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSLR-A500",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSLR-A550",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSLR-A560",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSLR-A580",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSLR-A700",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSLR-A850",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "DSLR-A900",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCA-68",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCA-77M2",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCA-99M2",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-1",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-3000",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-3500",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-5000",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-5100",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-6000",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-6001",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-6100",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-6300",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-6400",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-6500",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-6600",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-6700",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-7",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-7C",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-7CM2",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-7CR",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-7M2",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-7M3",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-7M4",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-7R",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-7RM2",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-7RM3",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-7RM3A",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-7RM4",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-7RM4A",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-7RM5",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-7S",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-7SM2",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-7SM3",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-9",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-9M2",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-9M3",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-QX1",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILME-FX3",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ILME-FX30",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "NEX-3",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "NEX-3N",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "NEX-5",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "NEX-5N",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "NEX-5R",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "NEX-5T",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "NEX-6",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "NEX-7",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "NEX-C3",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "NEX-F3",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "SLT-A33",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "SLT-A35",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "SLT-A37",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "SLT-A55",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "SLT-A55V",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "SLT-A57",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "SLT-A58",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "SLT-A65",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "SLT-A65V",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "SLT-A77",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "SLT-A77V",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "SLT-A99",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "SLT-A99V",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "UMC-R10C",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ZV-1",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ZV-E1",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ZV-E10",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "SONY",
+		"model": "ZV-E10M2",
+		"formats": "all",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.2"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS R5",
+		"formats": "craw, crm, raw",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.3"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS R5 C",
+		"formats": "craw, crm, raw",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.3"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS R5m2",
+		"formats": "craw, crm, raw",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.3"
+	},
+	{
+		"make": "KODAK",
+		"model": "DCS460D",
+		"formats": "FILE VERSION 3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.3"
+	},
+	{
+		"make": "KODAK",
+		"model": "EOSDCS1B",
+		"formats": "FILE VERSION 3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.3"
+	},
+	{
+		"make": "KODAK",
+		"model": "EOSDCS3C",
+		"formats": "FILE VERSION 3",
+		"dateAdded": "2026-02-08",
+		"version": "0.0.3"
+	}
+]

@@ -1,0 +1,38 @@
+{
+	"dnglab": {
+		"version": "0.7.1",
+		"repo": "dnglab/dnglab",
+		"binary": "dnglab",
+		"installHint": {
+			"darwin": "brew install dnglab"
+		},
+		"assets": {
+			"darwin-arm64": "dnglab-macos-arm64_v{{version}}.zip"
+		},
+		"versionCommand": "--version",
+		"versionParser": "split",
+		"systemVersionCommand": {
+			"darwin": "brew info --json=v2 dnglab | node -e \"process.stdin.on('data',d=>console.log(JSON.parse(d).formulae[0].versions.stable))\""
+		},
+		"systemUpgradeCommand": {
+			"darwin": "brew upgrade dnglab"
+		}
+	},
+	"libraw": {
+		"version": "0.22.0",
+		"repo": "LibRaw/LibRaw",
+		"binary": "dcraw_emu",
+		"installHint": {
+			"darwin": "brew install libraw"
+		},
+		"assets": null,
+		"versionCommand": null,
+		"versionParser": null,
+		"systemVersionCommand": {
+			"darwin": "brew info --json=v2 libraw | node -e \"process.stdin.on('data',d=>console.log(JSON.parse(d).formulae[0].versions.stable))\""
+		},
+		"systemUpgradeCommand": {
+			"darwin": "brew upgrade libraw"
+		}
+	}
+}

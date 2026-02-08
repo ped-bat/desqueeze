@@ -1,6 +1,7 @@
 {
 	"name": "desqueeze",
-	"version": "0.0.1",
+	"version": "0.0.3",
+	"type": "module",
 	"main": "out/main/index.js",
 	"devDependencies": {
 		"@tailwindcss/vite": "^4.1.18",
@@ -14,12 +15,10 @@
 	},
 	"scripts": {
 		"dev": "electron-vite dev",
-		"build": "electron-vite build",
-		"start": "electron-vite preview",
-		"setup": "node setup-binary.js",
 		"test": "node scripts/check-binaries.js && vitest run",
-		"pack": "electron-vite build && electron-builder --dir",
-		"dist": "electron-vite build && electron-builder"
+		"preview": "electron-vite preview",
+		"setup": "node scripts/setup-binaries.js",
+		"dist": "node scripts/dist.js"
 	},
 	"build": {
 		"appId": "com.desqueeze.app",
@@ -39,12 +38,6 @@
 		"mac": {
 			"target": "dmg",
 			"category": "public.app-category.photography"
-		},
-		"win": {
-			"target": "nsis"
-		},
-		"linux": {
-			"target": "AppImage"
 		}
 	},
 	"dependencies": {
