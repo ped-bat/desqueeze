@@ -40,6 +40,95 @@
 				/>
 			</div>
 		</div>
+
+		<!-- Output Format -->
+		<div class="flex flex-wrap gap-5 mb-5 items-end">
+			<div class="form-control w-40">
+				<label class="label" for="output-format">
+					<span class="label-text">Output format:</span>
+				</label>
+				<select id="output-format" class="select select-bordered w-full">
+					<option value="dng" selected>DNG</option>
+					<option value="jpg">JPEG</option>
+					<option value="png">PNG</option>
+					<option value="tiff">TIFF</option>
+					<option value="webp">WebP</option>
+				</select>
+			</div>
+
+			<!-- JPEG options -->
+			<div id="opts-jpg" class="format-opts hidden flex gap-4 items-end">
+				<div class="form-control w-40">
+					<label class="label" for="jpg-quality">
+						<span class="label-text">Quality: <span id="jpg-quality-val">95</span></span>
+					</label>
+					<input
+						type="range"
+						id="jpg-quality"
+						min="1"
+						max="100"
+						value="95"
+						class="range range-primary range-sm"
+					/>
+				</div>
+			</div>
+
+			<!-- PNG options -->
+			<div id="opts-png" class="format-opts hidden flex gap-4 items-end">
+				<div class="form-control w-48">
+					<label class="label" for="png-compression">
+						<span class="label-text">Compression: <span id="png-compression-val">2</span></span>
+					</label>
+					<input
+						type="range"
+						id="png-compression"
+						min="0"
+						max="9"
+						value="2"
+						class="range range-primary range-sm"
+					/>
+				</div>
+			</div>
+
+			<!-- TIFF options -->
+			<div id="opts-tiff" class="format-opts hidden flex gap-4 items-end">
+				<div class="form-control w-40">
+					<label class="label" for="tiff-compression">
+						<span class="label-text">Compression:</span>
+					</label>
+					<select id="tiff-compression" class="select select-bordered select-sm w-full">
+						<option value="lzw" selected>LZW</option>
+						<option value="deflate">Deflate</option>
+						<option value="none">None</option>
+					</select>
+				</div>
+			</div>
+
+			<!-- WebP options -->
+			<div id="opts-webp" class="format-opts hidden flex gap-4 items-end">
+				<div class="form-control w-40">
+					<label class="label" for="webp-quality">
+						<span class="label-text">Quality: <span id="webp-quality-val">90</span></span>
+					</label>
+					<input
+						type="range"
+						id="webp-quality"
+						min="1"
+						max="100"
+						value="90"
+						class="range range-primary range-sm"
+					/>
+				</div>
+				<div class="form-control">
+					<label class="label cursor-pointer gap-2">
+						<input type="checkbox" id="webp-lossless" class="toggle toggle-primary toggle-sm" />
+						<span class="label-text">Lossless codec</span>
+					</label>
+				</div>
+			</div>
+		</div>
+		<p id="format-hint" class="hidden text-xs opacity-50 mb-4 -mt-3">Non-DNG formats apply pixel resampling to bake the stretch into the image.</p>
+
 		<div
 			id="drop-zone"
 			class="mt-4 border-2 border-dashed border-base-content/20 rounded-lg p-8 text-center cursor-pointer hover:border-primary hover:bg-base-200 transition-colors"

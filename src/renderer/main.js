@@ -1,5 +1,15 @@
 // Desqueeze app - Renderer process
 
+// === Configuration (mirrors AppConfig values) ===
+const CONFIG = {
+	MAX_STRETCH_FACTOR: 5.0,
+	STRETCH_WARN_THRESHOLD: 3.0,
+	MAX_CONCURRENCY: 3,
+	DEFAULT_RATIO_X: "1.33",
+	DEFAULT_RATIO_Y: "1",
+	DEFAULT_OUTPUT_FORMAT: "dng",
+};
+
 // === Utils ===
 function pLimit(concurrency) {
 	const queue = [];
@@ -71,6 +81,124 @@ function initToggle(id, storageKey, defaultValue, onChange) {
 	});
 }
 
+// === Output Format ===
+
+/**
+ * Show/hide the format-specific option panels based on the selected format.
+ * @param {string} format - The selected format key
+ */
+function showFormatOptions(format) {
+	document.querySelectorAll(".format-opts").forEach((el) => el.classList.add("hidden"));
+	const panel = document.getElementById(`opts-${format}`);
+	if (panel) panel.classList.remove("hidden");
+
+	// Show/hide the hint about pixel resampling for non-DNG formats
+	const hint = document.getElementById("format-hint");
+	if (hint) hint.classList.toggle("hidden", format === "dng");
+}
+
+/**
+ * Wire a range slider to update its label text.
+ * @param {string} sliderId
+ * @param {string} labelId
+ */
+function linkSliderLabel(sliderId, labelId) {
+	const slider = document.getElementById(sliderId);
+	const label = document.getElementById(labelId);
+	if (!slider || !label) return;
+	slider.addEventListener("input", () => {
+		label.textContent = slider.value;
+	});
+}
+
+/**
+ * Initialise the output-format dropdown and format-specific controls.
+ * Restores persisted choices from localStorage.
+ */
+function initOutputFormat() {
+	const select = document.getElementById("output-format");
+	if (!select) return;
+
+	// Restore saved format
+	const savedFormat = localStorage.getItem("outputFormat") || CONFIG.DEFAULT_OUTPUT_FORMAT;
+	select.value = savedFormat;
+	showFormatOptions(savedFormat);
+
+	select.addEventListener("change", () => {
+		localStorage.setItem("outputFormat", select.value);
+		showFormatOptions(select.value);
+	});
+
+	// Wire slider labels
+	linkSliderLabel("jpg-quality", "jpg-quality-val");
+	linkSliderLabel("png-compression", "png-compression-val");
+	linkSliderLabel("webp-quality", "webp-quality-val");
+
+	// Restore saved per-format values
+	restoreFormatControl("jpg-quality", "jpgQuality", "95");
+	restoreFormatControl("png-compression", "pngCompression", "2");
+	restoreFormatControl("tiff-compression", "tiffCompression", "lzw");
+	restoreFormatControl("webp-quality", "webpQuality", "90");
+	restoreFormatToggle("webp-lossless", "webpLossless", false);
+}
+
+function restoreFormatControl(elementId, storageKey, defaultValue) {
+	const el = document.getElementById(elementId);
+	if (!el) return;
+	const saved = localStorage.getItem(storageKey);
+	el.value = saved ?? defaultValue;
+
+	// Update label if slider
+	const labelEl = document.getElementById(`${elementId}-val`);
+	if (labelEl) labelEl.textContent = el.value;
+
+	el.addEventListener("change", () => localStorage.setItem(storageKey, el.value));
+}
+
+function restoreFormatToggle(elementId, storageKey, defaultValue) {
+	const el = document.getElementById(elementId);
+	if (!el) return;
+	const saved = localStorage.getItem(storageKey);
+	el.checked = saved !== null ? saved === "true" : defaultValue;
+	el.addEventListener("change", () => localStorage.setItem(storageKey, String(el.checked)));
+}
+
+/**
+ * Collect the current output format + options from the UI.
+ * @returns {{ format: string, options: object }}
+ */
+function getOutputOptions() {
+	const format = document.getElementById("output-format")?.value || "dng";
+
+	switch (format) {
+		case "jpg":
+			return {
+				format,
+				options: { quality: parseInt(document.getElementById("jpg-quality")?.value || "95", 10) },
+			};
+		case "png":
+			return {
+				format,
+				options: { compressionLevel: parseInt(document.getElementById("png-compression")?.value || "2", 10) },
+			};
+		case "tiff":
+			return {
+				format,
+				options: { compression: document.getElementById("tiff-compression")?.value || "lzw" },
+			};
+		case "webp":
+			return {
+				format,
+				options: {
+					quality: parseInt(document.getElementById("webp-quality")?.value || "90", 10),
+					lossless: document.getElementById("webp-lossless")?.checked || false,
+				},
+			};
+		default:
+			return { format: "dng", options: {} };
+	}
+}
+
 // === Validation ===
 
 async function getValidatedRatios() {
@@ -97,17 +225,17 @@ async function getValidatedRatios() {
 		}
 	}
 
-	if (ratioX / ratioY > 5.0) {
+	if (ratioX / ratioY > CONFIG.MAX_STRETCH_FACTOR) {
 		await window.api.showErrorDialog(
 			"Stretch Factor Too High",
 			`The stretch factor (${(ratioX / ratioY).toFixed(
 				2
-			)}) exceeds the maximum of 5.0.`
+			)}) exceeds the maximum of ${CONFIG.MAX_STRETCH_FACTOR}.`
 		);
 		return null;
 	}
 
-	if (ratioX / ratioY > 3.0) {
+	if (ratioX / ratioY > CONFIG.STRETCH_WARN_THRESHOLD) {
 		const proceed = confirm(
 			`The stretch factor is quite high (${(ratioX / ratioY).toFixed(2)}).\n` +
 			"Typical anamorphic lenses are 2x or less.\n\n" +
@@ -122,12 +250,13 @@ async function getValidatedRatios() {
 // === File Processing ===
 
 async function processFiles(filePaths, ratioX, ratioY, skippedCount = 0) {
-	const limit = pLimit(3); // Process max 3 files at a time
+	const limit = pLimit(CONFIG.MAX_CONCURRENCY);
 	const startTime = performance.now();
+	const outputOpts = getOutputOptions();
 	
 	const results = await Promise.all(
 		filePaths.map((fp) => 
-			limit(() => window.api.desqueezeFile(fp, ratioX, ratioY))
+			limit(() => window.api.desqueezeFile(fp, ratioX, ratioY, outputOpts))
 		)
 	);
 	
@@ -292,7 +421,8 @@ document.addEventListener("DOMContentLoaded", () => {
 			isLight ? "light" : "dark"
 		);
 	});
-	initRatioInput("ratio-x", "ratioX", "1.33");
-	initRatioInput("ratio-y", "ratioY", "1");
+	initRatioInput("ratio-x", "ratioX", CONFIG.DEFAULT_RATIO_X);
+	initRatioInput("ratio-y", "ratioY", CONFIG.DEFAULT_RATIO_Y);
+	initOutputFormat();
 	initDropZone();
 });

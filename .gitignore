@@ -29,3 +29,7 @@ npm-debug.log*
 
 # Don't ignore the bundled binaries - we want to commit them
 !resources/bin/**/*
+
+# Test DNG output artifacts (generated, not source)
+makedng-tests-good/
+makedng-whitepoint-tests/

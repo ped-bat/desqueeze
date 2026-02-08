@@ -2,8 +2,8 @@ const { contextBridge, ipcRenderer, webUtils } = require("electron");
 
 contextBridge.exposeInMainWorld("api", {
 	selectImageFile: () => ipcRenderer.invoke("select-image-file"),
-	desqueezeFile: (filePath, ratioX, ratioY) =>
-		ipcRenderer.invoke("desqueeze-file", filePath, ratioX, ratioY),
+	desqueezeFile: (filePath, ratioX, ratioY, outputOpts) =>
+		ipcRenderer.invoke("desqueeze-file", filePath, ratioX, ratioY, outputOpts),
 	showErrorDialog: (title, message) =>
 		ipcRenderer.invoke("show-error-dialog", title, message),
 	getPathForFile: (file) => webUtils.getPathForFile(file),
