@@ -6,6 +6,7 @@
  */
 
 import { ipcMain } from "electron";
+import { AppConfig } from "../config.js";
 import { FileHandler } from "./file-handler.js";
 import { ProcessHandler } from "./process-handler.js";
 
@@ -23,6 +24,9 @@ class IpcRegistry {
 	 * Register all IPC handlers. Call this once after the window is created.
 	 */
 	register() {
+		// Renderer configuration (limits, defaults, output formats)
+		ipcMain.handle("get-config", () => AppConfig.RENDERER_CONFIG);
+
 		// File selection dialog
 		ipcMain.handle("select-image-file", () => {
 			return this._fileHandler.selectFiles();

@@ -52,8 +52,8 @@ class RawConverterService {
 	 * is responsible for cleaning it up when done.
 	 *
 	 * Bit depth is chosen automatically based on the target format:
-	 *   - TIFF/PNG → 16-bit (preserves dynamic range)
-	 *   - JPG/WebP → 8-bit  (target is 8-bit anyway, halves processing time)
+	 *   - TIFF     → 16-bit (preserves dynamic range)
+	 *   - JPG/PNG/WebP → 8-bit (targets are 8-bit anyway, halves processing time)
 	 *
 	 * @param {string} inputPath - Absolute path to the RAW file
 	 * @param {string} [targetFormat="jpg"] - Target output format (affects bit depth)

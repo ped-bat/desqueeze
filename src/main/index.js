@@ -50,8 +50,8 @@ class AppManager {
 			this._win.show();
 		});
 
-		// Load renderer (electron-vite handles dev vs prod)
-		if (process.env.NODE_ENV === "development") {
+		// Load renderer (electron-vite sets ELECTRON_RENDERER_URL in dev)
+		if (process.env.ELECTRON_RENDERER_URL) {
 			this._win.loadURL(process.env.ELECTRON_RENDERER_URL);
 			//this._win.webContents.openDevTools();
 		} else {

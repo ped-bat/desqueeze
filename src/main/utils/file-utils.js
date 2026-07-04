@@ -5,7 +5,19 @@
 import path from "path";
 import fs from "fs/promises";
 import os from "os";
+import crypto from "crypto";
 import log from "../logger.js";
+import { AppConfig } from "../config.js";
+
+/**
+ * Tracks which input file each output path was issued to, so that two
+ * different inputs (e.g. foo.jpg and foo.png exported to JPEG) never
+ * silently overwrite each other. Re-processing the same input reuses
+ * its path (overwrite is intentional there). Keys are lowercased because
+ * macOS filesystems are case-insensitive.
+ * @type {Map<string, string>} lowercased outputPath -> lowercased inputPath
+ */
+const outputClaims = new Map();
 
 /**
  * Create output directory and return the output file path.
@@ -16,23 +28,36 @@ import log from "../logger.js";
  */
 async function getOutputPath(filePath, ext, outputExt = ext) {
 	const dir = path.dirname(filePath);
-	const outputDir = path.join(dir, "desqueezed");
+	const outputDir = path.join(dir, AppConfig.OUTPUT_DIR_NAME);
 	await fs.mkdir(outputDir, { recursive: true });
 
 	// Use the actual extension from the filename (preserves original casing)
 	// so path.basename() can strip it correctly (it's case-sensitive)
 	const actualExt = path.extname(filePath);
 	const baseName = path.basename(filePath, actualExt);
-	return path.join(outputDir, `${baseName}-desqueezed${outputExt}`);
+
+	const inputKey = filePath.toLowerCase();
+	let candidate = path.join(outputDir, `${baseName}${AppConfig.OUTPUT_SUFFIX}${outputExt}`);
+	for (
+		let i = 1;
+		outputClaims.has(candidate.toLowerCase()) && outputClaims.get(candidate.toLowerCase()) !== inputKey;
+		i++
+	) {
+		candidate = path.join(outputDir, `${baseName}${AppConfig.OUTPUT_SUFFIX}-${i}${outputExt}`);
+	}
+	outputClaims.set(candidate.toLowerCase(), inputKey);
+	return candidate;
 }
 
 /**
- * Create a temporary file path in the OS temp directory.
+ * Create a unique temporary file path in the OS temp directory.
+ * The random suffix prevents collisions between concurrent jobs.
  * @param {string} [extension=".png"] - File extension
  * @returns {string} Temporary file path
  */
 function getTempFilePath(extension = ".png") {
-	return path.join(os.tmpdir(), `desqueeze-${Date.now()}${extension}`);
+	const unique = `${Date.now()}-${crypto.randomBytes(4).toString("hex")}`;
+	return path.join(os.tmpdir(), `desqueeze-${unique}${extension}`);
 }
 
 /**
@@ -49,26 +74,19 @@ async function safeUnlink(filePath) {
 }
 
 /**
- * Verify that a file exists at the given path.
- * @param {string} filePath - Path to check
- * @throws {Error} If file does not exist
+ * Check whether a path is the app's output directory or lives inside one.
+ * @param {string} somePath - File or directory path
+ * @returns {boolean}
  */
-async function verifyFileExists(filePath) {
-	try {
-		await fs.access(filePath);
-	} catch {
-		throw new Error(`File does not exist: ${filePath}`);
-	}
+function isInsideOutputDir(somePath) {
+	return somePath
+		.split(path.sep)
+		.some((part) => part.toLowerCase() === AppConfig.OUTPUT_DIR_NAME);
 }
 
 /**
- * Directories to skip when recursively scanning for files.
- * The "desqueezed" folder is the app's output directory and should never be re-processed.
- */
-const SKIP_DIRECTORIES = new Set(["desqueezed"]);
-
-/**
  * Recursively get all files in a directory matching the given extensions.
+ * The app's output directories ("desqueezed") are skipped.
  * @param {string} dirPath - Directory to scan
  * @param {Set<string>} extensions - Allowed extensions (e.g., new Set([".jpg", ".png"]))
  * @param {number} [maxDepth=20] - Maximum recursion depth to prevent infinite loops
@@ -87,7 +105,7 @@ async function getFilesFromDirectory(dirPath, extensions, maxDepth = 20) {
 		const fullPath = path.join(dirPath, entry.name);
 
 		if (entry.isDirectory()) {
-			if (SKIP_DIRECTORIES.has(entry.name.toLowerCase())) {
+			if (entry.name.toLowerCase() === AppConfig.OUTPUT_DIR_NAME) {
 				continue;
 			}
 			const subFiles = await getFilesFromDirectory(fullPath, extensions, maxDepth - 1);
@@ -107,6 +125,6 @@ export {
 	getOutputPath,
 	getTempFilePath,
 	safeUnlink,
-	verifyFileExists,
+	isInsideOutputDir,
 	getFilesFromDirectory,
 };

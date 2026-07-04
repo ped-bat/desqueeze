@@ -7,12 +7,11 @@
 
 import fs from "fs/promises";
 import log from "../logger.js";
-import { BaseProcessor } from "./base-processor.js";
 import { SharpService } from "../services/sharp-service.js";
 import { RawConverterService } from "../services/raw-converter.js";
-import { getTempFilePath, safeUnlink } from "../utils/file-utils.js";
+import { getOutputPath, safeUnlink } from "../utils/file-utils.js";
 
-class RawProcessor extends BaseProcessor {
+class RawProcessor {
 	/**
 	 * @param {Object} deps
 	 * @param {import("./dng-operations.js").DngOperations} deps.dngOps
@@ -20,7 +19,7 @@ class RawProcessor extends BaseProcessor {
 	 * @param {RawConverterService} [deps.rawConverter]
 	 */
 	constructor(deps) {
-		super(deps);
+		this._dngOps = deps.dngOps;
 		this._sharp = deps.sharpService || new SharpService();
 		this._rawConverter = deps.rawConverter || new RawConverterService();
 	}
@@ -33,22 +32,20 @@ class RawProcessor extends BaseProcessor {
 	 * @param {string} ext - File extension (lowercase, with dot)
 	 * @param {number} ratioX - Horizontal stretch ratio
 	 * @param {number} ratioY - Vertical stretch ratio
-	 * @param {import("./base-processor.js").OutputOptions} outputOpts
+	 * @param {import("./desqueeze-processor.js").OutputOptions} outputOpts
 	 * @returns {Promise<string>} Output file path
 	 */
 	async process(filePath, ext, ratioX, ratioY, outputOpts) {
-		const isDng = outputOpts.format === "dng";
-
-		if (isDng) {
+		if (outputOpts.format === "dng") {
 			return this._processDng(filePath, ext, ratioX, ratioY);
 		}
 
 		return this._processExport(filePath, ext, ratioX, ratioY, outputOpts);
 	}
 
-	/** DNG output — same as before */
+	/** DNG output — metadata-only desqueeze, no pixel resampling */
 	async _processDng(filePath, ext, ratioX, ratioY) {
-		const outputPath = await this._getOutputPath(filePath, ext, ".dng");
+		const outputPath = await getOutputPath(filePath, ext, ".dng");
 
 		if (ext !== ".dng") {
 			log.info("Converting RAW to DNG...");
@@ -72,11 +69,11 @@ class RawProcessor extends BaseProcessor {
 	 * Sharp handles the pixel stretch and format encoding.
 	 */
 	async _processExport(filePath, ext, ratioX, ratioY, outputOpts) {
-		const outputPath = await this._getOutputPath(filePath, ext, outputOpts.ext);
+		const outputPath = await getOutputPath(filePath, ext, outputOpts.ext);
 		const stretchFactor = ratioX / ratioY;
 
 		// Step 1: Render RAW → TIFF via dcraw_emu
-		// Bit depth is chosen automatically: 16-bit for tiff/png, 8-bit for jpg/webp
+		// Bit depth is chosen automatically: 16-bit for tiff, 8-bit for jpg/png/webp
 		const tempTiff = await this._rawConverter.convertToTiff(filePath, outputOpts.format);
 
 		try {

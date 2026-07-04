@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Magnetic Dot Grid</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Science+Gothic:wdth,wght@50..200,100..900&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-user-select: none; cursor: default; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #333333; display: flex; align-items: center; justify-content: center; }
+    canvas { display: block; background: #111111; margin: auto; }
+    .content-block {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .center-text {
+      position: relative;
+      transform: scaleX(1.5);
+      font-family: 'Science Gothic', sans-serif;
+      font-weight: 600;
+      font-size: 2.396rem;
+      text-transform: uppercase;
+      pointer-events: none;
+      letter-spacing: 0.1em;
+    }
+    .chroma {
+      display: block;
+      mix-blend-mode: screen;
+      will-change: transform;
+    }
+    .chroma-r { color: #ff0000; position: absolute; left: 0; top: 0; text-shadow: 0 0 12px rgba(255,0,0,0.6), 0 0 30px rgba(255,0,0,0.3); }
+    .chroma-g { color: #0050cc; position: relative; text-shadow: 0 0 12px rgba(0,80,204,0.6), 0 0 30px rgba(0,80,204,0.3); }
+    .chroma-b { color: #00cc44; position: absolute; left: 0; top: 0; text-shadow: 0 0 12px rgba(0,200,68,0.6), 0 0 30px rgba(0,200,68,0.3); }
+    .subtitle {
+      position: relative;
+      margin-top: 0.8rem;
+      font-family: 'Science Gothic', sans-serif;
+      font-size: 1.247rem;
+      font-weight: 300;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      pointer-events: none;
+      z-index: 2;
+      white-space: nowrap;
+      text-align: center;
+    }
+    .subtitle span { pointer-events: none; }
+    .content-actions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: center;
+      margin-top: 2.4em;
+      white-space: nowrap;
+      text-align: center;
+      pointer-events: auto;
+      z-index: 2;
+      font-family: 'Science Gothic', sans-serif;
+      font-size: 1.247rem;
+      font-weight: 300;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      text-shadow: 0 0 8px rgba(255,255,255,0.15), 0 0 20px rgba(255,255,255,0.08);
+    }
+    .content-actions .btn {
+      display: inline-block;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      cursor: pointer;
+      border: 1.5px solid rgba(255,255,255,0.35);
+      padding: 0.35em 1.44em;
+      border-radius: 4px;
+      margin-left: 10px;
+      margin-right: 10px;
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      box-shadow: 0 0 8px rgba(255,255,255,0.08), 0 0 20px rgba(255,255,255,0.04);
+      transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      font-variation-settings: 'wght' 300, 'wdth' 80;
+    }
+    .content-actions .btn:hover {
+      background: rgba(255,255,255,0.13);
+      color: rgba(255,255,255,0.8);
+      border-color: rgba(255,255,255,0.35);
+      box-shadow: 0 0 12px rgba(255,255,255,0.12), 0 0 28px rgba(255,255,255,0.06);
+    }
+    .content-actions .btn-sm {
+      font-size: 0.85em;
+      padding: 0.3em 1.2em;
+      font-variation-settings: inherit;
+      color: rgba(255,255,255,0.45);
+      border-color: rgba(255,255,255,0.2);
+    }
+    .content-actions .actions-desc {
+      font-size: 0.9em;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 0.12em;
+      line-height: 2.2;
+    }
+    .subtitle-dropdown {
+      position: relative;
+      display: inline-block;
+      pointer-events: auto;
+      cursor: pointer;
+    }
+    .subtitle-dropdown .dropdown-toggle {
+      display: inline-block;
+      color: rgba(255,255,255,0.7);
+      border: 1.5px solid rgba(255,255,255,0.35);
+      padding: 0.2em 1.44em;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      cursor: pointer;
+      font: inherit;
+      font-size: 1em;
+		line-height: 1.6em;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      font-variation-settings: 'wght' 300, 'wdth' 80;
+      transition: background 0.2s ease, border-color 0.2s ease, opacity 0.15s ease;
+      mix-blend-mode: normal;
+      box-shadow: 0 0 8px rgba(255,255,255,0.08), 0 0 20px rgba(255,255,255,0.04);
+    }
+    .subtitle-dropdown .dropdown-toggle::after {
+      content: ' \25BE';
+      font-size: 0.8em;
+
+      opacity: 0.5;
+    }
+    .subtitle-dropdown .dropdown-toggle:hover {
+      background: rgba(255,255,255,0.13);
+      border-color: rgba(255,255,255,0.4);
+    }
+    .subtitle-dropdown .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(20,20,20,0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1.5px solid rgba(255,255,255,0.15);
+      border-radius: 4px;
+      padding: 4px 0;
+      z-index: 30;
+      min-width: 100%;
+      white-space: nowrap;
+      box-shadow: 0 0 8px rgba(255,255,255,0.08), 0 0 20px rgba(255,255,255,0.04);
+    }
+    .subtitle-dropdown.open .dropdown-menu {
+      display: block;
+    }
+    .subtitle-dropdown .dropdown-menu a {
+      display: block;
+      padding: 0.2em 1.44em;
+      color: rgba(255,255,255,0.6);
+      text-decoration: none;
+      font: inherit;
+      font-size: 0.8em;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      font-variation-settings: 'wght' 300, 'wdth' 80;
+      transition: background 0.15s ease, color 0.15s ease;
+      mix-blend-mode: normal;
+      cursor: pointer;
+    }
+    .subtitle-dropdown .dropdown-menu a:hover {
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.9);
+    }
+    .subtitle-dropdown .dropdown-menu a.active {
+      color: rgba(255,255,255,0.9);
+    }
+    .settings-ui {
+      position: relative;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 1.2rem;
+      pointer-events: auto;
+      z-index: 3;
+      font-family: 'Science Gothic', sans-serif;
+      font-size: 1.247rem;
+      font-weight: 300;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: rgba(255,255,255,0.55);
+      text-shadow: 0 0 8px rgba(255,255,255,0.15), 0 0 20px rgba(255,255,255,0.08);
+    }
+    .settings-ui.active {
+      display: flex;
+    }
+    .settings-line {
+      white-space: nowrap;
+      line-height: 1.8;
+    }
+    .settings-desc {
+      font-size: 0.75em;
+      color: rgba(255,255,255,0.3);
+      margin-top: 2.4em;
+      white-space: nowrap;
+    }
+    .input-wrap {
+      display: inline-flex;
+      align-items: center;
+      position: relative;
+      border: 1.5px solid rgba(255,255,255,0.35);
+      border-radius: 4px;
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      transition: background 0.2s ease, border-color 0.2s ease;
+      box-shadow: 0 0 8px rgba(255,255,255,0.08), 0 0 20px rgba(255,255,255,0.04);
+    }
+    .input-wrap:focus-within {
+      border-color: rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.08);
+    }
+    .input-wrap::after {
+      content: 'x';
+      font: inherit;
+      font-size: 1em;
+		line-height: 1.6em;
+      color: rgba(255,255,255,0.4);
+      padding-right: 0.8em;
+      pointer-events: none;
+      font-variation-settings: 'wght' 300, 'wdth' 80;
+      letter-spacing: 0.15em;
+      margin-left: -0.1em;
+    }
+    .input-wrap .settings-input {
+      border: none;
+      background: transparent;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      padding: 0.2em 0.4em 0.2em 0.8em;
+      width: 4em;
+      font-size: 1em;
+		line-height: 1.6em;
+    }
+    .input-wrap .settings-input:focus {
+      border-color: transparent;
+      background: transparent;
+    }
+    .settings-input {
+      display: inline-block;
+      width: 3.6em;
+      text-align: center;
+      color: rgba(255,255,255,0.7);
+      border: 1.5px solid rgba(255,255,255,0.35);
+      padding: 0.2em 0.5em;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      font: inherit;
+      font-size: 1em;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      font-variation-settings: 'wght' 300, 'wdth' 80;
+      transition: background 0.2s ease, border-color 0.2s ease;
+      outline: none;
+      appearance: textfield;
+      -moz-appearance: textfield;
+    }
+    .settings-input::-webkit-inner-spin-button,
+    .settings-input::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .settings-input:focus {
+      border-color: rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.08);
+    }
+    .settings-input::selection {
+      background: rgba(255,255,255,0.3);
+      color: inherit;
+    }
+    .settings-line + .settings-line {
+      margin-top: 0.6em;
+    }
+    .content-actions.in-flow {
+      position: relative;
+      top: auto;
+    }
+    .settings-ui .subtitle-dropdown .dropdown-toggle {
+      padding: 0.2em 0.9em;
+    }
+    .settings-ui .subtitle-dropdown .dropdown-menu a {
+      padding: 0.2em 0.9em;
+    }
+    .sub-chroma {
+      display: block;
+      mix-blend-mode: screen;
+      will-change: transform;
+    }
+    .sub-chroma-r { color: #800000; position: absolute; left: 0; top: 0; pointer-events: none; text-shadow: 0 0 6px rgba(255,0,0,0.12), 0 0 16px rgba(255,0,0,0.06); }
+    .sub-chroma-g { color: #004d99; position: relative; text-shadow: 0 0 6px rgba(0,80,204,0.12), 0 0 16px rgba(0,80,204,0.06); pointer-events: auto; }
+    .sub-chroma-b { color: #009940; position: absolute; left: 0; top: 0; pointer-events: none; text-shadow: 0 0 6px rgba(0,200,68,0.12), 0 0 16px rgba(0,200,68,0.06); }
+    #crt-scanlines {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      pointer-events: none;
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          transparent 0px,
+          transparent 1px,
+          rgba(0,0,0,0.14) 1px,
+          rgba(0,0,0,0.14) 2px
+        );
+    }
+    .letterbox {
+      position: absolute;
+      left: 0; right: 0;
+      background: rgba(0,0,0,0.33);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 5;
+      height: 17%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 52px;
+      font-family: 'Science Gothic', sans-serif;
+      font-size: 0.808rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: rgba(255,255,255,0.28);
+      text-shadow: 0 0 8px rgba(255,255,255,0.13), 0 0 20px rgba(255,255,255,0.064);
+    }
+    .letterbox a {
+      color: rgba(255,255,255,0.48);
+      text-decoration: none;
+      cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.20);
+      padding: 0.28em 1.15em;
+      border-radius: 4px;
+      font-size: 0.898rem;
+      margin-left: 10px;
+      background: rgba(255,255,255,0.064);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      box-shadow: 0 0 8px rgba(255,255,255,0.064), 0 0 20px rgba(255,255,255,0.032);
+      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+    .letterbox a:hover { background: rgba(255,255,255,0.13); color: rgba(255,255,255,0.72); border-color: rgba(255,255,255,0.32); }
+    .letterbox-top { top: 0; justify-content: center; }
+    .letterbox-bottom { bottom: 0; justify-content: space-between; padding: 0 62px; }
+  </style>
+</head>
+<body>
+  <div id="canvas-wrap" style="position:relative; display:inline-block;">
+    <canvas id="grid"></canvas>
+    <div class="letterbox letterbox-top"><span>Free version – Limited to 5 images per session <a href="#">Upgrade now</a></span></div>
+    <div class="letterbox letterbox-bottom"><span>Images processed locally, no uploads</span><span><a href="#">Help & Feedback</a></span></div>
+    <div id="crt-scanlines"></div>
+    <div id="mode-toggle" style="position:absolute; top:16px; right:16px; z-index:20; display:none; gap:4px; font-family:'Science Gothic',sans-serif; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.1em;">
+      <button data-mode="A" style="padding:4px 12px; border:1.5px solid rgba(255,255,255,0.45); background:rgba(255,255,255,0.15); color:#fff; cursor:pointer; border-radius:3px; font:inherit; letter-spacing:inherit; text-transform:inherit;">Select</button>
+      <button data-mode="settings" style="padding:4px 12px; border:1.5px solid rgba(255,255,255,0.35); background:transparent; color:rgba(255,255,255,0.7); cursor:pointer; border-radius:3px; font:inherit; letter-spacing:inherit; text-transform:inherit;">Settings</button>
+      <button data-mode="B" style="padding:4px 12px; border:1.5px solid rgba(255,255,255,0.35); background:transparent; color:rgba(255,255,255,0.7); cursor:pointer; border-radius:3px; font:inherit; letter-spacing:inherit; text-transform:inherit;">Processing</button>
+      <button data-mode="error" style="padding:4px 12px; border:1.5px solid rgba(255,255,255,0.35); background:transparent; color:rgba(255,255,255,0.7); cursor:pointer; border-radius:3px; font:inherit; letter-spacing:inherit; text-transform:inherit;">Error</button>
+      <button data-mode="success" style="padding:4px 12px; border:1.5px solid rgba(255,255,255,0.35); background:transparent; color:rgba(255,255,255,0.7); cursor:pointer; border-radius:3px; font:inherit; letter-spacing:inherit; text-transform:inherit;">Success</button>
+    </div>
+    <div class="content-block" id="content-block">
+    <div class="center-text">
+    <span class="chroma chroma-r">Desqueeze.io</span>
+    <span class="chroma chroma-g">Desqueeze.io</span>
+    <span class="chroma chroma-b">Desqueeze.io</span>
+    </div>
+    <div class="subtitle" id="subtitle">
+      <span class="sub-chroma sub-chroma-r" id="sub-chroma-r">Lossless anamorphic image processor</span>
+      <span class="sub-chroma sub-chroma-g" id="sub-chroma-g">Lossless anamorphic image processor</span>
+      <span class="sub-chroma sub-chroma-b" id="sub-chroma-b">Lossless anamorphic image processor</span>
+    </div>
+    <div class="settings-ui" id="settings-ui">
+      <div class="settings-line" id="anamorphic-line">
+        Anamorphic factor of
+        <span class="subtitle-dropdown" id="dd-anamorphic" data-dropdown>
+          <span class="dropdown-toggle">1.5x</span>
+          <span class="dropdown-menu">
+            <a href="#" data-value="1.3x">1.3x</a>
+            <a href="#" data-value="1.4x">1.4x</a>
+            <a href="#" data-value="1.5x" class="active">1.5x</a>
+            <a href="#" data-value="2x">2x</a>
+            <a href="#" data-value="Custom">Custom</a>
+          </span>
+        </span>
+        <span id="custom-factor-section" style="display:none">
+          <span class="input-wrap"><input type="text" class="settings-input" id="custom-factor-input" value="1.00"></span>
+        </span>
+      </div>
+      <div class="settings-line">
+        Output as
+        <span class="subtitle-dropdown" id="dd-format" data-dropdown>
+          <span class="dropdown-toggle">DNG</span>
+          <span class="dropdown-menu">
+            <a href="#" data-value="DNG" class="active">DNG</a>
+            <a href="#" data-value="PNG">PNG</a>
+            <a href="#" data-value="JPG">JPG</a>
+            <a href="#" data-value="TIFF">TIFF</a>
+          </span>
+        </span>
+        <span id="compression-section"> with
+          <span class="subtitle-dropdown" id="dd-compression" data-dropdown>
+            <span class="dropdown-toggle">High</span>
+            <span class="dropdown-menu">
+              <a href="#" data-value="Low">Low</a>
+              <a href="#" data-value="Medium">Medium</a>
+              <a href="#" data-value="High" class="active">High</a>
+            </span>
+          </span>
+          compression
+        </span>
+      </div>
+      <div class="settings-desc" id="settings-desc">These settings are lossless</div>
+    </div>
+    <div class="content-actions" id="content-actions" style="margin-top:4.8em"><span class="actions-desc">Drag and drop, or</span> <a class="btn" href="#">Browse files</a></div>
+    </div>
+  </div>
+  <script>
+
+    // ============================
+    // CONFIGURATION
+    // ============================
+
+    const CONFIG = {
+      // Target window
+      targetWidth:      1480,
+      targetHeight:     800,
+
+      // Grid
+      dotSpacing:       40,
+      maxDotRadius:     2,
+      minDotRadius:     0,
+      baseOpacity:      0.06,       // dot opacity when invisible
+      glowRadiusMult:   6,          // glow radius = dotRadius × this
+      glowAspect:       1.5,        // glow X/Y ratio (>1 = wider horizontally)
+      glowOpacity:      0.10,       // glow peak opacity
+
+      // Per-mode appearance (dotColor, text label)
+      modes: {
+        A: { dotColor: [255, 255, 255], text: 'Desqueeze.io', textColor: null, subtitle: 'Lossless anamorphic image processor', actions: '<span class="actions-desc">Drag and drop anywhere, or</span> <a class="btn" href="#">Browse files</a>' },
+        B: { dotColor: [255, 255, 255], text: 'Processing', textColor: null, subtitle: '7 out of 10 images', actions: '<a class="btn btn-sm" href="#">Cancel</a>' },
+        error: {
+          dotColor: [255, 50, 50],
+          text: 'Error!',
+          textColor: null,
+          subtitle: '2 images failed, format not supported',
+          actions: '<a class="btn" href="#">see report</a><a class="btn" href="#">Try again</a>',
+          pulseLightColor: [255, 120, 120],
+          pulseDarkColor:  [180, 30, 30],
+          pulseSpeed:      1.2,     // Hz
+          waveDelay:       0,       // seconds after state change before wave starts
+          wavePeriod:      2,       // seconds per full wave cycle
+          waveDarkColor:   [80, 5, 5], // darker red to morph toward
+          maxDotRadius:    3.5,     // larger dots in error state
+          waveDisplacement: 4,      // px push outward from center by wave
+        },
+        success: {
+          dotColor: [80, 200, 100],
+          text: 'Success!',
+          textColor: null,
+          subtitle: '10 images processed in 1.72 seconds',
+          actions: '<a class="btn" href="#">open folder</a><a class="btn" href="#">New process</a>',
+          pulseLightColor: [100, 210, 120],
+          pulseDarkColor:  [40, 140, 60],
+          pulseSpeed:      1.2,
+          waveDelay:       0,
+          wavePeriod:      2,
+          waveDarkColor:   [20, 90, 35],
+          maxDotRadius:    3.5,
+          waveDisplacement: 4,      // px push outward from center by wave
+        },
+        settings: {
+          dotColor: [255, 255, 255],
+          text: 'Settings',
+          textColor: null,
+          subtitle: '',
+          actions: '<a class="btn" href="#">Back</a><a class="btn" href="#">Process</a>',
+          convergenceDuration: 6,    // seconds per full pull-release cycle
+          convergenceAmount:   0.05, // fraction of distance pulled toward center (0–1)
+          convergenceEasing:   'sine', // 'sine' | 'ease-in-out'
+          spotlightGradientTarget: [
+            [40,  0],
+            [70,  100],
+            [100, 0],
+          ],
+        },
+      },
+
+      // Transition
+      transitionDuration: 0.3,      // seconds for mode crossfade
+      colorRippleDuration: 1,     // time for ripple to sweep center→edge
+      rippleWidth: 0.5,             // per-dot transition duration (wider = more dots in-flight at once)
+      rippleFalloff: 1,             // bulge envelope exponent (lower = broader plateau, higher = sharper peak)
+      rippleDelay: 0,               // seconds before ripple starts after mode change
+      rippleMaxDotRadius: 5,        // dot radius at peak of ripple wavefront
+
+      // Mode A: cursor follow
+      influenceRadius:  80,
+      falloffRadius:    300,
+      easeInSpeed:      8,
+      easeOutSpeed:     3,
+      mouseFollowSpeed: 10,
+      repulsionStrength:100,
+      repulsionRadius:  1000,
+      modeASpotlight:   { width: 0.15, height: 0.2, range: 5 },
+
+      // Mode B: stretch loop
+      loopDuration:     3,
+      stretchAmount:    0.6,
+      stretchDuration:  1.5,
+      gridSpring:       { stiffness: 125, damping: 15 },
+      textSpring:       { stiffness: 125, damping: 15 },
+      rowStretch:       { center: 1, edge: 0.5 },
+      colStretch:       { center: 1, edge: 0 },
+
+      // Spotlight
+      spotlightWidth:   0.25,
+      spotlightHeight:  0.2,
+      spotlightRange:   5,
+      spotlightGradient:[
+        [10,  0],
+        [60,  100],
+        [100, 0],
+      ],
+
+      // Effects
+      barrelStrength:   0.25,
+      barrelRadius:     1,
+      chromaStrength:   2,
+      chromaOpacity:    0.7,
+      chromaGlowOpacity:0.05,
+      blurMax:          4,
+      textChromaStrength: 1,    // max px offset for text RGB split
+
+      // CRT overlay
+      crt: {
+        scanlineAlpha:  0.15,     // opacity of dark scanlines
+        scanlineWidth:  2,        // px height of each scanline pair
+        vignetteStrength: 0.4,    // edge darkening (0–1)
+        flickerAmount:  0.00,    // subtle brightness flicker
+        curvature:      0.02,     // screen edge curvature (0 = flat)
+      },
+
+      // Film grain
+      grain: {
+        intensity:  0.06,         // grain opacity (0–1)
+        size:       1,            // pixel size of grain (1 = native resolution)
+      },
+
+      // Font animation
+      fontWeight:       { rest: 300, stretch: 500 },
+      fontWidth:        { rest: 80,  stretch: 100 },
+      letterSpacing:    { rest: 8,   stretch: 12 },
+
+      // Subtitle font animation (processing state)
+      subFontWeight:    { rest: 300, stretch: 350 },
+      subFontWidth:     { rest: 80,  stretch: 95 },
+      subLetterSpacing: { rest: 2.4, stretch: 5 },
+      subChromaStrength: 0.6,      // max px offset for subtitle RGB split
+    };
+
+    // ============================
+    // UTILITIES
+    // ============================
+
+    const lerp  = (a, b, t) => a + (b - a) * t;
+    const sstep = (t) => t * t * (3 - 2 * t);
+
+    /** Factory: returns a cubic-bezier easing function */
+    function makeBezier(p1x, p1y, p2x, p2y) {
+      return (t) => {
+        let u = t;
+        for (let i = 0; i < 8; i++) {
+          const x  = 3*(1-u)*(1-u)*u*p1x + 3*(1-u)*u*u*p2x + u*u*u - t;
+          const dx = 3*(1-u)*(1-u)*p1x + 6*(1-u)*u*(p2x-p1x) + 3*u*u*(1-p2x);
+          if (Math.abs(dx) < 1e-6) break;
+          u = Math.max(0, Math.min(1, u - x / dx));
+        }
+        return 3*(1-u)*(1-u)*u*p1y + 3*(1-u)*u*u*p2y + u*u*u;
+      };
+    }
+
+    const decayEasing = makeBezier(0.33, 0, 0.66, 1);
+    const fontEasing  = makeBezier(0.0, 0, 1, 1);
+
+    /** Advance a spring one step. Returns true if settled. */
+    function stepSpring(s, cfg, dt) {
+      s.vel += (-cfg.stiffness * s.pos - cfg.damping * s.vel) * dt;
+      s.pos += s.vel * dt;
+      if (Math.abs(s.pos) < 0.001 && Math.abs(s.vel) < 0.01) {
+        s.pos = 0; s.vel = 0; return true;
+      }
+      return false;
+    }
+
+    /** Sample the spotlight gradient at normalized distance t (0=center, 1=edge) */
+    function sampleGradient(t, gradient) {
+      const pts = gradient || CONFIG.spotlightGradient;
+      const pct = t * 100;
+      if (pct <= pts[0][0])              return pts[0][1] / 100;
+      if (pct >= pts[pts.length - 1][0]) return pts[pts.length - 1][1] / 100;
+      for (let i = 0; i < pts.length - 1; i++) {
+        const [p0, o0] = pts[i], [p1, o1] = pts[i + 1];
+        if (pct >= p0 && pct <= p1)
+          return lerp(o0, o1, sstep((pct - p0) / (p1 - p0))) / 100;
+      }
+      return 0;
+    }
+
+    // ============================
+    // STATE
+    // ============================
+
+    const canvas       = document.getElementById('grid');
+    const ctx          = canvas.getContext('2d');
+    const centerTextEl = document.querySelector('.center-text');
+    const chromaR      = document.querySelector('.chroma-r');
+    const chromaB      = document.querySelector('.chroma-b');
+    const subtitleEl   = document.getElementById('subtitle');
+    const subChromaR   = document.getElementById('sub-chroma-r');
+    const subChromaG   = document.getElementById('sub-chroma-g');
+    const subChromaB   = document.getElementById('sub-chroma-b');
+    const contentActionsEl = document.getElementById('content-actions');
+    const settingsUI = document.getElementById('settings-ui');
+    const ddFormat = document.getElementById('dd-format');
+    const ddCompression = document.getElementById('dd-compression');
+    const ddAnamorphic = document.getElementById('dd-anamorphic');
+    const compressionSection = document.getElementById('compression-section');
+    const customFactorSection = document.getElementById('custom-factor-section');
+    const settingsDesc = document.getElementById('settings-desc');
+
+    // Format config: which formats are lossy and show compression
+    const FORMAT_INFO = {
+      DNG:  { lossy: false, compression: false },
+      PNG:  { lossy: true,  compression: true },
+      JPG:  { lossy: true,  compression: true },
+      TIFF: { lossy: false, compression: false },
+    };
+    let selectedFormat = 'DNG';
+    let selectedCompression = 'High';
+    let selectedAnamorphic = '1.5x';
+
+    function updateSettingsUI() {
+      const info = FORMAT_INFO[selectedFormat];
+      compressionSection.style.display = info.compression ? 'inline' : 'none';
+      settingsDesc.textContent = info.lossy
+        ? `These settings are lossy`
+        : `These settings are lossless`;
+    }
+
+    function wireDropdown(container) {
+      const toggle = container.querySelector('.dropdown-toggle');
+      toggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        // Close other dropdowns
+        document.querySelectorAll('.subtitle-dropdown.open').forEach(d => { if (d !== container) d.classList.remove('open'); });
+        container.classList.toggle('open');
+      });
+      container.querySelectorAll('.dropdown-menu a').forEach(opt => {
+        opt.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const val = opt.dataset.value;
+          toggle.textContent = val;
+          container.querySelectorAll('.dropdown-menu a').forEach(a => a.classList.remove('active'));
+          opt.classList.add('active');
+          container.classList.remove('open');
+          if (container === ddFormat) {
+            selectedFormat = val;
+            updateSettingsUI();
+          } else if (container === ddCompression) {
+            selectedCompression = val;
+          } else if (container === ddAnamorphic) {
+            selectedAnamorphic = val;
+            customFactorSection.style.display = val === 'Custom' ? 'inline' : 'none';
+          }
+        });
+      });
+    }
+    wireDropdown(ddFormat);
+    wireDropdown(ddCompression);
+    wireDropdown(ddAnamorphic);
+    updateSettingsUI();
+    const offscreen    = document.createElement('canvas');
+    const offCtx       = offscreen.getContext('2d');
+    const maskCanvas   = document.createElement('canvas');
+    const maskCtx      = maskCanvas.getContext('2d');
+    const grainCanvas  = document.createElement('canvas');
+    const grainCtx     = grainCanvas.getContext('2d');
+    let grainData;
+
+    let mode       = 'A';
+    let prevMode   = null;          // mode we're transitioning from
+    let modeT      = 1;             // 0→1 transition progress
+    let textSwapped = true;         // has the text label been swapped at midpoint?
+    let mouse      = { x: -9999, y: -9999 };
+    let smoothMouse= { x: -9999, y: -9999 };
+    let mouseActive= false;
+    let cursorIntensity = 0;   // 0–1, eases out when mouse leaves
+    let dots       = [];
+    let cols, rows, lastTime = 0;
+
+    // Mode B animation
+    let loopTimer    = 0;
+    let phase        = 'stretch'; // 'stretch' | 'spring' | 'idle'
+    let stretchTimer = 0;
+    const gridSpring = { pos: 0, vel: 0 };
+    const textSpring = { pos: 0, vel: 0 };
+
+    // Error mode animation
+    let errorTimer   = 0;  // shared timer for error/success wave
+
+    // Convergence (settings mode) animation
+    let convergenceTimer = 0;
+
+    // ============================
+    // GRID
+    // ============================
+
+    function buildGrid() {
+      const C = CONFIG;
+      dots = [];
+      cols = Math.ceil(canvas.width / C.dotSpacing) + 1;
+      rows = Math.ceil(canvas.height / C.dotSpacing) + 1;
+      const ox = (canvas.width  - (cols - 1) * C.dotSpacing) / 2;
+      const oy = (canvas.height - (rows - 1) * C.dotSpacing) / 2;
+      for (let r = 0; r < rows; r++)
+        for (let c = 0; c < cols; c++)
+          dots.push({
+            x: ox + c * C.dotSpacing, y: oy + r * C.dotSpacing,
+            col: c, row: r, t: 0, ox: 0, oy: 0,
+          });
+    }
+
+    function resize() {
+      const tw = CONFIG.targetWidth  || window.innerWidth;
+      const th = CONFIG.targetHeight || window.innerHeight;
+      canvas.width = offscreen.width = maskCanvas.width  = tw;
+      canvas.height= offscreen.height= maskCanvas.height = th;
+      const gs = CONFIG.grain.size || 1;
+      grainCanvas.width  = Math.ceil(tw / gs);
+      grainCanvas.height = Math.ceil(th / gs);
+      grainData = grainCtx.createImageData(grainCanvas.width, grainCanvas.height);
+      canvas.style.width  = tw + 'px';
+      canvas.style.height = th + 'px';
+      buildGrid();
+      crtPattern = null; // rebuild on next frame
+    }
+
+    // ============================
+    // MAIN LOOP
+    // ============================
+
+    function draw(now) {
+      const dt = Math.min((now - lastTime) / 1000, 0.05);
+      lastTime = now;
+      const w = canvas.width, h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      // Advance transition (modeT covers the full ripple duration)
+      const totalTransition = Math.max(CONFIG.transitionDuration,
+        CONFIG.rippleDelay + CONFIG.colorRippleDuration + CONFIG.rippleWidth);
+      if (modeT < 1) {
+        modeT = Math.min(modeT + dt / totalTransition, 1);
+        // Swap text label early (at midpoint of the base transition duration)
+        const textMid = (CONFIG.transitionDuration * 0.5) / totalTransition;
+        if (!textSwapped && modeT >= textMid) {
+          textSwapped = true;
+          const label = CONFIG.modes[mode].text;
+          const tc = CONFIG.modes[mode].textColor;
+          document.querySelectorAll('.chroma').forEach(el => {
+            el.textContent = label;
+            // Always show white first, then animate to target color
+            el.style.transition = 'none';
+            el.style.color = '';
+            el.style.textShadow = '';
+          });
+          if (tc) {
+            // Force a reflow so the white state is rendered, then animate
+            void centerTextEl.offsetWidth;
+            document.querySelectorAll('.chroma').forEach(el => {
+              el.style.transition = 'color 0.8s ease, text-shadow 0.8s ease';
+              el.style.color = tc;
+              el.style.textShadow = `0 0 12px ${tc}99, 0 0 30px ${tc}4D`;
+            });
+          }
+          // Update subtitle (all three chroma layers) and actions
+          const sub = CONFIG.modes[mode].subtitle || '';
+          const actions = CONFIG.modes[mode].actions || '';
+          subChromaR.textContent = sub;
+          subChromaG.textContent = sub;
+          subChromaB.textContent = sub;
+          // Show/hide settings UI
+          settingsUI.classList.toggle('active', mode === 'settings');
+          subtitleEl.style.display = mode === 'settings' ? 'none' : '';
+          contentActionsEl.innerHTML = actions;
+          if (mode === 'settings') {
+            contentActionsEl.classList.add('in-flow');
+            contentActionsEl.style.cssText = '';
+          } else {
+            contentActionsEl.classList.remove('in-flow');
+            contentActionsEl.style.cssText = '';
+            contentActionsEl.style.marginTop = mode === 'A' ? '7.2em' : '2.4em';
+          }
+        }
+      }
+
+      const transitioning = modeT < 1 && prevMode !== null;
+      // Weights use front-loaded progress (complete within transitionDuration)
+      const weightT = Math.min(modeT * totalTransition / CONFIG.transitionDuration, 1);
+      const eased = sstep(weightT);
+
+      // Compute influence weights
+      // cursorW  → cursor repulsion + cursor-centered spotlight (Mode A only)
+      // stretchW → stretch/barrel displacement (Mode B only)
+      // centerW  → center-based spotlight (any non-A mode) = 1 - cursorW
+      const isCursorMode  = (m) => m === 'A';
+      const isStretchMode = (m) => m === 'B';
+
+      let cursorW, stretchW;
+      if (transitioning) {
+        cursorW  = lerp(isCursorMode(prevMode)  ? 1 : 0, isCursorMode(mode)  ? 1 : 0, eased);
+        stretchW = lerp(isStretchMode(prevMode) ? 1 : 0, isStretchMode(mode) ? 1 : 0, eased);
+        // Text opacity: fade out first half, fade in second half
+        const textOpacity = weightT < 0.5
+          ? 1 - (weightT / 0.5)
+          : (weightT - 0.5) / 0.5;
+        centerTextEl.style.opacity = textOpacity;
+        // Subtitle + actions: fast fade out (first 35%), gentle fade in (remaining 65%)
+        const subFadeOutEnd = 0.35;
+        let subOpacity;
+        if (weightT < subFadeOutEnd) {
+          subOpacity = 1 - (weightT / subFadeOutEnd);
+        } else {
+          subOpacity = (weightT - subFadeOutEnd) / (1 - subFadeOutEnd);
+          subOpacity = subOpacity * subOpacity * (3 - 2 * subOpacity); // smoothstep ease-in
+        }
+        subtitleEl.style.opacity = subOpacity;
+        contentActionsEl.style.opacity = subOpacity;
+        settingsUI.style.opacity = subOpacity;
+      } else {
+        prevMode = null;
+        centerTextEl.style.opacity = 1;
+        subtitleEl.style.opacity = 1;
+        contentActionsEl.style.opacity = 1;
+        settingsUI.style.opacity = 1;
+        cursorW  = isCursorMode(mode)  ? 1 : 0;
+        stretchW = isStretchMode(mode) ? 1 : 0;
+      }
+
+      drawGrid(dt, cursorW, stretchW);
+      drawGrain(w, h);
+      drawCRT(w, h);
+      requestAnimationFrame(draw);
+    }
+
+    // ============================
+    // UNIFIED GRID RENDERING
+    // ============================
+
+    function drawGrid(dt, cursorW, stretchW) {
+      const C = CONFIG;
+      const w = canvas.width, h = canvas.height;
+      const cx = w / 2, cy = h / 2;
+      const centerW = 1 - cursorW; // center-based spotlight weight
+
+      // --- Dot color: base colors for prev and current mode ---
+      const prevMC = C.modes[prevMode || mode] || {};
+      const currMC = C.modes[mode] || {};
+      const [prR, prG, prB] = prevMC.dotColor || [255,255,255];
+      const [cuR, cuG, cuB] = currMC.dotColor || [255,255,255];
+      // Global colorT for non-dot elements (text etc), per-dot colorT computed in loop
+      const globalColorT = sstep(modeT);
+
+      // ── Error/success mode: advance timer for wave ──
+      const mc = C.modes[mode];
+      if (mc.waveDelay !== undefined) {
+        errorTimer += dt;
+      }
+
+      // ── Convergence mode: advance timer + precompute pull ──
+      let convergencePullT = 0;
+      if (mc.convergenceDuration) {
+        convergenceTimer += dt;
+        if (mc.convergenceEasing === 'ease-in-out') {
+          const raw = (convergenceTimer % mc.convergenceDuration) / mc.convergenceDuration;
+          convergencePullT = sstep((1 - Math.cos(raw * Math.PI * 2)) * 0.5);
+        } else {
+          convergencePullT = (1 - Math.cos(convergenceTimer * Math.PI * 2 / mc.convergenceDuration)) * 0.5;
+        }
+      }
+
+      // ── Animated spotlight gradient (transition between modes) ──
+      let activeGradient = null;
+      const prevGrad = (prevMC.spotlightGradientTarget) || C.spotlightGradient;
+      const currGrad = (currMC.spotlightGradientTarget) || C.spotlightGradient;
+      if (prevGrad !== currGrad || globalColorT < 1) {
+        activeGradient = C.spotlightGradient.map((_, i) => [
+          lerp(prevGrad[i][0], currGrad[i][0], globalColorT),
+          lerp(prevGrad[i][1], currGrad[i][1], globalColorT),
+        ]);
+      } else if (currMC.spotlightGradientTarget) {
+        activeGradient = currMC.spotlightGradientTarget;
+      }
+
+      // ── Max distance from center (for normalizing stagger) ──
+      const maxDist = Math.sqrt(cx * cx + cy * cy);
+
+      // ── Cursor tracking (always runs) ──
+      if (mouseActive) {
+        const t = 1 - Math.exp(-C.mouseFollowSpeed * dt);
+        smoothMouse.x += (mouse.x - smoothMouse.x) * t;
+        smoothMouse.y += (mouse.y - smoothMouse.y) * t;
+      }
+      const ciTarget = mouseActive ? 1 : 0;
+      const ciSpeed  = mouseActive ? C.easeInSpeed : C.easeOutSpeed;
+      cursorIntensity += (ciTarget - cursorIntensity) * (1 - Math.exp(-ciSpeed * dt));
+      if (cursorIntensity < 0.001) cursorIntensity = 0;
+      const smx = smoothMouse.x, smy = smoothMouse.y;
+      const hasCursor = cursorIntensity > 0;
+
+      // ── Animation phase machine (always runs) ──
+      loopTimer += dt;
+      if (loopTimer >= C.loopDuration) {
+        loopTimer = 0; phase = 'stretch'; stretchTimer = 0;
+        gridSpring.pos = gridSpring.vel = 0;
+        textSpring.pos = textSpring.vel = 0;
+      }
+      if (phase === 'stretch') {
+        stretchTimer += dt;
+        const progress = Math.min(stretchTimer / C.stretchDuration, 1);
+        const se = 1 - Math.pow(1 - progress, 3);
+        gridSpring.pos = textSpring.pos = se * C.stretchAmount;
+        if (progress >= 1) {
+          phase = 'spring';
+          gridSpring.pos = textSpring.pos = C.stretchAmount;
+          gridSpring.vel = textSpring.vel = 0;
+        }
+      } else if (phase === 'spring') {
+        const gs = stepSpring(gridSpring, C.gridSpring, dt);
+        const ts = stepSpring(textSpring, C.textSpring, dt);
+        if (gs && ts) phase = 'idle';
+      }
+
+      // ── Text (blended by stretchW — only Mode B drives font animation) ──
+      const fontT    = textSpring.pos / C.stretchAmount;
+      const animWght = lerp(C.fontWeight.rest, C.fontWeight.stretch, fontT);
+      const animWdth = lerp(C.fontWidth.rest,  C.fontWidth.stretch,  fontT);
+      const animLS   = lerp(C.letterSpacing.rest, C.letterSpacing.stretch, fontT);
+      const wght = Math.max(100, Math.min(900, lerp(C.fontWeight.rest, animWght, stretchW)));
+      const wdth = Math.max(50,  Math.min(200, lerp(C.fontWidth.rest,  animWdth, stretchW)));
+      const ls   = lerp(C.letterSpacing.rest, animLS, stretchW);
+      centerTextEl.style.fontVariationSettings = `'wght' ${wght}, 'wdth' ${wdth}`;
+      centerTextEl.style.letterSpacing = `${ls}px`;
+
+      const textChromaT   = Math.min(Math.abs(textSpring.pos) / C.stretchAmount, 1);
+      const textChromaOff = C.textChromaStrength * textChromaT * stretchW;
+      chromaR.style.transform = `translateX(${textChromaOff}px)`;
+      chromaB.style.transform = `translateX(${-textChromaOff}px)`;
+
+      // ── Subtitle font animation (blended by stretchW) ──
+      const subAnimWght = lerp(C.subFontWeight.rest, C.subFontWeight.stretch, fontT);
+      const subAnimWdth = lerp(C.subFontWidth.rest,  C.subFontWidth.stretch,  fontT);
+      const subAnimLS   = lerp(C.subLetterSpacing.rest, C.subLetterSpacing.stretch, fontT);
+      const subWght = Math.max(100, Math.min(900, lerp(C.subFontWeight.rest, subAnimWght, stretchW)));
+      const subWdth = Math.max(50,  Math.min(200, lerp(C.subFontWidth.rest,  subAnimWdth, stretchW)));
+      const subLS   = lerp(C.subLetterSpacing.rest, subAnimLS, stretchW);
+      subtitleEl.style.fontVariationSettings = `'wght' ${subWght}, 'wdth' ${subWdth}`;
+      subtitleEl.style.letterSpacing = `${subLS}px`;
+      const btnDamp = 0.6;
+      const btnWght = Math.max(100, Math.min(900, lerp(C.subFontWeight.rest, C.subFontWeight.rest + (subWght - C.subFontWeight.rest) * btnDamp, 1)));
+      const btnWdth = Math.max(50,  Math.min(200, lerp(C.subFontWidth.rest,  C.subFontWidth.rest  + (subWdth - C.subFontWidth.rest)  * btnDamp, 1)));
+      const btnLS   = C.subLetterSpacing.rest + (subLS - C.subLetterSpacing.rest) * btnDamp;
+      const btnScaleX = 1 + (btnWdth - C.subFontWidth.rest) / (C.subFontWidth.rest) * 0.15;
+      contentActionsEl.style.fontVariationSettings = `'wght' ${btnWght}, 'wdth' ${btnWdth}`;
+      contentActionsEl.style.letterSpacing = `${btnLS}px`;
+      contentActionsEl.style.transform = `scaleX(${btnScaleX})`;
+      // ── Subtitle chroma aberration (only active during processing) ──
+      const subChromaOff = C.subChromaStrength * textChromaT * stretchW;
+      const sci = Math.min(textChromaT * stretchW, 1);
+      // Smoothly lerp between plain white (idle) and chroma RGB (processing)
+      const sRr = Math.round(lerp(255, 255, sci));
+      const sRg = Math.round(lerp(255, 0, sci));
+      const sRb = Math.round(lerp(255, 0, sci));
+      const sGr = Math.round(lerp(255, 0, sci));
+      const sGg = Math.round(lerp(255, 80, sci));
+      const sGb = Math.round(lerp(255, 204, sci));
+      const sBr = Math.round(lerp(255, 0, sci));
+      const sBg = Math.round(lerp(255, 200, sci));
+      const sBb = Math.round(lerp(255, 68, sci));
+      const sOp = lerp(0.55, 0.7, sci).toFixed(3);
+      // Blend mode and layer visibility transition smoothly with stretchW
+      const sBm = sci > 0.001 ? 'screen' : 'normal';
+      subChromaR.style.color = `rgba(${sRr},${sRg},${sRb},${sOp})`;
+      subChromaG.style.color = `rgba(${sGr},${sGg},${sGb},${sOp})`;
+      subChromaB.style.color = `rgba(${sBr},${sBg},${sBb},${sOp})`;
+      subChromaR.style.mixBlendMode = sBm;
+      subChromaG.style.mixBlendMode = sBm;
+      subChromaB.style.mixBlendMode = sBm;
+      subChromaR.style.opacity = sci;
+      subChromaB.style.opacity = sci;
+      subChromaG.style.opacity = '1';
+      const sg1 = lerp(0.15, 0.5, sci).toFixed(2), sg2 = lerp(0.08, 0.25, sci).toFixed(2);
+      const idleGlow1 = 0.15, idleGlow2 = 0.08;
+      const rGlow1 = lerp(idleGlow1, parseFloat(sg1), sci).toFixed(3);
+      const rGlow2 = lerp(idleGlow2, parseFloat(sg2), sci).toFixed(3);
+      subChromaR.style.textShadow = sci > 0.001 ? `0 0 6px rgba(255,0,0,${rGlow1}), 0 0 16px rgba(255,0,0,${rGlow2})` : `0 0 8px rgba(255,255,255,0.15), 0 0 20px rgba(255,255,255,0.08)`;
+      subChromaG.style.textShadow = sci > 0.001 ? `0 0 6px rgba(0,80,204,${rGlow1}), 0 0 16px rgba(0,80,204,${rGlow2})` : `0 0 8px rgba(255,255,255,0.15), 0 0 20px rgba(255,255,255,0.08)`;
+      subChromaB.style.textShadow = sci > 0.001 ? `0 0 6px rgba(0,200,68,${rGlow1}), 0 0 16px rgba(0,200,68,${rGlow2})` : `0 0 8px rgba(255,255,255,0.15), 0 0 20px rgba(255,255,255,0.08)`;
+      subChromaR.style.transform = subChromaOff > 0.1 ? `translateX(${subChromaOff}px)` : '';
+      subChromaB.style.transform = subChromaOff > 0.1 ? `translateX(${-subChromaOff}px)` : '';
+
+      // ── Precompute ──
+      const springT    = Math.min(Math.abs(gridSpring.pos) / C.stretchAmount, 1);
+      const bMax       = Math.sqrt(cx*cx + cy*cy) * C.barrelRadius;
+      const spotRxA    = w * C.modeASpotlight.width  * 0.5;
+      const spotRyA    = h * C.modeASpotlight.height * 0.5;
+      const spotRangeA = C.modeASpotlight.range;
+      const spotRxB    = w * C.spotlightWidth  * 0.5;
+      const spotRyB    = h * C.spotlightHeight * 0.5;
+      const spotRangeB = C.spotlightRange;
+      const offsetX    = (w - (cols - 1) * C.dotSpacing) / 2;
+      const centerCol  = (cols - 1) / 2;
+      const centerRow  = (rows - 1) / 2;
+
+      // ── Render dots ──
+      offCtx.clearRect(0, 0, w, h);
+
+      for (let i = 0; i < dots.length; i++) {
+        const dot = dots[i];
+
+        // ── Cursor influence: repulsion ──
+        const dx = dot.x - smx, dy = dot.y - smy;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        let tox = 0, toy = 0;
+        if (mouseActive && dist > 0.1 && dist < C.repulsionRadius) {
+          const repT = 1 - dist / C.repulsionRadius;
+          const push = C.repulsionStrength * repT * repT;
+          tox = (dx / dist) * push;
+          toy = (dy / dist) * push;
+        }
+        const oLerp = 1 - Math.exp(-C.easeInSpeed * dt);
+        dot.ox += (tox - dot.ox) * oLerp;
+        dot.oy += (toy - dot.oy) * oLerp;
+
+        // ── Animation influence: stretch + barrel ──
+        const rowNorm  = centerRow > 0 ? Math.abs(dot.row - centerRow) / centerRow : 0;
+        const rowDecay = lerp(C.rowStretch.center, C.rowStretch.edge, decayEasing(rowNorm));
+        const colNorm  = centerCol > 0 ? Math.abs(dot.col - centerCol) / centerCol : 0;
+        const colDecay = lerp(C.colStretch.center, C.colStretch.edge, decayEasing(colNorm));
+        const colOff   = dot.col - centerCol;
+        let animOffX   = colOff * C.dotSpacing * gridSpring.pos * rowDecay * colDecay;
+        let animOffY   = 0;
+
+        if (springT > 0.001) {
+          const sx = dot.x + animOffX, sy = dot.y;
+          const bx = sx - cx, by = sy - cy;
+          const bd = Math.sqrt(bx*bx + by*by);
+          if (bd > 0.1 && bd < bMax) {
+            const d = 1 + C.barrelStrength * springT * (bd / bMax) * (bd / bMax);
+            animOffX = (cx + bx * d) - dot.x;
+            animOffY = (cy + by * d) - dot.y;
+          }
+        }
+
+        // ── Blend final position ──
+        let drawX = dot.x + dot.ox * cursorW + animOffX * stretchW;
+        let drawY = dot.y + dot.oy * cursorW + animOffY * stretchW;
+
+        // ── Per-dot color (staggered ripple from center) ──
+        const ddx = dot.x - cx, ddy = dot.y - cy;
+        const dotDist = Math.sqrt(ddx * ddx + ddy * ddy);
+        const distNorm = maxDist > 0 ? dotDist / maxDist : 0; // 0=center, 1=corner
+        // Stagger: inner dots transition first, outer dots delayed
+        const elapsed = modeT * (C.rippleDelay + C.colorRippleDuration + C.rippleWidth);
+        const dotDelay = C.rippleDelay + distNorm * C.colorRippleDuration;
+        const dotElapsed = Math.max(0, elapsed - dotDelay);
+        const dotColorT = Math.min(dotElapsed / C.rippleWidth, 1);
+        const dct = sstep(dotColorT);
+        let cr = Math.round(lerp(prR, cuR, dct));
+        let cg = Math.round(lerp(prG, cuG, dct));
+        let cb = Math.round(lerp(prB, cuB, dct));
+
+        // Wave pulse (error/success — blends from current color toward waveDarkColor)
+        let waveT = 0;
+        const curMC = C.modes[mode];
+        if (curMC.waveDarkColor) {
+          const waveAge = errorTimer - curMC.waveDelay;
+          if (waveAge > 0) {
+            const dotWaveAge = waveAge - distNorm * curMC.wavePeriod;
+            if (dotWaveAge > 0) {
+              waveT = (1 - Math.cos(dotWaveAge / curMC.wavePeriod * Math.PI * 2)) * 0.5;
+              cr = Math.round(lerp(cr, curMC.waveDarkColor[0], waveT));
+              cg = Math.round(lerp(cg, curMC.waveDarkColor[1], waveT));
+              cb = Math.round(lerp(cb, curMC.waveDarkColor[2], waveT));
+            }
+          }
+        }
+
+        // ── Wave displacement (push dots radially outward from center) ──
+        if (waveT > 0 && curMC.waveDisplacement && dotDist > 0.1) {
+          const pushAmt = curMC.waveDisplacement * waveT;
+          drawX += (ddx / dotDist) * pushAmt;
+          drawY += (ddy / dotDist) * pushAmt;
+        }
+
+        // ── Convergence pull (settings mode — dots creep toward center) ──
+        if (curMC.convergenceDuration) {
+          const pullAmt = curMC.convergenceAmount * convergencePullT;
+          drawX -= ddx * pullAmt;
+          drawY -= ddy * pullAmt;
+        }
+
+        // ── Spotlight visibility (blend both) ──
+        const csdx = (drawX - smx) / spotRxA, csdy = (drawY - smy) / spotRyA;
+        const cursorVis = hasCursor
+          ? sampleGradient(Math.min(Math.sqrt(csdx*csdx + csdy*csdy) / spotRangeA, 1)) * cursorIntensity
+          : 0;
+        const asdx = (drawX - cx) / spotRxB, asdy = (drawY - cy) / spotRyB;
+        const animVis = sampleGradient(Math.min(Math.sqrt(asdx*asdx + asdy*asdy) / spotRangeB, 1), activeGradient);
+        const vis = cursorVis * cursorW + animVis * centerW;
+
+        // ── Dot radius (with ripple bulge) ──
+        // sine envelope peaks at dotColorT=0.5; falloff exponent shapes the curve
+        const rippleBulge = (dotColorT > 0 && dotColorT < 1)
+          ? Math.pow(Math.sin(dotColorT * Math.PI), C.rippleFalloff)
+          : 0;
+        const curModeConf = C.modes[mode];
+        const modeMaxR = (curModeConf.maxDotRadius)
+          ? lerp(C.maxDotRadius, curModeConf.maxDotRadius, dct)
+          : C.maxDotRadius;
+        const effectiveMaxR = lerp(modeMaxR, C.rippleMaxDotRadius, rippleBulge);
+        const dotRadius  = lerp(C.minDotRadius, effectiveMaxR, vis);
+        const dotOpacity = lerp(C.baseOpacity, 1, vis);
+
+        // ── Chromatic aberration (blend vectors) ──
+        const repMag     = Math.sqrt(dot.ox * dot.ox + dot.oy * dot.oy);
+        const cursorCMag = C.chromaStrength * Math.min(repMag / C.repulsionStrength, 1);
+        let ccVx = 0, ccVy = 0;
+        if (repMag > 0.1) { ccVx = (dot.ox / repMag) * cursorCMag; ccVy = (dot.oy / repMag) * cursorCMag; }
+
+        const animCMag = C.chromaStrength * springT;
+        const rdx = drawX - cx, rdy = drawY - cy;
+        const rd  = Math.sqrt(rdx*rdx + rdy*rdy) || 1;
+        const acVx = (rdx / rd) * animCMag, acVy = (rdy / rd) * animCMag;
+
+        const chromaVecX = ccVx * cursorW + acVx * stretchW;
+        const chromaVecY = ccVy * cursorW + acVy * stretchW;
+        const chromaOff  = Math.sqrt(chromaVecX * chromaVecX + chromaVecY * chromaVecY);
+        const hasChroma  = chromaOff > 0.1;
+        let cnx = 0, cny = 0;
+        if (hasChroma) { cnx = chromaVecX / chromaOff; cny = chromaVecY / chromaOff; }
+
+        // ── Glow ──
+        if (vis > 0.01) {
+          const gr = dotRadius * C.glowRadiusMult;
+          if (hasChroma) {
+            drawChannelGlow(offCtx, drawX, drawY, gr, vis, cnx, cny, chromaOff);
+          } else {
+            const gsx = C.glowAspect;
+            offCtx.save();
+            offCtx.translate(drawX, drawY);
+            offCtx.scale(gsx, 1);
+            const glow = offCtx.createRadialGradient(0, 0, 0, 0, 0, gr);
+            glow.addColorStop(0, `rgba(${cr},${cg},${cb},${(C.glowOpacity * vis).toFixed(3)})`);
+            glow.addColorStop(1, `rgba(${cr},${cg},${cb},0)`);
+            offCtx.beginPath(); offCtx.arc(0, 0, gr, 0, Math.PI * 2);
+            offCtx.fillStyle = glow; offCtx.fill();
+            offCtx.restore();
+          }
+        }
+
+        // ── Dot ──
+        if (hasChroma) {
+          drawChannelDot(offCtx, drawX, drawY, dotRadius, dotOpacity, cnx, cny, chromaOff);
+        } else {
+          offCtx.beginPath(); offCtx.arc(drawX, drawY, dotRadius, 0, Math.PI * 2);
+          offCtx.fillStyle = `rgba(${cr},${cg},${cb},${dotOpacity})`; offCtx.fill();
+        }
+      }
+
+      // ── Blur compositing (blended center, radii, amount) ──
+      const blurCX    = lerp(smx, cx, centerW);
+      const blurCY    = lerp(smy, cy, centerW);
+      const blurAlpha = (hasCursor ? 0.7 : 0) * cursorW + springT * stretchW;
+      const blurSRx   = lerp(spotRxA, spotRxB, centerW);
+      const blurSRy   = lerp(spotRyA, spotRyB, centerW);
+      const blurRange = lerp(spotRangeA, spotRangeB, centerW);
+      compositeWithBlur(blurCX, blurCY, w, h, blurAlpha, blurSRx, blurSRy, blurRange, activeGradient);
+    }
+
+    // ============================
+    // RENDERING HELPERS
+    // ============================
+
+    const CHROMA_CHANNELS = [
+      [255, 0,   0,    1],  // Red — outward
+      [0,   80,  204,  0],  // Blue — center
+      [0,   200, 68,  -1],  // Green — inward
+    ];
+
+    function drawChannelGlow(c, x, y, radius, vis, nx, ny, offset) {
+      const opa = CONFIG.chromaGlowOpacity * vis;
+      const sx = CONFIG.glowAspect;
+      for (const [r, g, b, dir] of CHROMA_CHANNELS) {
+        const px = x + nx * offset * dir, py = y + ny * offset * dir;
+        c.save();
+        c.translate(px, py);
+        c.scale(sx, 1);
+        const grad = c.createRadialGradient(0, 0, 0, 0, 0, radius);
+        grad.addColorStop(0, `rgba(${r},${g},${b},${opa.toFixed(3)})`);
+        grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
+        c.beginPath(); c.arc(0, 0, radius, 0, Math.PI * 2);
+        c.fillStyle = grad; c.fill();
+        c.restore();
+      }
+    }
+
+    function drawChannelDot(c, x, y, radius, opacity, nx, ny, offset) {
+      // Blend chromaOpacity smoothly: at offset=0 channels overlap perfectly → use full opacity
+      // As offset grows, fade to configured chromaOpacity so the split channels look intentional
+      const maxOff = CONFIG.chromaStrength;
+      const splitT = maxOff > 0 ? Math.min(offset / maxOff, 1) : 0;
+      const opa = opacity * lerp(1, CONFIG.chromaOpacity, splitT);
+      c.globalCompositeOperation = 'lighter';
+      for (const [r, g, b, dir] of CHROMA_CHANNELS) {
+        c.beginPath(); c.arc(x + nx * offset * dir, y + ny * offset * dir, radius, 0, Math.PI * 2);
+        c.fillStyle = `rgba(${r},${g},${b},${opa})`; c.fill();
+      }
+      c.globalCompositeOperation = 'source-over';
+    }
+
+    // Pre-build CRT scanline pattern (rebuilt on resize)
+    let crtPattern = null;
+    function buildCRTPattern() {
+      // no-op: scanlines are now a CSS overlay
+      crtPattern = true;
+    }
+
+    function drawGrain(w, h) {
+      const G = CONFIG.grain;
+      if (G.intensity <= 0) return;
+      const d = grainData.data;
+      const len = d.length;
+      // Fast random fill — monochrome noise
+      for (let i = 0; i < len; i += 4) {
+        const v = (Math.random() * 255) | 0;
+        d[i] = d[i + 1] = d[i + 2] = v;
+        d[i + 3] = 255;
+      }
+      grainCtx.putImageData(grainData, 0, 0);
+      ctx.save();
+      ctx.globalAlpha = G.intensity;
+      ctx.globalCompositeOperation = 'overlay';
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(grainCanvas, 0, 0, w, h);
+      ctx.restore();
+    }
+
+    function drawCRT(w, h) {
+      const C = CONFIG.crt;
+      if (!crtPattern) buildCRTPattern();
+
+      // Scanlines + subpixel pattern
+      // (scanlines are now handled by the #crt-scanlines CSS overlay)
+
+      // Subtle brightness flicker
+      if (C.flickerAmount > 0) {
+        const flick = (Math.random() - 0.5) * C.flickerAmount;
+        ctx.save();
+        ctx.globalCompositeOperation = flick > 0 ? 'lighter' : 'multiply';
+        ctx.globalAlpha = Math.abs(flick);
+        ctx.fillStyle = flick > 0 ? '#ffffff' : '#000000';
+        ctx.fillRect(0, 0, w, h);
+        ctx.restore();
+      }
+
+      // Vignette
+      if (C.vignetteStrength > 0) {
+        const cx = w / 2, cy = h / 2;
+        const r = Math.sqrt(cx * cx + cy * cy);
+        const vig = ctx.createRadialGradient(cx, cy, r * 0.4, cx, cy, r);
+        vig.addColorStop(0, 'rgba(0,0,0,0)');
+        vig.addColorStop(1, `rgba(0,0,0,${C.vignetteStrength})`);
+        ctx.fillStyle = vig;
+        ctx.fillRect(0, 0, w, h);
+      }
+
+      // Screen edge curvature shadow
+      if (C.curvature > 0) {
+        const c = C.curvature;
+        // Top/bottom curved edge darkening
+        const edgeGradT = ctx.createLinearGradient(0, 0, 0, h * c * 4);
+        edgeGradT.addColorStop(0, `rgba(0,0,0,${c * 8})`);
+        edgeGradT.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = edgeGradT;
+        ctx.fillRect(0, 0, w, h * c * 4);
+
+        const edgeGradB = ctx.createLinearGradient(0, h, 0, h - h * c * 4);
+        edgeGradB.addColorStop(0, `rgba(0,0,0,${c * 8})`);
+        edgeGradB.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = edgeGradB;
+        ctx.fillRect(0, h - h * c * 4, w, h * c * 4);
+
+        // Left/right
+        const edgeGradL = ctx.createLinearGradient(0, 0, w * c * 4, 0);
+        edgeGradL.addColorStop(0, `rgba(0,0,0,${c * 8})`);
+        edgeGradL.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = edgeGradL;
+        ctx.fillRect(0, 0, w * c * 4, h);
+
+        const edgeGradR = ctx.createLinearGradient(w, 0, w - w * c * 4, 0);
+        edgeGradR.addColorStop(0, `rgba(0,0,0,${c * 8})`);
+        edgeGradR.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = edgeGradR;
+        ctx.fillRect(w - w * c * 4, 0, w * c * 4, h);
+      }
+    }
+
+    function compositeWithBlur(blurCX, blurCY, w, h, blurAlpha, spotRx, spotRy, spotRange, gradient) {
+      const C = CONFIG;
+
+      // Always draw sharp base
+      ctx.drawImage(offscreen, 0, 0);
+
+      if (C.blurMax <= 0 || blurAlpha <= 0.005) return;
+
+      // Blurred layer
+      ctx.save();
+      ctx.globalAlpha = blurAlpha;
+      ctx.filter = `blur(${C.blurMax}px)`;
+      ctx.drawImage(offscreen, 0, 0);
+      ctx.restore();
+
+      // Spotlight mask: sharp dots masked by gradient
+      maskCtx.clearRect(0, 0, w, h);
+      maskCtx.drawImage(offscreen, 0, 0);
+      maskCtx.globalCompositeOperation = 'destination-in';
+      const maxR = Math.max(spotRx, spotRy) * spotRange;
+      maskCtx.save();
+      maskCtx.translate(blurCX, blurCY);
+      maskCtx.scale(1, spotRx / spotRy);
+      const grad = maskCtx.createRadialGradient(0, 0, 0, 0, 0, maxR);
+      const gradPts = gradient || C.spotlightGradient;
+      for (const [pos, opa] of gradPts)
+        grad.addColorStop(Math.min(pos / 100, 1), `rgba(255,255,255,${opa / 100})`);
+      maskCtx.fillStyle = grad;
+      maskCtx.fillRect(-w, -h * (spotRy / spotRx), w * 2, h * 2 * (spotRy / spotRx));
+      maskCtx.restore();
+      maskCtx.globalCompositeOperation = 'source-over';
+
+      // Punch sharp focus through blur
+      ctx.save();
+      ctx.globalAlpha = blurAlpha;
+      ctx.drawImage(maskCanvas, 0, 0);
+      ctx.restore();
+    }
+
+    // ============================
+    // MODE SWITCHING & EVENTS
+    // ============================
+
+    function setMode(m) {
+      if (m === mode) return;
+      prevMode = mode;
+      mode = m;
+      modeT = 0;
+      textSwapped = false;
+
+      if (m === 'B') {
+        loopTimer = 0;
+        phase = 'stretch'; stretchTimer = 0;
+        gridSpring.pos = gridSpring.vel = 0;
+        textSpring.pos = textSpring.vel = 0;
+      }
+      if (m === 'error' || m === 'success') {
+        errorTimer = 0;
+      }
+      if (CONFIG.modes[m].convergenceDuration) {
+        convergenceTimer = 0;
+      }
+      // Update toggle buttons
+      document.querySelectorAll('#mode-toggle button').forEach(btn => {
+        const active = btn.dataset.mode === m;
+        btn.style.background = active ? 'rgba(255,255,255,0.15)' : 'transparent';
+        btn.style.borderColor = active ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.15)';
+        btn.style.color = active ? '#fff' : 'rgba(255,255,255,0.4)';
+      });
+    }
+
+    // Toggle button clicks
+    document.querySelectorAll('#mode-toggle button').forEach(btn => {
+      btn.addEventListener('click', () => setMode(btn.dataset.mode));
+    });
+
+    document.getElementById('canvas-wrap').addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = e.clientX - rect.left;
+      mouse.y = e.clientY - rect.top;
+      mouseActive = true;
+    });
+    document.getElementById('canvas-wrap').addEventListener('mouseleave', () => { mouseActive = false; });
+    document.addEventListener('mouseleave', () => { mouseActive = false; });
+    // Close dropdowns on outside click
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.subtitle-dropdown.open').forEach(dd => dd.classList.remove('open'));
+    });
+
+    // Arrow key navigation between modes
+    const modeOrder = ['A', 'settings', 'B', 'error', 'success'];
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+        const idx = modeOrder.indexOf(mode);
+        let next;
+        if (e.key === 'ArrowRight') {
+          next = modeOrder[(idx + 1) % modeOrder.length];
+        } else {
+          next = modeOrder[(idx - 1 + modeOrder.length) % modeOrder.length];
+        }
+        setMode(next);
+      }
+    });
+
+    window.addEventListener('resize', resize);
+
+
+    // ============================
+    // INIT
+    // ============================
+
+    resize();
+    requestAnimationFrame(draw);
+
+  </script>
+</body>
+</html>

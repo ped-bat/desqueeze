@@ -15,7 +15,6 @@ import log from "../logger.js";
 import { BinaryResolver } from "../services/binary-resolver.js";
 import { CommandRunner } from "../services/command-runner.js";
 import { ExifToolService } from "../services/exiftool-service.js";
-import { verifyFileExists } from "../utils/file-utils.js";
 
 class DngOperations {
 	/**
@@ -95,10 +94,6 @@ class DngOperations {
 	 * @param {number} ratioY - Vertical ratio component
 	 */
 	async writeDesqueezeTag(dngPath, ratioX, ratioY) {
-		if (ratioX <= 0 || ratioY <= 0) {
-			throw new Error(`Invalid ratio values: ${ratioX}/${ratioY}. Both must be positive.`);
-		}
-
 		log.info(`Setting DefaultScale to ${ratioX} ${ratioY}...`);
 		await this._exiftool.write(
 			dngPath,

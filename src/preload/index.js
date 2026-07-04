@@ -1,6 +1,7 @@
 const { contextBridge, ipcRenderer, webUtils } = require("electron");
 
 contextBridge.exposeInMainWorld("api", {
+	getConfig: () => ipcRenderer.invoke("get-config"),
 	selectImageFile: () => ipcRenderer.invoke("select-image-file"),
 	desqueezeFile: (filePath, ratioX, ratioY, outputOpts) =>
 		ipcRenderer.invoke("desqueeze-file", filePath, ratioX, ratioY, outputOpts),

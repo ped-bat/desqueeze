@@ -6,25 +6,20 @@
  *   2. Check system version (brew info)
  *      2a. If system is behind latest → upgrade via brew
  *   3. Copy system binary into project resources/bin/{platform}/
+ *      3a. On macOS, bundle any Homebrew dylibs the binary links against
+ *          into resources/bin/darwin/lib/ and rewrite install names to
+ *          @executable_path/lib/… so the bundled copy is self-contained
  *   4. Update dependencies.json manifest
  *
  * Exports:
- *   updateBinaries()  — runs the full flow, returns summary
+ *   updateBinaries()      — runs the full flow, returns summary
+ *   makeSelfContained()   — dylib bundling step for a single macOS binary
  */
 
 import fs from "fs";
 import path from "path";
 import { execSync } from "child_process";
-
-// ── Colors ─────────────────────────────────────────────────
-
-const DIM = "\x1b[2m";
-const BOLD = "\x1b[1m";
-const GREEN = "\x1b[32m";
-const YELLOW = "\x1b[33m";
-const RED = "\x1b[31m";
-const CYAN = "\x1b[36m";
-const RESET = "\x1b[0m";
+import { DIM, BOLD, GREEN, YELLOW, RED, CYAN, RESET } from "./term.js";
 
 // ── Paths ──────────────────────────────────────────────────
 
@@ -52,8 +47,9 @@ function findInPath(name) {
  *   -1 if a < b, 0 if a == b, 1 if a > b
  */
 function compareSemver(a, b) {
-	const pa = a.replace(/^v/, "").split(".").map(Number);
-	const pb = b.replace(/^v/, "").split(".").map(Number);
+	// parseInt tolerates suffixes like brew's revision markers ("0.7.0_1")
+	const pa = a.replace(/^v/, "").split(".").map((s) => parseInt(s, 10) || 0);
+	const pb = b.replace(/^v/, "").split(".").map((s) => parseInt(s, 10) || 0);
 	for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
 		const na = pa[i] || 0;
 		const nb = pb[i] || 0;
@@ -153,6 +149,104 @@ function copyFromSystem(dep, targetPath) {
 	return true;
 }
 
+// ── Self-contained dylib bundling (macOS) ──────────────────
+
+/** Directory name (next to the binary) that holds bundled dylibs */
+const DYLIB_DIR_NAME = "lib";
+
+function isBrewDylibPath(p) {
+	return (
+		p.startsWith("/opt/homebrew/") ||
+		p.startsWith("/usr/local/Cellar/") ||
+		p.startsWith("/usr/local/opt/")
+	);
+}
+
+/**
+ * List the dylib install names a Mach-O file links against (via otool -L).
+ * For dylibs the first entry is the file's own LC_ID_DYLIB — callers filter it.
+ */
+function getLinkedDylibs(machoPath) {
+	const out = execSync(`otool -L "${machoPath}"`, {
+		encoding: "utf-8",
+		stdio: ["pipe", "pipe", "pipe"],
+	});
+	return out
+		.split("\n")
+		.slice(1) // drop the "path:" header line
+		.map((line) => line.match(/^\t(\S+)/)?.[1])
+		.filter(Boolean);
+}
+
+/**
+ * Make a macOS binary self-contained: copy every Homebrew dylib in its
+ * dependency closure into {binDir}/lib/ and rewrite install names to
+ * @executable_path/lib/{name}, then ad-hoc re-sign (required on arm64,
+ * where install_name_tool invalidates the signature).
+ *
+ * No-op for binaries with no Homebrew dependencies (e.g. static dnglab).
+ *
+ * @param {string} binPath - Absolute path to the copied binary
+ * @returns {{bundled: string[], offenders: string[]}} bundled dylib names and
+ *   any Homebrew references that survived rewriting (should be empty)
+ */
+export function makeSelfContained(binPath) {
+	const libDir = path.join(path.dirname(binPath), DYLIB_DIR_NAME);
+
+	// BFS over the Homebrew dylib closure, dedup'd by install-name basename
+	// (e.g. /opt/homebrew/opt/... and /opt/homebrew/Cellar/... alias the same lib)
+	const copied = new Map(); // basename → copied path
+	const queue = [binPath];
+	while (queue.length > 0) {
+		const file = queue.shift();
+		const selfName = path.basename(file);
+		for (const dep of getLinkedDylibs(file).filter(isBrewDylibPath)) {
+			const name = path.basename(dep);
+			if (name === selfName || copied.has(name)) continue; // own ID / already copied
+			const src = fs.realpathSync(dep);
+			const dst = path.join(libDir, name);
+			if (!fs.existsSync(libDir)) fs.mkdirSync(libDir, { recursive: true });
+			// unlink first: overwriting in place trips macOS's signature cache
+			if (fs.existsSync(dst)) fs.unlinkSync(dst);
+			fs.copyFileSync(src, dst);
+			fs.chmodSync(dst, 0o755);
+			copied.set(name, dst);
+			queue.push(dst);
+		}
+	}
+
+	if (copied.size === 0) return { bundled: [], offenders: [] };
+
+	// Rewrite install names in the binary and every bundled dylib
+	for (const file of [binPath, ...copied.values()]) {
+		const isDylib = file.endsWith(".dylib");
+		const selfName = path.basename(file);
+		const args = [];
+		if (isDylib) {
+			args.push("-id", `@executable_path/${DYLIB_DIR_NAME}/${selfName}`);
+		}
+		for (const dep of getLinkedDylibs(file).filter(isBrewDylibPath)) {
+			const name = path.basename(dep);
+			if (isDylib && name === selfName) continue; // LC_ID_DYLIB, handled by -id
+			args.push("-change", dep, `@executable_path/${DYLIB_DIR_NAME}/${name}`);
+		}
+		if (args.length === 0) continue;
+		const quoted = args.map((a) => `"${a}"`).join(" ");
+		execSync(`install_name_tool ${quoted} "${file}"`, { stdio: ["pipe", "pipe", "pipe"] });
+		execSync(`codesign --force --sign - "${file}"`, { stdio: ["pipe", "pipe", "pipe"] });
+	}
+
+	// Verify nothing still points at Homebrew
+	const offenders = [];
+	for (const file of [binPath, ...copied.values()]) {
+		for (const dep of getLinkedDylibs(file).filter(isBrewDylibPath)) {
+			offenders.push(`${path.basename(file)} → ${dep}`);
+		}
+	}
+
+	return { bundled: [...copied.keys()], offenders };
+}
+
 // ── Main flow ──────────────────────────────────────────────
 
 /**
@@ -230,6 +324,24 @@ export async function updateBinaries() {
 			const finalVersion = systemVersion || projectVersion;
 			const size = (fs.statSync(binPath).size / 1024 / 1024).toFixed(2);
 			console.log(`  ${GREEN}✓${RESET} ${finalVersion} (${size} MB)`);
+
+			// ── Step 3a: Bundle Homebrew dylibs (macOS) ─────
+			if (currentPlatform === "darwin") {
+				try {
+					const { bundled, offenders } = makeSelfContained(binPath);
+					if (bundled.length > 0) {
+						console.log(`  ${GREEN}✓${RESET} Bundled ${bundled.length} dylib(s): ${bundled.join(", ")}`);
+					}
+					if (offenders.length > 0) {
+						console.log(`  ${RED}✗${RESET} Still linked against Homebrew:`);
+						offenders.forEach((o) => console.log(`    ${DIM}${o}${RESET}`));
+						summary.errors.push({ dep: depName, message: "Dylib bundling left Homebrew references" });
+					}
+				} catch (err) {
+					console.log(`  ${RED}✗${RESET} Dylib bundling failed: ${err.message?.split("\n")[0]}`);
+					summary.errors.push({ dep: depName, message: `Dylib bundling failed: ${err.message}` });
+				}
+			}
 
 			// Update manifest if version changed
 			if (finalVersion !== projectVersion) {

@@ -1,7 +1,7 @@
 # Desqueeze
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey)]()
+[![Platform](https://img.shields.io/badge/platform-macOS-lightgrey)]()
 
 **Desktop app for desqueezing anamorphic photos and RAW files.**
 
@@ -34,7 +34,7 @@ Common anamorphic squeeze factors:
 - **Bitmap support** — converts JPG, PNG, TIFF, WebP to DNG with proper color profiles
 - **Batch processing** — drag-and-drop entire folders, process multiple files in parallel
 - **Color-accurate** — dual-illuminant DNG profiles for proper D65↔D50 chromatic adaptation
-- **Cross-platform** — macOS, Windows, and Linux
+- **macOS app** — Windows/Linux support planned (binaries are currently bundled for macOS only)
 
 <!-- BEGIN:RAW_FORMATS -->
 ### Supported RAW Formats
@@ -57,8 +57,9 @@ Common anamorphic squeeze factors:
 ## System Requirements
 
 - **Node.js** ≥ 18
-- **DNGLab** — must be installed on the system ([installation guide](https://github.com/dnglab/dnglab))
-- **OS**: macOS, Windows 10+, or Linux
+- **DNGLab** — must be installed on the system (`brew install dnglab`)
+- **LibRaw** — provides `dcraw_emu` for RAW exports (`brew install libraw`)
+- **OS**: macOS
 
 ---
 
@@ -72,13 +73,13 @@ npm install
 
 ### 2. Set Up DNGLab Binary
 
-This copies the system-installed `dnglab` binary into the app's resources for bundling:
+This copies the system-installed `dnglab` and `dcraw_emu` binaries into the app's resources for bundling:
 
 ```bash
 npm run setup
 ```
 
-> **Note:** You must have `dnglab` installed first. On macOS: `brew install dnglab`
+> **Note:** You must have the binaries installed first: `brew install dnglab libraw`
 
 ### 3. Run in Development
 
@@ -101,8 +102,6 @@ This creates a distributable app in the `dist/` folder.
 | Platform | Build Target |
 |---|---|
 | macOS | `.dmg` |
-| Windows | NSIS installer |
-| Linux | `.AppImage` |
 
 ---
 
@@ -119,16 +118,17 @@ This creates a distributable app in the `dist/` folder.
 ```
 src/main/
 ├── index.js                    # AppManager — Electron lifecycle
-├── config.js                   # AppConfig — constants, formats, feature flags
+├── config.js                   # AppConfig — constants, formats, defaults
 ├── logger.js                   # Logging (electron-log)
 ├── ipc/                        # IPC layer (Electron ↔ Renderer)
 │   ├── index.js                # IpcRegistry — channel registration
 │   ├── file-handler.js         # FileHandler — file dialogs, path expansion
 │   └── process-handler.js      # ProcessHandler — desqueeze dispatch
 ├── services/                   # Shared services (singletons, wrappers)
-│   ├── binary-resolver.js      # BinaryResolver — locates dnglab binary
+│   ├── binary-resolver.js      # BinaryResolver — locates bundled binaries
 │   ├── exiftool-service.js     # ExifToolService — EXIF read/write lifecycle
 │   ├── command-runner.js       # CommandRunner — child_process wrapper
+│   ├── raw-converter.js        # RawConverterService — RAW → TIFF via dcraw_emu
 │   └── sharp-service.js        # SharpService — image metadata & transforms
 ├── analyzers/                  # Image analysis
 │   ├── image-analyzer.js       # ImageAnalyzer — metadata extraction
@@ -136,7 +136,6 @@ src/main/
 ├── builders/                   # Command construction
 │   └── dng-command-builder.js  # DngCommandBuilder — builds makedng args
 ├── processors/                 # Processing pipelines
-│   ├── base-processor.js       # BaseProcessor — abstract base class
 │   ├── raw-processor.js        # RawProcessor — RAW → DNG pipeline
 │   ├── bitmap-processor.js     # BitmapProcessor — Bitmap → DNG pipeline
 │   ├── desqueeze-processor.js  # DesqueezeProcessor — main orchestrator
@@ -170,24 +169,11 @@ src/main/
 | Command | Description |
 |---|---|
 | `npm run dev` | Start in development mode with hot reload |
-| `npm run build` | Build for production |
-| `npm start` | Preview the production build |
-| `npm run setup` | Copy dnglab binary into resources |
-| `npm run pack` | Build + package (unpacked) |
-| `npm run dist` | Build + package distributable |
+| `npm test` | Run the unit / integration / E2E test suites |
+| `npm run preview` | Preview the production build |
+| `npm run setup` | Update bundled binaries + camera support list |
+| `npm run dist` | Full release flow: binaries, version bump, notes, build |
 
-### Diagnostic Scripts
-
-```bash
-# Inspect image metadata (color profile, ICC, EXIF)
-node inspect-image.js <image-path>
-
-# Analyze color profile for DNG conversion
-node analyze-color.js <image-path>
-
-# Test the ImageAnalyzer + command builder modules
-node test-modules.mjs <image-path>
-```
 
 ---
 
@@ -196,7 +182,7 @@ node test-modules.mjs <image-path>
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/my-feature`)
 3. Make your changes following the existing code style (OOP classes, JSDoc)
-4. Test with `npm run dev` and the diagnostic scripts
+4. Test with `npm run dev` and `npm test`
 5. Submit a pull request
 
 ---

@@ -1,53 +1,11 @@
 // Desqueeze app - Renderer process
 
-// === Configuration (mirrors AppConfig values) ===
-const CONFIG = {
-	MAX_STRETCH_FACTOR: 5.0,
-	STRETCH_WARN_THRESHOLD: 3.0,
-	MAX_CONCURRENCY: 3,
-	DEFAULT_RATIO_X: "1.33",
-	DEFAULT_RATIO_Y: "1",
-	DEFAULT_OUTPUT_FORMAT: "dng",
-};
-
-// === Utils ===
-function pLimit(concurrency) {
-	const queue = [];
-	let activeCount = 0;
-
-	const next = () => {
-		activeCount--;
-		if (queue.length > 0) {
-			queue.shift()();
-		}
-	};
-
-	const run = async (fn, resolve, reject) => {
-		activeCount++;
-		const result = (async () => fn())();
-		try {
-			const value = await result;
-			resolve(value);
-		} catch (err) {
-			reject(err);
-		}
-		next();
-	};
-
-	const enqueue = (fn, resolve, reject) => {
-		queue.push(run.bind(null, fn, resolve, reject));
-		if (activeCount < concurrency && queue.length > 0) {
-			queue.shift()();
-		}
-	};
-
-	const generator = (fn, ...args) =>
-		new Promise((resolve, reject) => {
-			enqueue(() => fn(...args), resolve, reject);
-		});
-
-	return generator;
-}
+/**
+ * App configuration (limits, defaults, output formats).
+ * Loaded from the main process at startup so there is a single
+ * source of truth — see AppConfig.RENDERER_CONFIG in src/main/config.js.
+ */
+let CONFIG = null;
 
 // === Preferences ===
 
@@ -56,28 +14,22 @@ function initRatioInput(id, storageKey, defaultValue) {
 	if (!input) return;
 
 	const saved = localStorage.getItem(storageKey);
-	if (saved !== null) {
-		input.value = saved;
-	} else {
-		input.value = defaultValue;
-	}
+	input.value = saved !== null ? saved : defaultValue;
 
 	input.addEventListener("change", () => {
 		localStorage.setItem(storageKey, input.value);
 	});
 }
 
-function initToggle(id, storageKey, defaultValue, onChange) {
+function initToggle(id, storageKey, defaultValue) {
 	const toggle = document.getElementById(id);
 	if (!toggle) return;
 
 	const saved = localStorage.getItem(storageKey);
 	toggle.checked = saved !== null ? saved === "true" : defaultValue;
-	onChange?.(toggle.checked);
 
 	toggle.addEventListener("change", () => {
 		localStorage.setItem(storageKey, toggle.checked);
-		onChange?.(toggle.checked);
 	});
 }
 
@@ -113,7 +65,7 @@ function linkSliderLabel(sliderId, labelId) {
 
 /**
  * Initialise the output-format dropdown and format-specific controls.
- * Restores persisted choices from localStorage.
+ * Defaults come from CONFIG.OUTPUT_FORMATS; user choices persist in localStorage.
  */
 function initOutputFormat() {
 	const select = document.getElementById("output-format");
@@ -134,12 +86,13 @@ function initOutputFormat() {
 	linkSliderLabel("png-compression", "png-compression-val");
 	linkSliderLabel("webp-quality", "webp-quality-val");
 
-	// Restore saved per-format values
-	restoreFormatControl("jpg-quality", "jpgQuality", "95");
-	restoreFormatControl("png-compression", "pngCompression", "2");
-	restoreFormatControl("tiff-compression", "tiffCompression", "lzw");
-	restoreFormatControl("webp-quality", "webpQuality", "90");
-	restoreFormatToggle("webp-lossless", "webpLossless", false);
+	// Restore saved per-format values (defaults from main-process config)
+	const defaults = CONFIG.OUTPUT_FORMATS;
+	restoreFormatControl("jpg-quality", "jpgQuality", defaults.jpg.options.quality);
+	restoreFormatControl("png-compression", "pngCompression", defaults.png.options.compressionLevel);
+	restoreFormatControl("tiff-compression", "tiffCompression", defaults.tiff.options.compression);
+	restoreFormatControl("webp-quality", "webpQuality", defaults.webp.options.quality);
+	restoreFormatToggle("webp-lossless", "webpLossless", defaults.webp.options.lossless);
 }
 
 function restoreFormatControl(elementId, storageKey, defaultValue) {
@@ -168,34 +121,38 @@ function restoreFormatToggle(elementId, storageKey, defaultValue) {
  * @returns {{ format: string, options: object }}
  */
 function getOutputOptions() {
-	const format = document.getElementById("output-format")?.value || "dng";
+	const format = document.getElementById("output-format")?.value || CONFIG.DEFAULT_OUTPUT_FORMAT;
+	const defaults = CONFIG.OUTPUT_FORMATS[format]?.options || {};
 
 	switch (format) {
 		case "jpg":
 			return {
 				format,
-				options: { quality: parseInt(document.getElementById("jpg-quality")?.value || "95", 10) },
+				options: { quality: parseInt(document.getElementById("jpg-quality")?.value, 10) || defaults.quality },
 			};
-		case "png":
+		case "png": {
+			// compressionLevel 0 is valid, so guard against NaN explicitly
+			const level = parseInt(document.getElementById("png-compression")?.value, 10);
 			return {
 				format,
-				options: { compressionLevel: parseInt(document.getElementById("png-compression")?.value || "2", 10) },
+				options: { compressionLevel: Number.isNaN(level) ? defaults.compressionLevel : level },
 			};
+		}
 		case "tiff":
 			return {
 				format,
-				options: { compression: document.getElementById("tiff-compression")?.value || "lzw" },
+				options: { compression: document.getElementById("tiff-compression")?.value || defaults.compression },
 			};
 		case "webp":
 			return {
 				format,
 				options: {
-					quality: parseInt(document.getElementById("webp-quality")?.value || "90", 10),
+					quality: parseInt(document.getElementById("webp-quality")?.value, 10) || defaults.quality,
 					lossless: document.getElementById("webp-lossless")?.checked || false,
 				},
 			};
 		default:
-			return { format: "dng", options: {} };
+			return { format, options: {} };
 	}
 }
 
@@ -225,19 +182,19 @@ async function getValidatedRatios() {
 		}
 	}
 
-	if (ratioX / ratioY > CONFIG.MAX_STRETCH_FACTOR) {
+	const stretchFactor = ratioX / ratioY;
+
+	if (stretchFactor > CONFIG.MAX_STRETCH_FACTOR) {
 		await window.api.showErrorDialog(
 			"Stretch Factor Too High",
-			`The stretch factor (${(ratioX / ratioY).toFixed(
-				2
-			)}) exceeds the maximum of ${CONFIG.MAX_STRETCH_FACTOR}.`
+			`The stretch factor (${stretchFactor.toFixed(2)}) exceeds the maximum of ${CONFIG.MAX_STRETCH_FACTOR}.`
 		);
 		return null;
 	}
 
-	if (ratioX / ratioY > CONFIG.STRETCH_WARN_THRESHOLD) {
+	if (stretchFactor > CONFIG.STRETCH_WARN_THRESHOLD) {
 		const proceed = confirm(
-			`The stretch factor is quite high (${(ratioX / ratioY).toFixed(2)}).\n` +
+			`The stretch factor is quite high (${stretchFactor.toFixed(2)}).\n` +
 			"Typical anamorphic lenses are 2x or less.\n\n" +
 			"Do you want to continue?"
 		);
@@ -252,13 +209,13 @@ async function getValidatedRatios() {
 async function processFiles(filePaths, ratioX, ratioY, skippedCount = 0) {
 	const startTime = performance.now();
 	const outputOpts = getOutputOptions();
-	
+
 	const results = await Promise.all(
-		filePaths.map((fp) => 
+		filePaths.map((fp) =>
 			window.api.desqueezeFile(fp, ratioX, ratioY, outputOpts)
 		)
 	);
-	
+
 	const elapsed = (performance.now() - startTime) / 1000;
 
 	const successCount = results.filter((r) => r.success).length;
@@ -268,7 +225,11 @@ async function processFiles(filePaths, ratioX, ratioY, skippedCount = 0) {
 		displayResults(successCount, failedCount, elapsed, skippedCount);
 		if (successCount > 0) playSound();
 	} else if (failedCount > 0) {
-		alert(`Error: ${results.find((r) => !r.success).error}`);
+		const firstError = results.find((r) => !r.success).error;
+		displayMessage(
+			`✗ <strong>${failedCount}</strong> ${plural(failedCount)} failed — ${firstError}`,
+			"error"
+		);
 	}
 }
 
@@ -297,6 +258,10 @@ function playSound() {
 	new Audio("./assets/audio/complete.wav").play().catch(() => {});
 }
 
+function plural(n) {
+	return n === 1 ? "file" : "files";
+}
+
 function formatTime(seconds) {
 	if (seconds < 1) return `${(seconds * 1000).toFixed(0)}ms`;
 	if (seconds < 60) return `${seconds.toFixed(2)}s`;
@@ -310,19 +275,24 @@ function displayMessage(message, type = "warning") {
 	scheduleFadeOut(container);
 }
 
+/** Pending fade-out timers, cancelled whenever a new message is shown */
+let fadeTimers = [];
+
 function scheduleFadeOut(container, delay = 4000) {
-	setTimeout(() => {
-		const alerts = container.querySelectorAll(".alert");
-		alerts.forEach((alert) => alert.classList.add("opacity-0"));
-		setTimeout(() => (container.innerHTML = ""), 500);
-	}, delay);
+	fadeTimers.forEach(clearTimeout);
+	fadeTimers = [
+		setTimeout(() => {
+			const alerts = container.querySelectorAll(".alert");
+			alerts.forEach((alert) => alert.classList.add("opacity-0"));
+			fadeTimers.push(setTimeout(() => (container.innerHTML = ""), 500));
+		}, delay),
+	];
 }
 
 function displayResults(successCount, failedCount, elapsed, skippedCount = 0) {
 	const container = document.getElementById("metadata-display");
 	if (!container) return;
 
-	const plural = (n) => (n === 1 ? "file" : "files");
 	const skippedText =
 		skippedCount > 0
 			? `, ${skippedCount} ${plural(skippedCount)} already desqueezed`
@@ -361,14 +331,11 @@ function initDropZone() {
 	// Click to open file dialog
 	dropZone.addEventListener("click", async () => {
 		const selection = await window.api.selectImageFile();
-		if (
-			!selection ||
-			(Array.isArray(selection) && selection.length === 0)
-		) {
+		if (!selection || selection.length === 0) {
 			displayMessage("No files were selected");
 			return;
 		}
-		await handleFiles(Array.isArray(selection) ? selection : [selection]);
+		await handleFiles(selection);
 	});
 
 	// Drag and drop
@@ -412,7 +379,9 @@ function initDropZone() {
 
 // === Init ===
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+	CONFIG = await window.api.getConfig();
+
 	initToggle("sound-toggle", "soundEnabled", true);
 	initRatioInput("ratio-x", "ratioX", CONFIG.DEFAULT_RATIO_X);
 	initRatioInput("ratio-y", "ratioY", CONFIG.DEFAULT_RATIO_Y);

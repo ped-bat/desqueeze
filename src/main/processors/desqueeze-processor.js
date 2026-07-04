@@ -16,6 +16,13 @@ import { BitmapProcessor } from "./bitmap-processor.js";
 import { DngOperations } from "./dng-operations.js";
 import { RawConverterService } from "../services/raw-converter.js";
 
+/**
+ * @typedef {Object} OutputOptions
+ * @property {string}  format  - Output format key (e.g. "dng", "jpg", "png", "tiff", "webp")
+ * @property {string}  ext     - Output file extension (e.g. ".dng", ".jpg")
+ * @property {object}  options - Format-specific options (quality, compression, etc.)
+ */
+
 class DesqueezeProcessor {
 	/**
 	 * @param {Object} [deps] - Injectable dependencies
@@ -49,7 +56,7 @@ class DesqueezeProcessor {
 	 * Build a normalised OutputOptions object from the renderer payload.
 	 *
 	 * @param {{ format?: string, options?: object }} [raw] - Raw payload from IPC
-	 * @returns {import("./base-processor.js").OutputOptions}
+	 * @returns {OutputOptions}
 	 */
 	_buildOutputOpts(raw = {}) {
 		const formatKey = raw.format || AppConfig.DEFAULT_OUTPUT_FORMAT;

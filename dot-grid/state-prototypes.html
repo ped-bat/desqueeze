@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ready State Prototypes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Science+Gothic:wdth,wght@50..200,100..900&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #222; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .tabs {
+      display: flex; gap: 2px; margin-bottom: 8px; z-index: 10;
+      font-family: 'Science Gothic', sans-serif; font-size: 0.7rem;
+      text-transform: uppercase; letter-spacing: 0.12em;
+    }
+    .tabs button {
+      padding: 6px 18px; border: 1px solid rgba(255,255,255,0.2);
+      background: transparent; color: rgba(255,255,255,0.4);
+      cursor: pointer; border-radius: 3px;
+      font: inherit; letter-spacing: inherit; text-transform: inherit;
+      transition: all 0.2s;
+    }
+    .tabs button.active {
+      background: rgba(255,255,255,0.15); color: #fff;
+      border-color: rgba(255,255,255,0.4);
+    }
+    .tabs button:hover:not(.active) { color: rgba(255,255,255,0.6); }
+    .canvas-wrap {
+      position: relative; display: inline-block;
+    }
+    canvas { display: block; background: #0a0a0a; }
+    .label {
+      position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+      font-family: 'Science Gothic', sans-serif; font-size: 0.65rem;
+      text-transform: uppercase; letter-spacing: 0.15em; color: rgba(255,255,255,0.3);
+      pointer-events: none; z-index: 5;
+    }
+    .center-text {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scaleX(1.5);
+      font-family: 'Science Gothic', sans-serif; font-weight: 300;
+      font-size: 1.8rem; text-transform: uppercase; pointer-events: none;
+      z-index: 1; letter-spacing: 0.1em;
+      font-variation-settings: 'wght' 300, 'wdth' 80;
+    }
+    .chroma { display: block; mix-blend-mode: screen; }
+    .chroma-r { color: #ff0000; position: absolute; left: 0; top: 0; text-shadow: 0 0 12px rgba(255,0,0,0.6), 0 0 30px rgba(255,0,0,0.3); }
+    .chroma-g { color: #0050cc; position: relative; text-shadow: 0 0 12px rgba(0,80,204,0.6), 0 0 30px rgba(0,80,204,0.3); }
+    .chroma-b { color: #00cc44; position: absolute; left: 0; top: 0; text-shadow: 0 0 12px rgba(0,200,68,0.6), 0 0 30px rgba(0,200,68,0.3); }
+    #crt-scanlines {
+      position: absolute; inset: 0; z-index: 10; pointer-events: none;
+      background: repeating-linear-gradient(to bottom, transparent 0px, transparent 1px, rgba(0,0,0,0.14) 1px, rgba(0,0,0,0.14) 2px);
+    }
+  </style>
+</head>
+<body>
+  <div class="tabs">
+    <button class="active" data-tab="0">1 · Breathing</button>
+    <button data-tab="1">2 · Orbit</button>
+    <button data-tab="2">3 · Convergence</button>
+    <button data-tab="3">5 · Shimmer</button>
+  </div>
+  <div class="canvas-wrap" id="wrap">
+    <canvas id="grid"></canvas>
+    <div id="crt-scanlines"></div>
+    <div class="center-text">
+      <span class="chroma chroma-r">Ready</span>
+      <span class="chroma chroma-g">Ready</span>
+      <span class="chroma chroma-b">Ready</span>
+    </div>
+    <div class="label" id="desc"></div>
+  </div>
+
+  <script>
+    // ============================
+    // SHARED CONFIG
+    // ============================
+    const W = 1850, H = 1000;
+    const DOT_SPACING = 40;
+    const MAX_DOT_R   = 2;
+    const MIN_DOT_R   = 0;
+    const BASE_OPACITY = 0.06;
+    const GLOW_MULT   = 6;
+    const GLOW_ASPECT = 1.5;
+    const GLOW_OPACITY = 0.10;
+
+    const SPOTLIGHT = {
+      width: 0.25, height: 0.2, range: 5,
+      gradient: [[10,0],[60,100],[100,0]],
+    };
+
+    const CRT = {
+      vignetteStrength: 0.4,
+      flickerAmount: 0.015,
+      curvature: 0.02,
+    };
+
+    // ============================
+    // UTILITIES
+    // ============================
+    const lerp  = (a, b, t) => a + (b - a) * t;
+    const sstep = t => t * t * (3 - 2 * t);
+
+    function sampleGradient(t) {
+      const pts = SPOTLIGHT.gradient;
+      const pct = t * 100;
+      if (pct <= pts[0][0])              return pts[0][1] / 100;
+      if (pct >= pts[pts.length - 1][0]) return pts[pts.length - 1][1] / 100;
+      for (let i = 0; i < pts.length - 1; i++) {
+        const [p0, o0] = pts[i], [p1, o1] = pts[i + 1];
+        if (pct >= p0 && pct <= p1)
+          return lerp(o0, o1, sstep((pct - p0) / (p1 - p0))) / 100;
+      }
+      return 0;
+    }
+
+    // ============================
+    // CANVAS SETUP
+    // ============================
+    const canvas = document.getElementById('grid');
+    const ctx    = canvas.getContext('2d');
+    const off    = document.createElement('canvas');
+    const offCtx = off.getContext('2d');
+    const mask   = document.createElement('canvas');
+    const maskCtx= mask.getContext('2d');
+
+    canvas.width = off.width = mask.width  = W;
+    canvas.height= off.height= mask.height = H;
+    canvas.style.width  = W + 'px';
+    canvas.style.height = H + 'px';
+
+    // ============================
+    // GRID
+    // ============================
+    const cx = W / 2, cy = H / 2;
+    const cols = Math.ceil(W / DOT_SPACING) + 1;
+    const rows = Math.ceil(H / DOT_SPACING) + 1;
+    const dotOX = (W - (cols - 1) * DOT_SPACING) / 2;
+    const dotOY = (H - (rows - 1) * DOT_SPACING) / 2;
+    const maxDist = Math.sqrt(cx * cx + cy * cy);
+
+    const dots = [];
+    for (let r = 0; r < rows; r++)
+      for (let c = 0; c < cols; c++) {
+        const x = dotOX + c * DOT_SPACING;
+        const y = dotOY + r * DOT_SPACING;
+        const ddx = x - cx, ddy = y - cy;
+        dots.push({
+          x, y, col: c, row: r,
+          dist: Math.sqrt(ddx * ddx + ddy * ddy),
+          distNorm: Math.sqrt(ddx * ddx + ddy * ddy) / maxDist,
+          angle: Math.atan2(ddy, ddx),
+          // shimmer state
+          shimmerPhase: Math.random() * Math.PI * 2,
+          shimmerNext: Math.random() * 4 + 1,
+          shimmerTimer: 0,
+          shimmerActive: 0,
+        });
+      }
+
+    // ============================
+    // ACTIVE TAB
+    // ============================
+    let activeTab = 0;
+    const DESCRIPTIONS = [
+      'Spotlight pulses gently — breathing, alive, calm standby',
+      'Dots drift in slow circular orbits around their grid positions',
+      'Dots creep inward toward center — gravity-like hold, tension building',
+      'Random dots twinkle briefly — idle sparkle, standby energy',
+    ];
+    const descEl = document.getElementById('desc');
+    descEl.textContent = DESCRIPTIONS[0];
+
+    document.querySelectorAll('.tabs button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeTab = parseInt(btn.dataset.tab);
+        descEl.textContent = DESCRIPTIONS[activeTab];
+        // Reset shimmer timers on tab switch
+        dots.forEach(d => { d.shimmerTimer = 0; d.shimmerActive = 0; d.shimmerNext = Math.random() * 4 + 1; });
+      });
+    });
+
+    // Keyboard shortcuts: 1-4
+    window.addEventListener('keydown', e => {
+      const idx = parseInt(e.key) - 1;
+      if (idx >= 0 && idx <= 3) {
+        document.querySelectorAll('.tabs button')[idx].click();
+      }
+    });
+
+    // ============================
+    // DRAW LOOP
+    // ============================
+    let lastTime = 0;
+    let elapsed  = 0;
+
+    function draw(now) {
+      const dt = Math.min((now - lastTime) / 1000, 0.05);
+      lastTime = now;
+      elapsed += dt;
+
+      ctx.clearRect(0, 0, W, H);
+      offCtx.clearRect(0, 0, W, H);
+
+      const spotRx = W * SPOTLIGHT.width  * 0.5;
+      const spotRy = H * SPOTLIGHT.height * 0.5;
+
+      // Per-concept parameters
+      let spotScale, dotColorR, dotColorG, dotColorB;
+
+      switch (activeTab) {
+        case 0: drawBreathing(dt, spotRx, spotRy); break;
+        case 1: drawOrbit(dt, spotRx, spotRy); break;
+        case 2: drawConvergence(dt, spotRx, spotRy); break;
+        case 3: drawShimmer(dt, spotRx, spotRy); break;
+      }
+
+      // Composite + CRT
+      compositeWithBlur(cx, cy, spotRx, spotRy);
+      drawCRT();
+
+      requestAnimationFrame(draw);
+    }
+
+    // ============================
+    // CONCEPT 1: BREATHING SPOTLIGHT
+    // ============================
+    // Spotlight size gently oscillates. Subtle warm tint.
+    // Calm, alive, "I'm ready and waiting."
+    function drawBreathing(dt, baseRx, baseRy) {
+      const breathCycle = 4; // seconds per breath
+      const breathAmp   = 0.25; // 25% size variation
+      const breathT     = Math.sin(elapsed * Math.PI * 2 / breathCycle) * 0.5 + 0.5; // 0→1→0
+
+      // Warm-tinted white: very subtle amber
+      const warmR = 255, warmG = 245, warmB = 225;
+
+      const scale = 1 + breathAmp * (breathT - 0.5); // 0.875 → 1.125
+      const spotRx = baseRx * scale;
+      const spotRy = baseRy * scale;
+
+      // Also subtly shift spotlight opacity with breath
+      const opaBias = lerp(0.9, 1.1, breathT);
+
+      for (let i = 0; i < dots.length; i++) {
+        const dot = dots[i];
+        const asdx = (dot.x - cx) / spotRx;
+        const asdy = (dot.y - cy) / spotRy;
+        const sd = Math.sqrt(asdx * asdx + asdy * asdy);
+        let vis = sampleGradient(Math.min(sd / SPOTLIGHT.range, 1)) * opaBias;
+        vis = Math.min(vis, 1);
+
+        const dotR = lerp(MIN_DOT_R, MAX_DOT_R, vis);
+        const dotO = lerp(BASE_OPACITY, 1, vis);
+
+        if (vis > 0.01) drawGlow(dot.x, dot.y, dotR * GLOW_MULT, vis, warmR, warmG, warmB);
+        offCtx.beginPath();
+        offCtx.arc(dot.x, dot.y, dotR, 0, Math.PI * 2);
+        offCtx.fillStyle = `rgba(${warmR},${warmG},${warmB},${dotO})`;
+        offCtx.fill();
+      }
+    }
+
+    // ============================
+    // CONCEPT 2: SLOW ORBIT
+    // ============================
+    // Dots drift in gentle circular motion around their grid positions.
+    // Calm but visually alive — a slow dance.
+    function drawOrbit(dt, spotRx, spotRy) {
+      const orbitPeriod = 5;  // seconds for a full orbit
+      const orbitRadius = 8;  // max px offset
+      const angle = elapsed * Math.PI * 2 / orbitPeriod;
+
+      for (let i = 0; i < dots.length; i++) {
+        const dot = dots[i];
+
+        // Vary orbit per dot: distance-driven + subtle sine scramble per row/col
+        const jitter = Math.sin(dot.row * 3.17 + dot.col * 2.73) * 0.8;
+        const phaseOff = dot.distNorm * Math.PI * 3 + jitter;
+        // Orbit magnitude: stronger near center, still visible at edges
+        const mag = orbitRadius * (1 - dot.distNorm * 0.35);
+        // Slight elliptical orbit — wider horizontal than vertical
+        const ox = Math.cos(angle + phaseOff) * mag * 1.2;
+        const oy = Math.sin(angle + phaseOff) * mag * 0.8;
+
+        const drawX = dot.x + ox;
+        const drawY = dot.y + oy;
+
+        // Spotlight from center
+        const asdx = (drawX - cx) / spotRx;
+        const asdy = (drawY - cy) / spotRy;
+        const sd = Math.sqrt(asdx * asdx + asdy * asdy);
+        const vis = sampleGradient(Math.min(sd / SPOTLIGHT.range, 1));
+
+        const dotR = lerp(MIN_DOT_R, MAX_DOT_R, vis);
+        const dotO = lerp(BASE_OPACITY, 1, vis);
+
+        if (vis > 0.01) drawGlow(drawX, drawY, dotR * GLOW_MULT, vis, 255, 255, 255);
+        offCtx.beginPath();
+        offCtx.arc(drawX, drawY, dotR, 0, Math.PI * 2);
+        offCtx.fillStyle = `rgba(255,255,255,${dotO})`;
+        offCtx.fill();
+      }
+    }
+
+    // ============================
+    // CONCEPT 3: CONVERGENCE PULL
+    // ============================
+    // Dots slowly creep toward center. Gravity-like.
+    // Tension — "something is about to happen."
+    function drawConvergence(dt, spotRx, spotRy) {
+      const pullCycle   = 6;   // seconds per cycle
+      const maxPull     = 0.08; // fraction of distance toward center (8%)
+      // Smooth oscillation: pull in, ease back
+      const pullT = (1 - Math.cos(elapsed * Math.PI * 2 / pullCycle)) * 0.5; // 0→1→0
+      const pullAmt = maxPull * pullT;
+
+      for (let i = 0; i < dots.length; i++) {
+        const dot = dots[i];
+        const ddx = dot.x - cx, ddy = dot.y - cy;
+
+        // Pull toward center: stronger at edges
+        const drawX = dot.x - ddx * pullAmt;
+        const drawY = dot.y - ddy * pullAmt;
+
+        // Spotlight
+        const asdx = (drawX - cx) / spotRx;
+        const asdy = (drawY - cy) / spotRy;
+        const sd = Math.sqrt(asdx * asdx + asdy * asdy);
+        const vis = sampleGradient(Math.min(sd / SPOTLIGHT.range, 1));
+
+        const dotR = lerp(MIN_DOT_R, MAX_DOT_R, vis);
+        const dotO = lerp(BASE_OPACITY, 1, vis);
+
+        if (vis > 0.01) drawGlow(drawX, drawY, dotR * GLOW_MULT, vis, 255, 255, 255);
+        offCtx.beginPath();
+        offCtx.arc(drawX, drawY, dotR, 0, Math.PI * 2);
+        offCtx.fillStyle = `rgba(255,255,255,${dotO})`;
+        offCtx.fill();
+      }
+    }
+
+    // ============================
+    // CONCEPT 5: IDLE SHIMMER
+    // ============================
+    // Random dots twinkle briefly — standby energy, like a starfield.
+    function drawShimmer(dt, spotRx, spotRy) {
+      const twinkleDuration = 0.6; // seconds per twinkle
+      const twinkleBoost    = 2.5; // visibility multiplier during twinkle
+      const twinkleRadBoost = 1.8; // radius multiplier
+
+      for (let i = 0; i < dots.length; i++) {
+        const dot = dots[i];
+
+        // Advance shimmer timer
+        dot.shimmerTimer += dt;
+        if (dot.shimmerActive <= 0) {
+          // Waiting to twinkle
+          if (dot.shimmerTimer >= dot.shimmerNext) {
+            dot.shimmerActive = twinkleDuration;
+            dot.shimmerTimer = 0;
+            dot.shimmerNext = Math.random() * 6 + 2; // next twinkle in 2-8s
+          }
+        } else {
+          dot.shimmerActive -= dt;
+        }
+
+        // Twinkle envelope: smooth in-out
+        let twinkle = 0;
+        if (dot.shimmerActive > 0) {
+          const progress = 1 - dot.shimmerActive / twinkleDuration; // 0→1
+          twinkle = Math.sin(progress * Math.PI); // 0→1→0
+        }
+
+        // Spotlight from center
+        const asdx = (dot.x - cx) / spotRx;
+        const asdy = (dot.y - cy) / spotRy;
+        const sd = Math.sqrt(asdx * asdx + asdy * asdy);
+        let vis = sampleGradient(Math.min(sd / SPOTLIGHT.range, 1));
+
+        // Apply twinkle boost (even outside spotlight for edge dots)
+        const boostedVis = Math.min(vis + twinkle * 0.3, 1);
+        const finalVis = lerp(vis, boostedVis, 1);
+        const radiusMul = 1 + twinkle * (twinkleRadBoost - 1);
+
+        const dotR = lerp(MIN_DOT_R, MAX_DOT_R * radiusMul, finalVis);
+        const dotO = lerp(BASE_OPACITY, 1, finalVis);
+
+        if (finalVis > 0.01) drawGlow(dot.x, dot.y, dotR * GLOW_MULT, finalVis, 255, 255, 255);
+        offCtx.beginPath();
+        offCtx.arc(dot.x, dot.y, dotR, 0, Math.PI * 2);
+        offCtx.fillStyle = `rgba(255,255,255,${dotO})`;
+        offCtx.fill();
+      }
+    }
+
+    // ============================
+    // HELPERS
+    // ============================
+    function drawGlow(x, y, radius, vis, r, g, b) {
+      offCtx.save();
+      offCtx.translate(x, y);
+      offCtx.scale(GLOW_ASPECT, 1);
+      const glow = offCtx.createRadialGradient(0, 0, 0, 0, 0, radius);
+      glow.addColorStop(0, `rgba(${r},${g},${b},${(GLOW_OPACITY * vis).toFixed(3)})`);
+      glow.addColorStop(1, `rgba(${r},${g},${b},0)`);
+      offCtx.beginPath();
+      offCtx.arc(0, 0, radius, 0, Math.PI * 2);
+      offCtx.fillStyle = glow;
+      offCtx.fill();
+      offCtx.restore();
+    }
+
+    function compositeWithBlur(blurCX, blurCY, spotRx, spotRy) {
+      ctx.drawImage(off, 0, 0);
+
+      // Blur layer
+      ctx.save();
+      ctx.globalAlpha = 0.5;
+      ctx.filter = 'blur(4px)';
+      ctx.drawImage(off, 0, 0);
+      ctx.restore();
+
+      // Sharp spotlight mask
+      maskCtx.clearRect(0, 0, W, H);
+      maskCtx.drawImage(off, 0, 0);
+      maskCtx.globalCompositeOperation = 'destination-in';
+      const maxR = Math.max(spotRx, spotRy) * SPOTLIGHT.range;
+      maskCtx.save();
+      maskCtx.translate(blurCX, blurCY);
+      maskCtx.scale(1, spotRx / spotRy);
+      const grad = maskCtx.createRadialGradient(0, 0, 0, 0, 0, maxR);
+      for (const [pos, opa] of SPOTLIGHT.gradient)
+        grad.addColorStop(Math.min(pos / 100, 1), `rgba(255,255,255,${opa / 100})`);
+      maskCtx.fillStyle = grad;
+      maskCtx.fillRect(-W, -H * (spotRy / spotRx), W * 2, H * 2 * (spotRy / spotRx));
+      maskCtx.restore();
+      maskCtx.globalCompositeOperation = 'source-over';
+
+      ctx.save();
+      ctx.globalAlpha = 0.5;
+      ctx.drawImage(mask, 0, 0);
+      ctx.restore();
+    }
+
+    function drawCRT() {
+      // Flicker
+      if (CRT.flickerAmount > 0) {
+        const flick = (Math.random() - 0.5) * CRT.flickerAmount;
+        ctx.save();
+        ctx.globalCompositeOperation = flick > 0 ? 'lighter' : 'multiply';
+        ctx.globalAlpha = Math.abs(flick);
+        ctx.fillStyle = flick > 0 ? '#fff' : '#000';
+        ctx.fillRect(0, 0, W, H);
+        ctx.restore();
+      }
+      // Vignette
+      if (CRT.vignetteStrength > 0) {
+        const r = Math.sqrt(cx * cx + cy * cy);
+        const vig = ctx.createRadialGradient(cx, cy, r * 0.4, cx, cy, r);
+        vig.addColorStop(0, 'rgba(0,0,0,0)');
+        vig.addColorStop(1, `rgba(0,0,0,${CRT.vignetteStrength})`);
+        ctx.fillStyle = vig;
+        ctx.fillRect(0, 0, W, H);
+      }
+      // Curvature edges
+      if (CRT.curvature > 0) {
+        const c = CRT.curvature;
+        const edges = [
+          [0, 0, 0, H * c * 4, W, H * c * 4],
+          [0, H, 0, H - H * c * 4, W, H * c * 4],
+        ];
+        for (const [x, gy1, gx, gy2, w, h] of edges) {
+          const g = ctx.createLinearGradient(0, gy1, 0, gy2);
+          g.addColorStop(0, `rgba(0,0,0,${c * 8})`);
+          g.addColorStop(1, 'rgba(0,0,0,0)');
+          ctx.fillStyle = g;
+          ctx.fillRect(x, Math.min(gy1, gy2), w, h);
+        }
+        const sidesL = ctx.createLinearGradient(0, 0, W * c * 4, 0);
+        sidesL.addColorStop(0, `rgba(0,0,0,${c * 8})`);
+        sidesL.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = sidesL;
+        ctx.fillRect(0, 0, W * c * 4, H);
+        const sidesR = ctx.createLinearGradient(W, 0, W - W * c * 4, 0);
+        sidesR.addColorStop(0, `rgba(0,0,0,${c * 8})`);
+        sidesR.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = sidesR;
+        ctx.fillRect(W - W * c * 4, 0, W * c * 4, H);
+      }
+    }
+
+    // ============================
+    // START
+    // ============================
+    requestAnimationFrame(draw);
+  </script>
+</body>
+</html>

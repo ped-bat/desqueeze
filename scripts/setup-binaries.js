@@ -16,100 +16,12 @@
 
 import fs from "fs";
 import path from "path";
-import { execSync } from "child_process";
 import { updateBinaries } from "./lib/update-binaries.js";
+import { DIM, BOLD, GREEN, YELLOW, RESET } from "./lib/term.js";
+import { today, loadCameras, discoverNewCameras } from "./lib/cameras.js";
 
 const rootDir = path.resolve(import.meta.dirname, "..");
-const binDir = path.join(rootDir, "resources", "bin", process.platform);
-const camerasPath = path.join(rootDir, "resources", "cameras.json");
 const logsDir = path.join(rootDir, "logs");
-
-// ── Colors ─────────────────────────────────────────────────
-
-const DIM = "\x1b[2m";
-const BOLD = "\x1b[1m";
-const GREEN = "\x1b[32m";
-const YELLOW = "\x1b[33m";
-const RESET = "\x1b[0m";
-
-// ── Helpers ────────────────────────────────────────────────
-
-function today() {
-	return new Date().toISOString().split("T")[0];
-}
-
-// ── Cameras JSON ───────────────────────────────────────────
-
-function loadCameras() {
-	if (!fs.existsSync(camerasPath)) return [];
-	return JSON.parse(fs.readFileSync(camerasPath, "utf-8"));
-}
-
-function saveCameras(cameras) {
-	fs.writeFileSync(camerasPath, JSON.stringify(cameras, null, "\t") + "\n");
-}
-
-function cameraKey(cam) {
-	return `${cam.make}\t${cam.model}\t${cam.formats}`;
-}
-
-// ── Camera list from dnglab ────────────────────────────────
-
-function getDnglabCameras() {
-	const dnglabBin = path.join(binDir, "dnglab");
-	if (!fs.existsSync(dnglabBin)) return null;
-	try {
-		const raw = execSync(`"${dnglabBin}" cameras`, { encoding: "utf-8" });
-		const cameras = [];
-		for (const line of raw.split("\n")) {
-			const trimmed = line.trim();
-			if (!trimmed || trimmed.startsWith("---") || trimmed.includes("total)")) continue;
-			const parts = trimmed.split(/\s{2,}/);
-			if (parts.length >= 2) {
-				cameras.push({
-					make: parts[0].trim(),
-					model: parts[1].trim(),
-					formats: (parts[2] || "all").trim(),
-				});
-			}
-		}
-		return cameras;
-	} catch {
-		return null;
-	}
-}
-
-// ── Diff cameras ───────────────────────────────────────────
-
-function diffAndUpdateCameras() {
-	const dnglabCameras = getDnglabCameras();
-	if (!dnglabCameras) {
-		console.log(`  ${YELLOW}⚠${RESET} Could not read dnglab camera list`);
-		return [];
-	}
-
-	const cameras = loadCameras();
-	const existing = new Set(cameras.map(cameraKey));
-	const dateStr = today();
-	const newCameras = [];
-
-	for (const cam of dnglabCameras) {
-		const key = cameraKey(cam);
-		if (!existing.has(key)) {
-			cameras.push({
-				make: cam.make,
-				model: cam.model,
-				formats: cam.formats,
-				dateAdded: dateStr,
-				version: null,
-			});
-			newCameras.push(cam);
-		}
-	}
-
-	saveCameras(cameras);
-	return newCameras;
-}
 
 // ── Log ────────────────────────────────────────────────────
 
@@ -146,7 +58,7 @@ async function main() {
 
 	console.log(`\n${BOLD}Checking camera support${RESET}\n`);
 
-	const newCameras = diffAndUpdateCameras();
+	const newCameras = discoverNewCameras();
 
 	if (newCameras.length > 0) {
 		console.log(`  ${GREEN}+${newCameras.length}${RESET} new camera(s) detected:\n`);

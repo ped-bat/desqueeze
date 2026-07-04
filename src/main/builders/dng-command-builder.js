@@ -1,13 +1,13 @@
 /**
- * DngCommandBuilder - Constructs DNGLab makedng commands from image metadata
+ * DngCommandBuilder - Constructs dnglab makedng commands from image metadata
  *
  * Takes analyzed metadata and builds appropriate dnglab makedng command arrays.
  * Each section is built via a dedicated method for clarity and testability.
  *
- * Supports dual-illuminant profiles for proper D65↔D50 chromatic adaptation.
+ * Matrix and illuminant selection is decided by ColorProfile (see
+ * analyzers/color-profile.js for the dnglab matrix constraints).
+ * Dual-illuminant profiles enable proper D65↔D50 chromatic adaptation.
  */
-
-import log from "../logger.js";
 
 class DngCommandBuilder {
 	/**
@@ -37,42 +37,6 @@ class DngCommandBuilder {
 		return sections.flat().filter(Boolean);
 	}
 
-	/**
-	 * Get command options as a plain object (for logging / debugging).
-	 * @param {Object} metadata - Metadata object from ImageAnalyzer
-	 * @returns {Object}
-	 */
-	getOptions(metadata) {
-		const bitPrefix = metadata.colorDepth?.prefix || "8bit";
-		const gamma = metadata.colorSpace?.gamma;
-		const needsDual = metadata.needsDualIlluminant;
-
-		const linearization = this._resolveLinearization(bitPrefix, gamma);
-
-		const isAdobeRGB = metadata.colorSpace?.name?.includes("Adobe");
-		const baseMatrix = isAdobeRGB ? "XYZ_AdobeRGB" : "XYZ_sRGB";
-
-		if (needsDual) {
-			return {
-				matrix1: `${baseMatrix}_D50`,
-				matrix2: `${baseMatrix}_D65`,
-				illuminant1: "D50",
-				illuminant2: "D65",
-				linearization,
-				colorimetricReference: "output",
-				dualIlluminant: true,
-			};
-		}
-
-		return {
-			matrix1: metadata.colorSpace?.matrix || "XYZ_sRGB_D65",
-			illuminant1: metadata.illuminant || "D65",
-			linearization,
-			colorimetricReference: "output",
-			dualIlluminant: false,
-		};
-	}
-
 	// ========================================================================
 	// Section Builders (private)
 	// ========================================================================
@@ -84,16 +48,13 @@ class DngCommandBuilder {
 
 	/**
 	 * Color matrix section.
-	 * For dual-illuminant: matrix1 (D50) + matrix2 (D65).
-	 * For single-illuminant: matrix1 only.
+	 * For dual-illuminant: matrix1 (D50) + matrix2 (D65) from the space's matrix family.
+	 * For single-illuminant: the space's own matrix.
 	 */
 	_buildMatrixSection(metadata) {
-		const needsDual = metadata.needsDualIlluminant;
-		const isAdobeRGB = metadata.colorSpace?.name?.includes("Adobe");
-		const baseMatrix = isAdobeRGB ? "XYZ_AdobeRGB" : "XYZ_sRGB";
-
-		if (needsDual) {
-			return ["--matrix1", `${baseMatrix}_D50`, "--matrix2", `${baseMatrix}_D65`];
+		if (metadata.needsDualIlluminant) {
+			const base = metadata.colorSpace?.matrixBase || "XYZ_sRGB";
+			return ["--matrix1", `${base}_D50`, "--matrix2", `${base}_D65`];
 		}
 
 		const matrix = metadata.colorSpace?.matrix || "XYZ_sRGB_D65";
@@ -120,10 +81,6 @@ class DngCommandBuilder {
 		const bitPrefix = colorDepth?.prefix || "8bit";
 		const gamma = colorSpace?.gamma;
 
-		if (gamma === 1.0) {
-			return [];
-		}
-
 		const linearization = this._resolveLinearization(bitPrefix, gamma);
 		return linearization ? ["--linearization", linearization] : [];
 	}
@@ -143,7 +100,7 @@ class DngCommandBuilder {
 	// ========================================================================
 
 	/**
-	 * Map gamma value to a DNGLab linearization string.
+	 * Map gamma value to a dnglab linearization string.
 	 * @param {string} bitPrefix - "8bit" or "16bit"
 	 * @param {number|string} gamma - Gamma value or "sRGB"
 	 * @returns {string|null}

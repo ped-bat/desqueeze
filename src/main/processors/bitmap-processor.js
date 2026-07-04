@@ -2,15 +2,14 @@
  * BitmapProcessor - Processes bitmap files through the desqueeze pipeline
  *
  * Pipeline (DNG):   Analyze → Flatten alpha (if RGBA) → makedng → Metadata copy → DefaultScale → Cleanup
- * Pipeline (other): Analyze → Sharp pixel-stretch + export (Sharp handles alpha) → Cleanup
+ * Pipeline (other): Analyze → Sharp pixel-stretch + export (Sharp handles alpha)
  */
 
 import log from "../logger.js";
-import { BaseProcessor } from "./base-processor.js";
 import { ImageAnalyzer } from "../analyzers/image-analyzer.js";
 import { DngCommandBuilder } from "../builders/dng-command-builder.js";
 import { SharpService } from "../services/sharp-service.js";
-import { getTempFilePath, safeUnlink } from "../utils/file-utils.js";
+import { getOutputPath, getTempFilePath, safeUnlink } from "../utils/file-utils.js";
 
 /** DNG-specific tags that must be preserved when copying metadata */
 const DNG_PRESERVE_TAGS = [
@@ -30,7 +29,7 @@ const DNG_PRESERVE_TAGS = [
 	"ForwardMatrix2",
 ];
 
-class BitmapProcessor extends BaseProcessor {
+class BitmapProcessor {
 	/**
 	 * @param {Object} deps
 	 * @param {import("./dng-operations.js").DngOperations} deps.dngOps
@@ -38,7 +37,7 @@ class BitmapProcessor extends BaseProcessor {
 	 * @param {DngCommandBuilder} [deps.commandBuilder]
 	 */
 	constructor(deps) {
-		super(deps);
+		this._dngOps = deps.dngOps;
 		this._sharp = deps.sharpService || new SharpService();
 		this._commandBuilder = deps.commandBuilder || new DngCommandBuilder();
 	}
@@ -50,74 +49,68 @@ class BitmapProcessor extends BaseProcessor {
 	 * @param {string} ext - File extension (lowercase, with dot)
 	 * @param {number} ratioX - Horizontal stretch ratio
 	 * @param {number} ratioY - Vertical stretch ratio
-	 * @param {import("./base-processor.js").OutputOptions} outputOpts
+	 * @param {import("./desqueeze-processor.js").OutputOptions} outputOpts
 	 * @returns {Promise<string>} Output file path
 	 */
 	async process(filePath, ext, ratioX, ratioY, outputOpts) {
-		const isDng = outputOpts.format === "dng";
-
-		// Step 1: Analyze image
 		log.info("Analyzing bitmap...");
 		const analyzer = new ImageAnalyzer(filePath);
 		const metadata = await analyzer.analyze();
 		analyzer.printSummary();
 
-		// Step 2: Pre-process alpha channel if needed.
-		// dnglab makedng doesn't support RGBA, so we MUST flatten for DNG output.
-		// For other formats (JPG, WebP), Sharp handles flattening automatically during export.
-		let inputForDNG = filePath;
-		let alphaTemp = null;
-
-		if (isDng && metadata.hasAlpha) {
-			log.info("Image has alpha channel — converting to RGB for DNG conversion...");
-			alphaTemp = getTempFilePath(".png");
-			await this._sharp.flattenAlpha(filePath, alphaTemp);
-			inputForDNG = alphaTemp;
+		if (outputOpts.format === "dng") {
+			return this._produceDng(filePath, ext, ratioX, ratioY, metadata);
 		}
-
-		const stretchFactor = ratioX / ratioY;
-
-		try {
-			if (isDng) {
-				return await this._produceDng(filePath, ext, inputForDNG, metadata, stretchFactor);
-			}
-			// For non-DNG, we use the original filePath (Sharp handles alpha)
-			return await this._produceExport(filePath, ext, filePath, metadata, stretchFactor, outputOpts);
-		} finally {
-			if (alphaTemp) await safeUnlink(alphaTemp);
-		}
+		return this._produceExport(filePath, ext, ratioX / ratioY, outputOpts);
 	}
 
 	// ========================================================================
 	// Internal pipeline variants
 	// ========================================================================
 
-	/** DNG output — same as before */
-	async _produceDng(filePath, ext, inputForDNG, metadata, stretchFactor) {
-		const outputPath = await this._getOutputPath(filePath, ext, ".dng");
+	/**
+	 * DNG output — metadata-only desqueeze via DefaultScale.
+	 * dnglab makedng doesn't support RGBA, so alpha is flattened to a
+	 * temporary RGB file first when needed.
+	 */
+	async _produceDng(filePath, ext, ratioX, ratioY, metadata) {
+		const outputPath = await getOutputPath(filePath, ext, ".dng");
 
-		const commandArgs = this._commandBuilder.build(metadata, inputForDNG, outputPath);
-		log.info(`Command: ${commandArgs.join(" ")}`);
+		let inputForDNG = filePath;
+		let alphaTemp = null;
 
-		await this._dngOps.convertBitmapToDNG(outputPath, commandArgs);
-		await this._dngOps.copyMetadataToDNG(filePath, outputPath, DNG_PRESERVE_TAGS);
-		await this._dngOps.writeDesqueezeTag(outputPath, stretchFactor, 1);
+		if (metadata.hasAlpha) {
+			log.info("Image has alpha channel — converting to RGB for DNG conversion...");
+			alphaTemp = getTempFilePath(".png");
+			await this._sharp.flattenAlpha(filePath, alphaTemp);
+			inputForDNG = alphaTemp;
+		}
 
-		log.info(`Bitmap processed (DNG): ${outputPath}`);
-		return outputPath;
+		try {
+			const commandArgs = this._commandBuilder.build(metadata, inputForDNG, outputPath);
+			log.info(`Command: ${commandArgs.join(" ")}`);
+
+			await this._dngOps.convertBitmapToDNG(outputPath, commandArgs);
+			await this._dngOps.copyMetadataToDNG(filePath, outputPath, DNG_PRESERVE_TAGS);
+			await this._dngOps.writeDesqueezeTag(outputPath, ratioX, ratioY);
+
+			log.info(`Bitmap processed (DNG): ${outputPath}`);
+			return outputPath;
+		} finally {
+			if (alphaTemp) await safeUnlink(alphaTemp);
+		}
 	}
 
 	/**
 	 * Non-DNG output — no DNG intermediate needed.
-	 * Sharp can read bitmaps directly, so we just stretch pixels + encode.
-	 * The DNG pipeline (makedng, DefaultScale) is skipped entirely.
+	 * Sharp reads the bitmap directly (alpha included), stretches pixels,
+	 * and encodes to the target format.
 	 */
-	async _produceExport(filePath, ext, inputForDNG, metadata, stretchFactor, outputOpts) {
-		const outputPath = await this._getOutputPath(filePath, ext, outputOpts.ext);
+	async _produceExport(filePath, ext, stretchFactor, outputOpts) {
+		const outputPath = await getOutputPath(filePath, ext, outputOpts.ext);
 
-		// inputForDNG is already alpha-flattened if needed — use it as the source
 		await this._sharp.exportToFormat(
-			inputForDNG, outputPath, outputOpts.format, outputOpts.options, stretchFactor
+			filePath, outputPath, outputOpts.format, outputOpts.options, stretchFactor
 		);
 
 		log.info(`Bitmap processed (${outputOpts.format.toUpperCase()}): ${outputPath}`);

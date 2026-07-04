@@ -3,14 +3,15 @@
  *
  * Extracts and encapsulates all color science decisions:
  * - Color space detection from ICC profiles and EXIF data
- * - Correct XYZ-to-RGB matrix selection per color space
+ * - XYZ-to-RGB matrix selection per color space
  * - Illuminant determination
  * - Dual-illuminant requirement detection
  *
- * Fixes from the previous implementation:
- * - Display P3, Rec. 2020, and ProPhoto RGB now use their own matrices
- *   instead of incorrectly falling through to sRGB.
- * - Redundant D65 logic in _needsDualIlluminant has been simplified.
+ * NOTE: dnglab makedng only accepts four named matrices — XYZ_sRGB_D50,
+ * XYZ_sRGB_D65, XYZ_AdobeRGB_D50 and XYZ_AdobeRGB_D65 (or a custom 3×3).
+ * Wide-gamut spaces (Display P3, Rec. 2020, ProPhoto RGB) are therefore
+ * approximated with the sRGB matrices. Supplying exact custom matrices
+ * for those spaces is a possible future improvement.
  */
 
 import log from "../logger.js";
@@ -19,24 +20,29 @@ import log from "../logger.js";
  * @typedef {Object} ColorSpaceInfo
  * @property {string} name - Human-readable color space name
  * @property {number|string} gamma - Gamma value or "sRGB" for sRGB transfer function
- * @property {string} matrix - DNGLab matrix identifier for single-illuminant use
+ * @property {string} matrix - dnglab matrix identifier for single-illuminant use
+ * @property {string} matrixBase - dnglab matrix family ("XYZ_sRGB" or "XYZ_AdobeRGB") for dual-illuminant use
  */
 
 /**
  * @typedef {Object} ColorDepthInfo
  * @property {number} bits - Bit depth (8, 16, 32, 64)
- * @property {string} prefix - DNGLab bit prefix ("8bit" or "16bit")
+ * @property {string} prefix - dnglab bit prefix ("8bit" or "16bit")
  */
 
-/** Known color space definitions with correct matrices */
+/**
+ * Known color space definitions.
+ * `matrix`/`matrixBase` must stay within the identifiers dnglab supports
+ * (see note in the file header).
+ */
 const COLOR_SPACES = {
-	sRGB: { name: "sRGB", gamma: "sRGB", matrix: "XYZ_sRGB_D65" },
-	adobeRGB: { name: "Adobe RGB", gamma: 2.2, matrix: "XYZ_AdobeRGB_D65" },
-	displayP3: { name: "Display P3", gamma: "sRGB", matrix: "XYZ_P3_D65" },
-	proPhotoRGB: { name: "ProPhoto RGB", gamma: 1.8, matrix: "XYZ_ProPhoto_D50" },
-	rec709: { name: "Rec. 709", gamma: "sRGB", matrix: "XYZ_Rec709_D65" },
-	rec2020: { name: "Rec. 2020", gamma: 2.4, matrix: "XYZ_Rec2020_D65" },
-	linear: { name: "Linear", gamma: 1.0, matrix: "XYZ_sRGB_D65" },
+	sRGB: { name: "sRGB", gamma: "sRGB", matrix: "XYZ_sRGB_D65", matrixBase: "XYZ_sRGB" },
+	adobeRGB: { name: "Adobe RGB", gamma: 2.2, matrix: "XYZ_AdobeRGB_D65", matrixBase: "XYZ_AdobeRGB" },
+	displayP3: { name: "Display P3", gamma: "sRGB", matrix: "XYZ_sRGB_D65", matrixBase: "XYZ_sRGB" },
+	proPhotoRGB: { name: "ProPhoto RGB", gamma: 1.8, matrix: "XYZ_sRGB_D50", matrixBase: "XYZ_sRGB" },
+	rec709: { name: "Rec. 709", gamma: "sRGB", matrix: "XYZ_sRGB_D65", matrixBase: "XYZ_sRGB" },
+	rec2020: { name: "Rec. 2020", gamma: 2.4, matrix: "XYZ_sRGB_D65", matrixBase: "XYZ_sRGB" },
+	linear: { name: "Linear", gamma: 1.0, matrix: "XYZ_sRGB_D65", matrixBase: "XYZ_sRGB" },
 };
 
 /** Map Sharp depth strings to bit depth info */
@@ -109,18 +115,8 @@ class ColorProfile {
 		if (profileDesc.includes("d75")) {
 			return "D75";
 		}
-		// D65: sRGB, Adobe RGB, Display P3, Rec. 709, Rec. 2020
-		if (
-			profileDesc.includes("d65") ||
-			profileDesc.includes("srgb") ||
-			profileDesc.includes("adobe") ||
-			profileDesc.includes("display p3") ||
-			profileDesc.includes("rec709") ||
-			profileDesc.includes("rec2020")
-		) {
-			return "D65";
-		}
 
+		// D65: sRGB, Adobe RGB, Display P3, Rec. 709, Rec. 2020, and the default
 		return "D65";
 	}
 
@@ -130,7 +126,6 @@ class ColorProfile {
 
 	/**
 	 * Identify the color space and return its properties.
-	 * Each color space now maps to its own correct XYZ matrix.
 	 * @returns {ColorSpaceInfo}
 	 */
 	_resolveColorSpace() {
@@ -151,7 +146,7 @@ class ColorProfile {
 			return { ...COLOR_SPACES.adobeRGB };
 		}
 
-		// Display P3 — has different primaries from sRGB
+		// Display P3
 		if (profileDesc.includes("display p3") || profileDesc.includes("p3")) {
 			return { ...COLOR_SPACES.displayP3 };
 		}
@@ -166,7 +161,7 @@ class ColorProfile {
 			return { ...COLOR_SPACES.rec709 };
 		}
 
-		// Rec. 2020 — very wide gamut, different primaries from sRGB
+		// Rec. 2020
 		if (profileDesc.includes("rec2020") || profileDesc.includes("bt.2020")) {
 			return { ...COLOR_SPACES.rec2020 };
 		}
@@ -186,7 +181,7 @@ class ColorProfile {
 		}
 
 		log.warn("Unknown color profile — defaulting to sRGB.");
-		return { name: "sRGB (assumed)", gamma: "sRGB", matrix: "XYZ_sRGB_D65" };
+		return { ...COLOR_SPACES.sRGB, name: "sRGB (assumed)" };
 	}
 
 	// ========================================================================
@@ -258,4 +253,4 @@ class ColorProfile {
 	}
 }
 
-export { ColorProfile, COLOR_SPACES, DEPTH_MAP };
+export { ColorProfile };

@@ -10,7 +10,7 @@ import path from "path";
 import fs from "fs/promises";
 import log from "../logger.js";
 import { AppConfig } from "../config.js";
-import { getFilesFromDirectory } from "../utils/file-utils.js";
+import { getFilesFromDirectory, isInsideOutputDir } from "../utils/file-utils.js";
 
 class FileHandler {
 	/**
@@ -22,15 +22,11 @@ class FileHandler {
 
 	/**
 	 * Show a file/directory selection dialog and return selected file paths.
-	 * @returns {Promise<string[]|string|null>}
+	 * @returns {Promise<string[]|null>}
 	 */
 	async selectFiles() {
-		const properties = AppConfig.PREMIUM
-			? ["openFile", "openDirectory", "multiSelections"]
-			: ["openFile"];
-
 		const result = await dialog.showOpenDialog(this._win, {
-			properties,
+			properties: ["openFile", "openDirectory", "multiSelections"],
 			filters: [
 				{ name: "Supported Images", extensions: AppConfig.EXTENSIONS_LIST },
 				{ name: "All Files", extensions: ["*"] },
@@ -41,12 +37,8 @@ class FileHandler {
 			return null;
 		}
 
-		if (AppConfig.PREMIUM) {
-			const allFiles = await this._expandPaths(result.filePaths);
-			return allFiles.length > 0 ? allFiles : null;
-		}
-
-		return result.filePaths[0];
+		const allFiles = await this._expandPaths(result.filePaths);
+		return allFiles.length > 0 ? allFiles : null;
 	}
 
 	/**
@@ -63,28 +55,20 @@ class FileHandler {
 	}
 
 	/**
-	 * Filter out files that have already been desqueezed (contain "-desqueezed" in name).
+	 * Filter out files that have already been desqueezed (carry the output suffix).
 	 * @param {string[]} filePaths
 	 * @returns {{ toProcess: string[], skippedCount: number }}
 	 */
 	filterDesqueezed(filePaths) {
-		const toProcess = [];
-		const skipped = [];
-
-		for (const fp of filePaths) {
-			const name = path.basename(fp).toLowerCase();
-			if (name.includes("-desqueezed")) {
-				skipped.push(fp);
-			} else {
-				toProcess.push(fp);
-			}
-		}
-
-		return { toProcess, skippedCount: skipped.length };
+		const toProcess = filePaths.filter(
+			(fp) => !path.basename(fp).toLowerCase().includes(AppConfig.OUTPUT_SUFFIX)
+		);
+		return { toProcess, skippedCount: filePaths.length - toProcess.length };
 	}
 
 	/**
 	 * Expand a list of paths (may be files or directories) into supported files.
+	 * Anything inside the app's output directory is excluded.
 	 * @param {string[]} paths
 	 * @returns {Promise<string[]>}
 	 */
@@ -95,10 +79,6 @@ class FileHandler {
 			try {
 				const stat = await fs.stat(selectedPath);
 				if (stat.isDirectory()) {
-					// Skip the app's output directory entirely
-					if (path.basename(selectedPath).toLowerCase() === "desqueezed") {
-						continue;
-					}
 					const dirFiles = await getFilesFromDirectory(
 						selectedPath,
 						AppConfig.ALL_FORMATS
@@ -115,11 +95,7 @@ class FileHandler {
 			}
 		}
 
-		// Exclude any files that live inside a desqueezed/ directory
-		return allFiles.filter((fp) => {
-			const parts = fp.split(path.sep);
-			return !parts.includes("desqueezed");
-		});
+		return allFiles.filter((fp) => !isInsideOutputDir(fp));
 	}
 }
 
