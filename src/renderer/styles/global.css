@@ -1,0 +1,93 @@
+/*
+ * Global design tokens + reset.
+ * The ONLY light-DOM stylesheet — everything else lives in per-component
+ * shadow styles composed from the styles/*.css.js modules.
+ * Custom properties declared on :root pierce Shadow DOM boundaries.
+ */
+
+@font-face {
+	font-family: "Science Gothic";
+	font-style: normal;
+	font-weight: 100 900;
+	font-stretch: 50% 200%;
+	font-display: swap;
+	src: url("../assets/fonts/science-gothic.woff2") format("woff2");
+}
+
+:root {
+	/* — Colors — */
+	--dg-bg-page: #333333;
+	--dg-bg-canvas: #111111;
+
+	/* Chroma channel colors (RGB split layers) */
+	--dg-chroma-red: #ff0000;
+	--dg-chroma-blue: #0050cc;
+	--dg-chroma-green: #00cc44;
+	--dg-chroma-red-dim: #800000;
+	--dg-chroma-blue-dim: #004d99;
+	--dg-chroma-green-dim: #009940;
+
+	/* Foreground opacity scale (white text/borders on dark) */
+	--dg-fg-strong: rgba(255, 255, 255, 0.9);
+	--dg-fg: rgba(255, 255, 255, 0.7);
+	--dg-fg-mid: rgba(255, 255, 255, 0.55);
+	--dg-fg-soft: rgba(255, 255, 255, 0.45);
+	--dg-fg-faint: rgba(255, 255, 255, 0.35);
+	--dg-fg-ghost: rgba(255, 255, 255, 0.28);
+
+	--dg-border: rgba(255, 255, 255, 0.35);
+	--dg-border-soft: rgba(255, 255, 255, 0.2);
+	--dg-border-hover: rgba(255, 255, 255, 0.4);
+
+	--dg-surface: rgba(255, 255, 255, 0.03);
+	--dg-surface-hover: rgba(255, 255, 255, 0.13);
+	--dg-surface-focus: rgba(255, 255, 255, 0.08);
+	--dg-surface-menu: rgba(20, 20, 20, 0.85);
+
+	/* — Typography — */
+	/* Fluid type: preferred values are calibrated to the 1120x720 design
+	   window (e.g. title 2.396rem = 3.42vw = 5.33vh), scaling with whichever
+	   window dimension is tighter, clamped to ~0.65x-1.2x of the design. */
+	--dg-font: "Science Gothic", sans-serif;
+	--dg-font-size-title: clamp(1.78rem, min(3.42vw, 5.33vh), 2.88rem);
+	--dg-font-size-sub: clamp(0.92rem, min(1.78vw, 2.77vh), 1.5rem);
+	--dg-font-size-bar: clamp(0.62rem, min(1.16vw, 1.8vh), 0.97rem);
+	--dg-tracking: 0.15em;
+	--dg-tracking-tight: 0.1em;
+	--dg-tracking-bar: 0.12em;
+	--dg-font-variation-rest: "wght" 300, "wdth" 80;
+
+	/* — Layout — */
+	/* Letterbox horizontal padding: 52px / 62px at the 1120px design width */
+	--dg-pad-bar: clamp(24px, 4.64vw, 64px);
+	--dg-pad-bar-wide: clamp(30px, 5.54vw, 76px);
+
+	/* — Effects — */
+	/* Dark drop shadow first for legibility over the glowing dots, then glow */
+	--dg-glow-white: 0 1px 3px rgba(0, 0, 0, 0.85), 0 0 10px rgba(0, 0, 0, 0.6),
+		0 0 8px rgba(255, 255, 255, 0.15), 0 0 20px rgba(255, 255, 255, 0.08);
+	--dg-glow-surface: 0 0 8px rgba(255, 255, 255, 0.08), 0 0 20px rgba(255, 255, 255, 0.04);
+	--dg-blur-glass: blur(8px);
+
+	/* — Animation — */
+	--dg-ease-fast: 0.15s ease;
+	--dg-ease: 0.2s ease;
+	--dg-radius: 4px;
+}
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	user-select: none;
+	-webkit-user-select: none;
+	cursor: default;
+}
+
+html,
+body {
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	background: var(--dg-bg-page);
+}

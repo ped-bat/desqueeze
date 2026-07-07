@@ -5,7 +5,8 @@
  * Each handler class owns its own domain logic.
  */
 
-import { ipcMain } from "electron";
+import { ipcMain, shell } from "electron";
+import path from "path";
 import { AppConfig } from "../config.js";
 import { FileHandler } from "./file-handler.js";
 import { ProcessHandler } from "./process-handler.js";
@@ -50,6 +51,11 @@ class IpcRegistry {
 		// Filter out already-desqueezed files
 		ipcMain.handle("filter-desqueezed", (event, filePaths) => {
 			return this._fileHandler.filterDesqueezed(filePaths);
+		});
+
+		// Open the output folder of a processed file in Finder/Explorer
+		ipcMain.handle("show-in-folder", (event, filePath) => {
+			if (typeof filePath === "string" && filePath) shell.openPath(path.dirname(filePath));
 		});
 	}
 }
