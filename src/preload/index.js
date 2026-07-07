@@ -11,4 +11,5 @@ contextBridge.exposeInMainWorld("api", {
 	expandDroppedPaths: (paths) =>
 		ipcRenderer.invoke("expand-dropped-paths", paths),
 	filterDesqueezed: (paths) => ipcRenderer.invoke("filter-desqueezed", paths),
+	showInFolder: (filePath) => ipcRenderer.invoke("show-in-folder", filePath),
 });

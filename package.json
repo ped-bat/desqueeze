@@ -4,12 +4,9 @@
 	"type": "module",
 	"main": "out/main/index.js",
 	"devDependencies": {
-		"@tailwindcss/vite": "^4.1.18",
-		"daisyui": "^5.5.14",
 		"electron": "^39.2.7",
 		"electron-builder": "^26.0.12",
 		"electron-vite": "^5.0.0",
-		"tailwindcss": "^4.1.18",
 		"vite": "^7.3.0",
 		"vitest": "^4.0.18"
 	},
@@ -44,6 +41,7 @@
 		"electron-log": "^5.1.2",
 		"exiftool-vendored": "^34.2.0",
 		"icc": "^3.0.0",
+		"lit": "^3.3.3",
 		"p-queue": "^9.1.0",
 		"sharp": "^0.34.5"
 	}

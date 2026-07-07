@@ -31,8 +31,10 @@ class AppManager {
 	 */
 	createWindow() {
 		this._win = new BrowserWindow({
-			width: 1120,
-			height: 720,
+			width: 1000,
+			height: 500,
+			minWidth: 720,
+			minHeight: 420,
 			center: true,
 			titleBarStyle: "hiddenInset",
 			trafficLightPosition: { x: 16, y: 16 },
