@@ -12,4 +12,10 @@ contextBridge.exposeInMainWorld("api", {
 		ipcRenderer.invoke("expand-dropped-paths", paths),
 	filterDesqueezed: (paths) => ipcRenderer.invoke("filter-desqueezed", paths),
 	showInFolder: (filePath) => ipcRenderer.invoke("show-in-folder", filePath),
+	cancelProcessing: () => ipcRenderer.invoke("cancel-processing"),
+	onProcessingProgress: (callback) => {
+		const listener = (_event, payload) => callback(payload);
+		ipcRenderer.on("processing-progress", listener);
+		return () => ipcRenderer.removeListener("processing-progress", listener);
+	},
 });

@@ -169,9 +169,11 @@ export class DgApp extends LitElement {
 						id="actions"
 						.mode=${this.displayMode}
 						.pendingCount=${store.pendingFiles.length}
+						.cancelling=${store.cancelRequested}
 						@browse=${this._onBrowse}
 						@start=${() => store.processPending()}
 						@back=${() => store.cancelPending()}
+						@cancel=${() => store.cancelProcessing()}
 						@retry=${() => store.setMode("ready")}
 						@show-result=${() => store.revealResult()}
 						@desqueeze-more=${() => store.setMode("ready")}
@@ -195,16 +197,20 @@ export class DgApp extends LitElement {
 			case "error": {
 				const r = store.result;
 				if (!r) return "Something went wrong";
+				const ok = r.successCount > 0 ? ` (${r.successCount} succeeded)` : "";
 				const msg = r.firstError ? ` — ${r.firstError}` : "";
-				return `${r.failedCount} ${plural(r.failedCount)} failed${msg}`;
+				return `${r.failedCount} ${plural(r.failedCount)} failed${ok}${msg}`;
 			}
 			case "success": {
 				const r = store.result;
 				if (!r) return "";
+				if (r.successCount === 0 && r.cancelledCount > 0)
+					return `Cancelled — ${r.cancelledCount} ${plural(r.cancelledCount)} not processed`;
 				if (r.successCount === 0)
 					return `${r.skippedCount} ${plural(r.skippedCount)} already desqueezed`;
 				const skipped = r.skippedCount > 0 ? `, ${r.skippedCount} already desqueezed` : "";
-				return `${r.successCount} ${plural(r.successCount)} desqueezed to ${r.factor}x${skipped}`;
+				const cancelled = r.cancelledCount > 0 ? `, ${r.cancelledCount} cancelled` : "";
+				return `${r.successCount} ${plural(r.successCount)} desqueezed to ${r.factor}x${skipped}${cancelled}`;
 			}
 			default:
 				return "";
@@ -221,7 +227,16 @@ export class DgApp extends LitElement {
 			case "settings":
 				return this._hint();
 			case "processing":
-				return "";
+				// Show the file currently being converted so big batches
+				// (or one huge RAW) don't look frozen
+				return store.currentFile;
+			case "error": {
+				const failures = store.result?.failures || [];
+				if (failures.length === 0) return "";
+				const names = failures.slice(0, 3).map((f) => f.name).join(", ");
+				const more = failures.length > 3 ? ` and ${failures.length - 3} more` : "";
+				return `Failed: ${names}${more}`;
+			}
 			case "success": {
 				const r = store.result;
 				return r && r.successCount > 0 ? `Processed in ${this._formatTime(r.elapsed)}` : "";

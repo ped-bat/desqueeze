@@ -16,4 +16,6 @@ export const ipc = {
 	filterDesqueezed: (paths) => api().filterDesqueezed(paths),
 	getPathForFile: (file) => api().getPathForFile(file),
 	showInFolder: (filePath) => api().showInFolder(filePath),
+	cancelProcessing: () => api().cancelProcessing(),
+	onProcessingProgress: (callback) => api().onProcessingProgress(callback),
 };

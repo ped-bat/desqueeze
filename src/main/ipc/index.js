@@ -38,6 +38,11 @@ class IpcRegistry {
 			return this._processHandler.desqueezeFile(filePath, ratioX, ratioY, outputOpts);
 		});
 
+		// Cancel queued (not yet started) processing jobs
+		ipcMain.handle("cancel-processing", () => {
+			return this._processHandler.cancelProcessing();
+		});
+
 		// Error dialog
 		ipcMain.handle("show-error-dialog", (event, title, message) => {
 			return this._processHandler.showErrorDialog(title, message);

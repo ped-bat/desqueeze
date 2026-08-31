@@ -17,8 +17,12 @@ export const FACTOR_PRESETS = [
 const persist = (key, value) => localStorage.setItem(key, String(value));
 
 /** Processing screen shows at least this long. Display-only: the elapsed
- * time reported on the success screen is the real processing time. */
-const MIN_PROCESSING_MS = 1000;
+ * time reported on the success screen is the real processing time. Just
+ * enough to let the crossfade finish instead of flashing for tiny batches. */
+const MIN_PROCESSING_MS = 400;
+
+/** Extract a display name from an absolute path (either separator style) */
+const basename = (p) => String(p).split(/[\\/]/).pop();
 
 /**
  * Singleton store: mode machine + settings + processing pipeline.
@@ -35,11 +39,21 @@ class AppStore extends EventTarget {
 	formatOptions = {};
 
 	progress = { done: 0, total: 0 };
-	result = null; // { successCount, failedCount, elapsed, skippedCount, firstError }
+	result = null; // { successCount, failedCount, cancelledCount, elapsed, skippedCount, firstError, failures }
 	pendingFiles = []; // queued by drop/browse, confirmed on the settings screen
+	currentFile = ""; // basename of the most recently started file
+	cancelRequested = false;
 
 	async init() {
 		this.config = await ipc.getConfig();
+
+		// Live progress pushed from the main process (which file just started)
+		ipc.onProcessingProgress(({ state, file }) => {
+			if (state === "started") {
+				this.currentFile = basename(file);
+				this._emit();
+			}
+		});
 
 		// Restore persisted settings (keys shared with the previous renderer)
 		const ls = (k) => localStorage.getItem(k);
@@ -199,9 +213,11 @@ class AppStore extends EventTarget {
 				this.result = {
 					successCount: 0,
 					failedCount: 0,
+					cancelledCount: 0,
 					elapsed: 0,
 					skippedCount,
 					firstError: null,
+					failures: [],
 					factor,
 					outputFiles: [],
 				};
@@ -212,6 +228,8 @@ class AppStore extends EventTarget {
 
 		this.progress = { done: 0, total: toProcess.length };
 		this.result = null;
+		this.currentFile = "";
+		this.cancelRequested = false;
 		this.setMode("processing");
 
 		const startTime = performance.now();
@@ -234,12 +252,35 @@ class AppStore extends EventTarget {
 
 		const elapsed = elapsedMs / 1000;
 		const successCount = results.filter((r) => r.success).length;
-		const failedCount = results.length - successCount;
-		const firstError = results.find((r) => !r.success)?.error || null;
+		const cancelledCount = results.filter((r) => r.cancelled).length;
+		const failures = results
+			.filter((r) => !r.success && !r.cancelled)
+			.map((r) => ({ file: r.originalFile, name: basename(r.originalFile || ""), error: r.error }));
+		const firstError = failures[0]?.error || null;
 		const outputFiles = results.filter((r) => r.success).map((r) => r.outputFile);
 
-		this.result = { successCount, failedCount, elapsed, skippedCount, firstError, factor, outputFiles };
-		this.setMode(failedCount > 0 ? "error" : "success");
+		this.result = {
+			successCount,
+			failedCount: failures.length,
+			cancelledCount,
+			elapsed,
+			skippedCount,
+			firstError,
+			failures,
+			factor,
+			outputFiles,
+		};
+		this.currentFile = "";
+		this.cancelRequested = false;
+		this.setMode(failures.length > 0 ? "error" : "success");
+	}
+
+	/** Ask main to drop all queued (not yet started) jobs. In-flight jobs finish. */
+	cancelProcessing() {
+		if (this.mode !== "processing" || this.cancelRequested) return;
+		this.cancelRequested = true;
+		this._emit();
+		ipc.cancelProcessing();
 	}
 
 	/** Reveal the first processed file in Finder */

@@ -30,7 +30,9 @@ class ProcessHandler {
 		log.info(`Request to desqueeze: ${filePath} (${ratioX}×${ratioY}) → ${outputOpts?.format || "dng"}`);
 
 		try {
-			const outputPath = await this._processor.process(filePath, ratioX, ratioY, outputOpts);
+			const outputPath = await this._processor.process(filePath, ratioX, ratioY, outputOpts, {
+				onStart: (fp) => this._sendProgress("started", fp),
+			});
 			log.info(`Desqueeze successful: ${outputPath}`);
 			return {
 				success: true,
@@ -38,12 +40,37 @@ class ProcessHandler {
 				outputFile: outputPath,
 			};
 		} catch (error) {
+			// Queued jobs rejected by cancel() arrive here as AbortErrors —
+			// not failures, so they're flagged separately for the renderer.
+			if (error?.name === "AbortError") {
+				log.info(`Desqueeze cancelled: ${filePath}`);
+				return {
+					success: false,
+					cancelled: true,
+					originalFile: filePath,
+					error: "Cancelled",
+				};
+			}
+
 			log.error(`Desqueeze failed for ${filePath}: ${error.message}`);
 			return {
 				success: false,
+				originalFile: filePath,
 				error: error.message,
 			};
 		}
+	}
+
+	/** Cancel all queued (not yet started) jobs. */
+	cancelProcessing() {
+		log.info("Cancellation requested — clearing queued jobs.");
+		this._processor.cancel();
+	}
+
+	/** Push a progress event to the renderer (safe if the window is gone). */
+	_sendProgress(state, file) {
+		if (!this._win || this._win.isDestroyed()) return;
+		this._win.webContents.send("processing-progress", { state, file });
 	}
 
 	/**

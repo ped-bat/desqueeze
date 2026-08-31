@@ -17,6 +17,7 @@ export class DgActions extends LitElement {
 	static properties = {
 		mode: { type: String },
 		pendingCount: { type: Number },
+		cancelling: { type: Boolean },
 	};
 
 	static styles = [
@@ -60,6 +61,7 @@ export class DgActions extends LitElement {
 		super();
 		this.mode = "ready";
 		this.pendingCount = 0;
+		this.cancelling = false;
 	}
 
 	render() {
@@ -86,8 +88,12 @@ export class DgActions extends LitElement {
 				return btn("retry", "Try again");
 			case "success":
 				return html`${btn("show-result", "Show result")} ${btn("desqueeze-more", "Desqueeze more")}`;
+			case "processing":
+				// Cancel drops queued files; in-flight conversions finish
+				return this.cancelling
+					? html`<span class="desc">Cancelling — finishing current files</span>`
+					: btn("cancel", "Cancel");
 			default:
-				// processing: no actions (no cancel IPC exists)
 				return nothing;
 		}
 	}
