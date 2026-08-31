@@ -1,6 +1,8 @@
 {
 	"name": "desqueeze",
 	"version": "0.0.3",
+	"description": "Desktop app for desqueezing anamorphic photos and RAW files",
+	"author": "Pedro Batista",
 	"type": "module",
 	"main": "out/main/index.js",
 	"devDependencies": {
@@ -23,18 +25,86 @@
 		"files": [
 			"out/**/*"
 		],
-		"extraResources": [
-			{
-				"from": "resources/bin",
-				"to": "bin",
-				"filter": [
-					"**/*"
-				]
-			}
+		"asarUnpack": [
+			"**/node_modules/exiftool-vendored.pl/**",
+			"**/node_modules/exiftool-vendored.exe/**",
+			"**/node_modules/sharp/**",
+			"**/node_modules/@img/**"
 		],
 		"mac": {
-			"target": "dmg",
-			"category": "public.app-category.photography"
+			"target": [
+				{
+					"target": "dmg",
+					"arch": [
+						"arm64"
+					]
+				}
+			],
+			"category": "public.app-category.photography",
+			"icon": "build/icon.png",
+			"hardenedRuntime": true,
+			"gatekeeperAssess": false,
+			"entitlements": "build/entitlements.mac.plist",
+			"entitlementsInherit": "build/entitlements.mac.plist",
+			"notarize": true,
+			"extraResources": [
+				{
+					"from": "resources/bin/darwin",
+					"to": "bin/darwin",
+					"filter": [
+						"**/*"
+					]
+				}
+			],
+			"binaries": [
+				"Resources/bin/darwin/dnglab",
+				"Resources/bin/darwin/dcraw_emu",
+				"Resources/bin/darwin/lib/libjpeg.8.dylib",
+				"Resources/bin/darwin/lib/liblcms2.2.dylib",
+				"Resources/bin/darwin/lib/libomp.dylib",
+				"Resources/bin/darwin/lib/libraw.25.dylib"
+			]
+		},
+		"win": {
+			"target": [
+				{
+					"target": "nsis",
+					"arch": [
+						"x64"
+					]
+				}
+			],
+			"icon": "build/icon.png",
+			"extraResources": [
+				{
+					"from": "resources/bin/win32",
+					"to": "bin/win32",
+					"filter": [
+						"**/*"
+					]
+				}
+			]
+		},
+		"linux": {
+			"target": [
+				{
+					"target": "AppImage",
+					"arch": [
+						"x64"
+					]
+				}
+			],
+			"icon": "build/icon.png",
+			"category": "Graphics",
+			"extraResources": [
+				{
+					"from": "resources/bin/linux",
+					"to": "bin/linux",
+					"filter": [
+						"**/*"
+					]
+				}
+			]
 		}
 	},
 	"dependencies": {

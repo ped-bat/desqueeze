@@ -1,0 +1,39 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!-- App icon source. Rendered to icon.png by scripts/make-icon.js;
+       electron-builder derives .icns/.ico from the PNG at build time.
+       Layout follows Apple's template: 824px squircle centered in 1024.
+       The mark is the Desqueeze logo (design_files/logo.svg). -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1b1b22"/>
+      <stop offset="1" stop-color="#101014"/>
+    </linearGradient>
+    <pattern id="dots" width="46" height="46" patternUnits="userSpaceOnUse" x="512" y="512">
+      <circle cx="23" cy="23" r="3.4" fill="#ffffff" opacity="0.16"/>
+    </pattern>
+    <clipPath id="squircle">
+      <rect x="100" y="100" width="824" height="824" rx="184"/>
+    </clipPath>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="14" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <g clip-path="url(#squircle)">
+    <rect x="100" y="100" width="824" height="824" fill="url(#bg)"/>
+    <rect x="100" y="100" width="824" height="824" fill="url(#dots)"/>
+    <!-- Desqueeze mark, centered (logo viewBox is 320×320, artwork centered at 160,160) -->
+    <g transform="translate(176,176) scale(2.1)" fill="#ffffff" filter="url(#glow)">
+      <path d="M160,105.9c-69.74,0-121.78-12.99-123.96-13.54-3.21-.81-5.15-4.08-4.34-7.29.81-3.21,4.07-5.15,7.29-4.34.52.13,52.86,13.17,121.01,13.17s120.49-13.04,121.01-13.17c3.22-.81,6.48,1.13,7.29,4.34.81,3.21-1.13,6.47-4.34,7.29-2.18.55-54.22,13.54-123.96,13.54Z"/>
+      <path d="M282.49,239.46c-.49,0-.98-.06-1.48-.18-.52-.13-52.86-13.17-121.01-13.17s-120.49,13.04-121.01,13.17c-3.22.81-6.48-1.13-7.29-4.34-.81-3.21,1.13-6.47,4.34-7.29,2.18-.55,54.22-13.54,123.96-13.54s121.78,12.99,123.96,13.54c3.21.81,5.15,4.08,4.34,7.29-.69,2.72-3.13,4.53-5.81,4.53Z"/>
+      <path d="M225.71,153.01l-25.72-9.8c-.81-.31-1.65-.46-2.49-.46-1.4,0-2.79.42-3.97,1.24-1.9,1.31-3.03,3.46-3.03,5.76v19.61c0,2.3,1.13,4.46,3.03,5.76,1.18.82,2.57,1.24,3.97,1.24.84,0,1.69-.15,2.49-.46l25.72-9.8c2.71-1.03,4.51-3.64,4.51-6.54s-1.79-5.51-4.51-6.54Z"/>
+      <path d="M125.07,143.98c-1.18-.82-2.57-1.24-3.97-1.24-.84,0-1.69.15-2.49.46l-25.72,9.8c-2.71,1.03-4.51,3.64-4.51,6.54s1.79,5.51,4.51,6.54l25.72,9.8c.81.31,1.65.46,2.49.46,1.4,0,2.79-.42,3.97-1.24,1.9-1.31,3.03-3.46,3.03-5.76v-19.61c0-2.3-1.13-4.46-3.03-5.76Z"/>
+    </g>
+  </g>
+  <!-- subtle rim -->
+  <rect x="100" y="100" width="824" height="824" rx="184" fill="none" stroke="#ffffff" stroke-opacity="0.08" stroke-width="2"/>
+</svg>

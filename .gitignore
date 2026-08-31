@@ -34,3 +34,6 @@ npm-debug.log*
 makedng-tests-good/
 makedng-whitepoint-tests/
 tests/fixtures/desqueezed/
+
+# Personal test images (local only — never commit)
+tests-user/

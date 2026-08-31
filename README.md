@@ -54,44 +54,36 @@ Common anamorphic squeeze factors:
 
 ---
 
-## System Requirements
+## Using the App
 
-- **Node.js** ≥ 18
-- **DNGLab** — must be installed on the system (`brew install dnglab`)
-- **LibRaw** — provides `dcraw_emu` for RAW exports (`brew install libraw`)
-- **OS**: macOS
+Download the latest release, open the DMG, and drag Desqueeze to Applications.
+DNGLab, `dcraw_emu`, and ExifTool are bundled — nothing else to install.
+
+1. **Drop files** — Drag and drop image files or folders anywhere in the window (or browse)
+2. **Pick your settings** — Choose the squeeze factor preset (1.33×, 1.5×, 2×, or custom) and the output format (DNG, JPEG, PNG, TIFF, WebP)
+3. **Output** — Desqueezed files are saved in a `desqueezed/` subfolder next to the originals
+
+DNG output is lossless: the desqueeze is written as `DefaultScale` metadata
+and applied by DNG-aware software (Lightroom, Camera Raw, etc.). Other
+formats bake the stretch into the pixels.
 
 ---
 
-## Installation & Setup
+## Development Setup
 
-### 1. Install Dependencies
+Requires **Node.js ≥ 18** and macOS (for now — see platform support above).
 
 ```bash
 npm install
-```
-
-### 2. Set Up DNGLab Binary
-
-This copies the system-installed `dnglab` and `dcraw_emu` binaries into the app's resources for bundling:
-
-```bash
-npm run setup
-```
-
-> **Note:** You must have the binaries installed first: `brew install dnglab libraw`
-
-### 3. Run in Development
-
-```bash
+npm run setup   # copies system-installed dnglab + dcraw_emu into resources/bin
+                # (brew install dnglab libraw — only needed to refresh binaries;
+                #  the repo already contains bundled copies)
 npm run dev
 ```
 
 ---
 
 ## Building for Distribution
-
-Build the app with the bundled DNGLab binary:
 
 ```bash
 npm run dist
@@ -101,15 +93,21 @@ This creates a distributable app in the `dist/` folder.
 
 | Platform | Build Target |
 |---|---|
-| macOS | `.dmg` |
+| macOS | `.dmg` (signed + notarized when credentials are configured) |
 
----
+### Code signing & notarization (macOS)
 
-## Usage
+Signing happens automatically when a `Developer ID Application` certificate
+is present in the keychain. For notarization, export these before building:
 
-1. **Set the ratio** — Enter your anamorphic lens squeeze factor (e.g., `1.33` × `1`)
-2. **Drop files** — Drag and drop image files or folders onto the drop zone (or click to browse)
-3. **Output** — Desqueezed DNG files are saved in a `desqueezed/` subfolder next to the originals
+```bash
+export APPLE_ID="you@example.com"
+export APPLE_APP_SPECIFIC_PASSWORD="xxxx-xxxx-xxxx-xxxx"  # appleid.apple.com → App-Specific Passwords
+export APPLE_TEAM_ID="XXXXXXXXXX"
+```
+
+Without them, the build still succeeds but skips notarization (fine for
+local testing; not for public distribution).
 
 ---
 
@@ -147,9 +145,16 @@ src/main/
 
 ### Processing Pipelines
 
-**RAW pipeline:** `RAW → DNGLab convert → Write DefaultScale tag → Done`
+**RAW → DNG:** `RAW → DNGLab convert → Write DefaultScale tag → Done`
 
-**Bitmap pipeline:** `Bitmap → Analyze color profile → Flatten alpha → DNGLab makedng → Write DefaultScale tag → Done`
+**Bitmap → DNG:** `Bitmap → Analyze color profile → Flatten alpha → DNGLab makedng → Metadata + DefaultScale → Done`
+
+**Exports (JPEG/PNG/TIFF/WebP):** `RAW → dcraw_emu → TIFF` (bitmaps skip this) `→ Sharp pixel-stretch + encode → EXIF copy`
+
+The renderer (`src/renderer/`) is a [Lit](https://lit.dev) app: `dg-app`
+is the root component (drop zone + mode crossfade), `state/app-state.js`
+holds a singleton store driving the UI modes, and `dg-canvas` renders the
+animated dot-grid engine.
 
 ### Key Dependencies
 
@@ -189,4 +194,6 @@ src/main/
 
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE) — bundled third-party tools (DNGLab, LibRaw, ExifTool, and
+others) remain under their own licenses; see
+[THIRD-PARTY-LICENSES.md](THIRD-PARTY-LICENSES.md).
