@@ -37,7 +37,8 @@ function cameraKey(cam) {
  * @returns {Array<{make: string, model: string, formats: string}>|null}
  */
 export function getDnglabCameras() {
-	const dnglabBin = path.join(binDir, "dnglab");
+	const binaryName = process.platform === "win32" ? "dnglab.exe" : "dnglab";
+	const dnglabBin = path.join(binDir, binaryName);
 	if (!fs.existsSync(dnglabBin)) return null;
 	try {
 		const raw = execSync(`"${dnglabBin}" cameras`, { encoding: "utf-8" });

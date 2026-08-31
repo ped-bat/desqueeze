@@ -37,12 +37,21 @@ class BinaryResolver {
 		});
 	}
 
+	/** Platforms the app ships binaries for */
+	static SUPPORTED_PLATFORMS = new Set(["darwin", "win32", "linux"]);
+
 	/**
 	 * Build the absolute path to a bundled binary.
 	 * @param {string} name - Binary name (without .exe extension)
 	 * @returns {string}
 	 */
 	_resolveBinaryPath(name) {
+		if (!BinaryResolver.SUPPORTED_PLATFORMS.has(this._platform)) {
+			throw new Error(
+				`Unsupported platform "${this._platform}" — Desqueeze bundles ` +
+				`binaries for macOS, Windows, and Linux only.`
+			);
+		}
 		const binaryName = this._platform === "win32" ? `${name}.exe` : name;
 		const subDir = this._isPackaged ? "bin" : "resources/bin";
 		return path.join(this._basePath, subDir, this._platform, binaryName);
@@ -61,10 +70,10 @@ class BinaryResolver {
 			return binaryPath;
 		} catch (error) {
 			log.error(`${displayName} binary check failed: ${error.message}`);
-			throw new Error(
-				`${displayName} binary not found at: ${binaryPath}. ` +
-				`Run "npm run setup" to install it.`
-			);
+			const hint = this._isPackaged
+				? "The app package appears to be incomplete — please reinstall Desqueeze."
+				: 'Run "npm run setup" to install it.';
+			throw new Error(`${displayName} binary not found at: ${binaryPath}. ${hint}`);
 		}
 	}
 

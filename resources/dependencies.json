@@ -1,13 +1,28 @@
 {
 	"dnglab": {
-		"version": "0.7.1",
+		"version": "0.8.0",
 		"repo": "dnglab/dnglab",
 		"binary": "dnglab",
 		"installHint": {
 			"darwin": "brew install dnglab"
 		},
 		"assets": {
-			"darwin-arm64": "dnglab-macos-arm64_v{{version}}.zip"
+			"darwin-arm64": {
+				"url": "https://github.com/dnglab/dnglab/releases/download/v{{version}}/dnglab-macos-arm64_v{{version}}.zip",
+				"find": "dnglab"
+			},
+			"win32-x64": {
+				"url": "https://github.com/dnglab/dnglab/releases/download/v{{version}}/dnglab-win-x64_v{{version}}.zip",
+				"find": "dnglab.exe"
+			},
+			"linux-x64": {
+				"url": "https://github.com/dnglab/dnglab/releases/download/v{{version}}/dnglab_linux_x64",
+				"raw": true
+			},
+			"linux-arm64": {
+				"url": "https://github.com/dnglab/dnglab/releases/download/v{{version}}/dnglab_linux_aarch64",
+				"raw": true
+			}
 		},
 		"versionCommand": "--version",
 		"versionParser": "split",
@@ -19,17 +34,25 @@
 		}
 	},
 	"libraw": {
-		"version": "0.22.1",
+		"version": "0.22.2",
 		"repo": "LibRaw/LibRaw",
 		"binary": "dcraw_emu",
 		"installHint": {
-			"darwin": "brew install libraw"
+			"darwin": "brew install libraw",
+			"linux": "sudo apt-get install libraw-bin patchelf"
 		},
-		"assets": null,
+		"assets": {
+			"win32-x64": {
+				"url": "https://www.libraw.org/data/LibRaw-{{version}}-Win64.zip",
+				"find": "dcraw_emu.exe",
+				"siblings": ".dll"
+			}
+		},
 		"versionCommand": null,
 		"versionParser": null,
 		"systemVersionCommand": {
-			"darwin": "brew info --json=v2 libraw | node -e \"process.stdin.on('data',d=>console.log(JSON.parse(d).formulae[0].versions.stable))\""
+			"darwin": "brew info --json=v2 libraw | node -e \"process.stdin.on('data',d=>console.log(JSON.parse(d).formulae[0].versions.stable))\"",
+			"linux": "dpkg-query -W -f='${source:Upstream-Version}' libraw-bin"
 		},
 		"systemUpgradeCommand": {
 			"darwin": "brew upgrade libraw"

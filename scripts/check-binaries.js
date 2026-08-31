@@ -53,6 +53,25 @@ function checkDarwinLinkage(binPath) {
 	return problems;
 }
 
+/**
+ * On Linux, a bundled binary must resolve every shared object — either
+ * from the system or from its $ORIGIN/lib rpath. `ldd` reporting
+ * "not found" means the binary will fail at spawn time.
+ * Static binaries (ldd errors out) are fine.
+ */
+function checkLinuxLinkage(binPath) {
+	let out;
+	try {
+		out = execSync(`ldd "${binPath}"`, { encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"] });
+	} catch {
+		return []; // static binary or ldd unavailable — nothing to check
+	}
+	return out
+		.split("\n")
+		.filter((line) => line.includes("not found"))
+		.map((line) => `unresolved ${line.trim()}`);
+}
+
 console.log(`${CYAN}Verifying E2E test dependencies…${RESET}`);
 
 for (const [, dep] of Object.entries(manifest)) {
@@ -62,6 +81,10 @@ for (const [, dep] of Object.entries(manifest)) {
 		missing.push(name);
 	} else if (platform === "darwin") {
 		for (const problem of checkDarwinLinkage(binPath)) {
+			notSelfContained.push(`${name}: ${problem}`);
+		}
+	} else if (platform === "linux") {
+		for (const problem of checkLinuxLinkage(binPath)) {
 			notSelfContained.push(`${name}: ${problem}`);
 		}
 	}

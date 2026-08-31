@@ -5773,5 +5773,509 @@
 		"formats": "FILE VERSION 3",
 		"dateAdded": "2026-02-08",
 		"version": "0.0.3"
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 1500D",
+		"formats": "all",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 200D II",
+		"formats": "craw, raw",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS 9000D",
+		"formats": "all",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS C50",
+		"formats": "craw, raw",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Hi",
+		"formats": "all",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS KISS M2",
+		"formats": "craw, raw",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Kiss X10",
+		"formats": "craw, raw",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Kiss X10i",
+		"formats": "craw, raw",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Kiss X90",
+		"formats": "all",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS Kiss X9i",
+		"formats": "all",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS R50 V",
+		"formats": "craw, raw",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS R6 Mark III",
+		"formats": "craw, crm, raw",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Canon",
+		"model": "Canon EOS REBEL SL2",
+		"formats": "all",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Canon",
+		"model": "Canon PowerShot V1",
+		"formats": "craw, raw",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "FinePix S6000fd",
+		"formats": "all",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "FinePix S9000",
+		"formats": "all",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-E3",
+		"formats": "compressed",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-Pro2",
+		"formats": "compressed",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-T2",
+		"formats": "compressed",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-T20",
+		"formats": "compressed",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "FUJIFILM",
+		"model": "X-T30 III",
+		"formats": "all",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "KONICA MINOLTA",
+		"model": "ALPHA 7D",
+		"formats": "all",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "LEICA CAMERA AG",
+		"model": "LEICA CL",
+		"formats": "dng",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "LEICA CAMERA AG",
+		"model": "LEICA Q (Typ 116)",
+		"formats": "dng",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "LEICA CAMERA AG",
+		"model": "LEICA Q2",
+		"formats": "dng",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "LEICA CAMERA AG",
+		"model": "LEICA SL (Typ 601)",
+		"formats": "dng",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "LEICA CAMERA AG",
+		"model": "LEICA SL2",
+		"formats": "dng",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "LEICA CAMERA AG",
+		"model": "LEICA SL3-P",
+		"formats": "dng",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "LEICA CAMERA AG",
+		"model": "LEICA X2",
+		"formats": "dng",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Leica Camera AG",
+		"model": "LEICA M (Typ 240)",
+		"formats": "dng",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Leica Camera AG",
+		"model": "LEICA M MONOCHROM (Typ 246)",
+		"formats": "dng",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Leica Camera AG",
+		"model": "LEICA M10",
+		"formats": "dng",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Leica Camera AG",
+		"model": "LEICA M10-R",
+		"formats": "dng",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Leica Camera AG",
+		"model": "M Monochrom",
+		"formats": "dng",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Leica Camera AG",
+		"model": "M8 Digital Camera",
+		"formats": "dng",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Leica Camera AG",
+		"model": "M9 Digital Camera",
+		"formats": "dng",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "COOLPIX P1100",
+		"formats": "12bit",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "NIKON CORPORATION",
+		"model": "NIKON ZR",
+		"formats": "14bit",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Nikon",
+		"model": "Nikon SUPER COOLSCAN 5000 ED",
+		"formats": "16bit",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "OLYMPUS CORPORATION",
+		"model": "E-P7",
+		"formats": "all",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "OLYMPUS IMAGING CORP.",
+		"model": "SP550UZ",
+		"formats": "all",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "OM Digital Solutions",
+		"model": "OM-5MarkII",
+		"formats": "highres",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-FZ80D",
+		"formats": "4:3",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-FZ82D",
+		"formats": "4:3",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-FZ85",
+		"formats": "4:3",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-FZ85D",
+		"formats": "4:3",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-G100D",
+		"formats": "4:3",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-G95D",
+		"formats": "4:3",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-G97",
+		"formats": "4:3",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-GF9",
+		"formats": "4:3",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-L10",
+		"formats": "16:9, 1:1, 3:2, 4:3",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-S1M2",
+		"formats": "3:2",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-S1M2ES",
+		"formats": "3:2",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-S5D",
+		"formats": "3:2",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-TZ92",
+		"formats": "4:3",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-TZ93",
+		"formats": "4:3",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-TZ99",
+		"formats": "4:3",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-ZS70",
+		"formats": "4:3",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "Panasonic",
+		"model": "DC-ZS99",
+		"formats": "4:3",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "SAMSUNG",
+		"model": "NX10",
+		"formats": "all",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "SAMSUNG",
+		"model": "NX11",
+		"formats": "all",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "SAMSUNG",
+		"model": "NX5",
+		"formats": "all",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "SONY",
+		"model": "DSC-RX10M5",
+		"formats": "all",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "SONY",
+		"model": "DSC-RX1RM3",
+		"formats": "all",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-1M2",
+		"formats": "all",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-6100A",
+		"formats": "all",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-6400A",
+		"formats": "all",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-7M5",
+		"formats": "all",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "SONY",
+		"model": "ILCE-7RM6",
+		"formats": "all",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "SONY",
+		"model": "ILME-FX3A",
+		"formats": "all",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "SONY",
+		"model": "ZV-1A",
+		"formats": "all",
+		"dateAdded": "2026-08-31",
+		"version": null
+	},
+	{
+		"make": "SONY",
+		"model": "ZV-1M2",
+		"formats": "all",
+		"dateAdded": "2026-08-31",
+		"version": null
 	}
 ]

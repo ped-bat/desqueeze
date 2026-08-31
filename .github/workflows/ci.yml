@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test-and-build:
+    name: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # dnglab is downloaded from its official GitHub release on every
+      # platform. dcraw_emu comes from the LibRaw Win64 zip on Windows,
+      # and from the system package (then made self-contained) elsewhere.
+      - name: Install LibRaw (macOS)
+        if: runner.os == 'macOS'
+        run: brew install libraw
+
+      - name: Install LibRaw + patchelf (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libraw-bin patchelf
+
+      - name: Acquire bundled binaries
+        run: node scripts/setup-binaries.js
+
+      - name: Run tests (unit, integration, e2e with real binaries)
+        run: npm test
+
+      - name: Build app bundle
+        run: npx electron-vite build
+
+      - name: Package installer
+        env:
+          # CI builds are unsigned; release signing/notarization happens
+          # locally (or in a release workflow with certificate secrets)
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+        run: npx electron-builder --publish never
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: desqueeze-${{ matrix.os }}
+          path: |
+            dist/*.dmg
+            dist/*.exe
+            dist/*.AppImage
+          if-no-files-found: error
+          retention-days: 14
