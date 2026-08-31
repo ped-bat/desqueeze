@@ -9,6 +9,7 @@ import fs from "fs/promises";
 import log from "../logger.js";
 import { SharpService } from "../services/sharp-service.js";
 import { RawConverterService } from "../services/raw-converter.js";
+import { ExifToolService } from "../services/exiftool-service.js";
 import { getOutputPath, safeUnlink } from "../utils/file-utils.js";
 
 class RawProcessor {
@@ -47,15 +48,21 @@ class RawProcessor {
 	async _processDng(filePath, ext, ratioX, ratioY) {
 		const outputPath = await getOutputPath(filePath, ext, ".dng");
 
-		if (ext !== ".dng") {
-			log.info("Converting RAW to DNG...");
-			await this._dngOps.convertRAWToDNG(filePath, outputPath);
-		} else {
-			log.info("Input is already DNG, copying...");
-			await fs.copyFile(filePath, outputPath);
-		}
+		try {
+			if (ext !== ".dng") {
+				log.info("Converting RAW to DNG...");
+				await this._dngOps.convertRAWToDNG(filePath, outputPath);
+			} else {
+				log.info("Input is already DNG, copying...");
+				await fs.copyFile(filePath, outputPath);
+			}
 
-		await this._dngOps.writeDesqueezeTag(outputPath, ratioX, ratioY);
+			await this._dngOps.writeDesqueezeTag(outputPath, ratioX, ratioY);
+		} catch (error) {
+			// Don't leave a partial/untagged DNG behind
+			await safeUnlink(outputPath);
+			throw error;
+		}
 
 		log.info(`RAW processed (DNG): ${outputPath}`);
 		return outputPath;
@@ -82,11 +89,35 @@ class RawProcessor {
 				tempTiff, outputPath, outputOpts.format, outputOpts.options, stretchFactor
 			);
 
+			// Step 3: Carry the camera metadata over — dcraw_emu's TIFF has none.
+			// Orientation is excluded: dcraw_emu already rotates the pixels, so
+			// copying the tag would make viewers rotate a second time.
+			await this._copyExifFromOriginal(filePath, outputPath);
+
 			log.info(`RAW processed (${outputOpts.format.toUpperCase()}): ${outputPath}`);
 			return outputPath;
+		} catch (error) {
+			// Don't leave a partial export behind
+			await safeUnlink(outputPath);
+			throw error;
 		} finally {
-			// Step 3: Always clean up the temp TIFF
+			// Always clean up the temp TIFF
 			await safeUnlink(tempTiff);
+		}
+	}
+
+	/** Copy EXIF from the original RAW onto an export; non-fatal on failure. */
+	async _copyExifFromOriginal(sourcePath, outputPath) {
+		try {
+			await ExifToolService.getInstance().write(outputPath, {}, [
+				"-overwrite_original",
+				"-TagsFromFile",
+				sourcePath,
+				"-all:all",
+				"--Orientation",
+			]);
+		} catch (err) {
+			log.warn(`Could not copy EXIF metadata to export: ${err.message}`);
 		}
 	}
 }

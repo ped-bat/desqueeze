@@ -4,6 +4,7 @@
 
 import path from "path";
 import fs from "fs/promises";
+import { existsSync } from "fs";
 import os from "os";
 import crypto from "crypto";
 import log from "../logger.js";
@@ -37,13 +38,18 @@ async function getOutputPath(filePath, ext, outputExt = ext) {
 	const baseName = path.basename(filePath, actualExt);
 
 	const inputKey = filePath.toLowerCase();
-	let candidate = path.join(outputDir, `${baseName}${AppConfig.OUTPUT_SUFFIX}${outputExt}`);
-	for (
-		let i = 1;
-		outputClaims.has(candidate.toLowerCase()) && outputClaims.get(candidate.toLowerCase()) !== inputKey;
-		i++
-	) {
-		candidate = path.join(outputDir, `${baseName}${AppConfig.OUTPUT_SUFFIX}-${i}${outputExt}`);
+	// A candidate is taken when another input claimed it this session, or a
+	// file from a previous run already exists on disk. Re-processing the same
+	// input this session reuses its path (overwrite is intentional there).
+	// existsSync keeps the check-and-claim atomic — an await between the
+	// check and the set would let two concurrent jobs claim the same path.
+	let candidate;
+	for (let i = 0; ; i++) {
+		const suffix = i === 0 ? AppConfig.OUTPUT_SUFFIX : `${AppConfig.OUTPUT_SUFFIX}-${i}`;
+		candidate = path.join(outputDir, `${baseName}${suffix}${outputExt}`);
+		const claimedBy = outputClaims.get(candidate.toLowerCase());
+		if (claimedBy === inputKey) break;
+		if (!claimedBy && !existsSync(candidate)) break;
 	}
 	outputClaims.set(candidate.toLowerCase(), inputKey);
 	return candidate;
@@ -69,19 +75,26 @@ async function safeUnlink(filePath) {
 		await fs.unlink(filePath);
 		log.info(`Cleaned up temp file: ${filePath}`);
 	} catch (e) {
-		log.warn(`Failed to clean up temp file ${filePath}: ${e.message}`);
+		// A file that was never created isn't a cleanup failure
+		if (e.code !== "ENOENT") {
+			log.warn(`Failed to clean up temp file ${filePath}: ${e.message}`);
+		}
 	}
 }
 
 /**
- * Check whether a path is the app's output directory or lives inside one.
- * @param {string} somePath - File or directory path
+ * Check whether a file lives directly inside an app output directory.
+ * Only the immediate parent is checked — the app never nests output —
+ * so a user's own folder that happens to be named "desqueezed" higher
+ * up the tree doesn't exclude everything beneath it.
+ * @param {string} somePath - File path
  * @returns {boolean}
  */
 function isInsideOutputDir(somePath) {
-	return somePath
-		.split(path.sep)
-		.some((part) => part.toLowerCase() === AppConfig.OUTPUT_DIR_NAME);
+	return (
+		path.basename(path.dirname(somePath)).toLowerCase() ===
+		AppConfig.OUTPUT_DIR_NAME
+	);
 }
 
 /**
@@ -99,7 +112,14 @@ async function getFilesFromDirectory(dirPath, extensions, maxDepth = 20) {
 	}
 
 	const files = [];
-	const entries = await fs.readdir(dirPath, { withFileTypes: true });
+	let entries;
+	try {
+		entries = await fs.readdir(dirPath, { withFileTypes: true });
+	} catch (err) {
+		// One unreadable subdirectory shouldn't discard the whole tree
+		log.warn(`Skipping unreadable directory ${dirPath}: ${err.message}`);
+		return [];
+	}
 
 	for (const entry of entries) {
 		const fullPath = path.join(dirPath, entry.name);

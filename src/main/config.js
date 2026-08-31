@@ -6,6 +6,8 @@
  * "get-config" IPC channel (see ipc/index.js and preload).
  */
 
+import os from "os";
+
 class AppConfig {
 	// ========================================================================
 	// Supported Formats
@@ -60,8 +62,13 @@ class AppConfig {
 	/** Warn the user above this stretch factor */
 	static STRETCH_WARN_THRESHOLD = 3.0;
 
-	/** Maximum parallel file processing concurrency */
-	static MAX_CONCURRENCY = 3;
+	/**
+	 * Maximum parallel file processing concurrency.
+	 * CPU-aware but capped: each job can hold a full-resolution 16-bit
+	 * image in memory, so more than 4 concurrent conversions trades
+	 * memory pressure for little wall-clock gain.
+	 */
+	static MAX_CONCURRENCY = Math.min(4, Math.max(2, Math.floor(os.cpus().length / 2)));
 
 	// ========================================================================
 	// Output Formats

@@ -1,8 +1,8 @@
 /**
  * BitmapProcessor - Processes bitmap files through the desqueeze pipeline
  *
- * Pipeline (DNG):   Analyze → Flatten alpha (if RGBA) → makedng → Metadata copy → DefaultScale → Cleanup
- * Pipeline (other): Analyze → Sharp pixel-stretch + export (Sharp handles alpha)
+ * Pipeline (DNG):   Analyze → Flatten alpha (if RGBA) → makedng → Metadata copy + DefaultScale → Cleanup
+ * Pipeline (other): Sharp pixel-stretch + export (Sharp handles alpha)
  */
 
 import log from "../logger.js";
@@ -53,12 +53,14 @@ class BitmapProcessor {
 	 * @returns {Promise<string>} Output file path
 	 */
 	async process(filePath, ext, ratioX, ratioY, outputOpts) {
-		log.info("Analyzing bitmap...");
-		const analyzer = new ImageAnalyzer(filePath);
-		const metadata = await analyzer.analyze();
-		analyzer.printSummary();
-
 		if (outputOpts.format === "dng") {
+			// Only the DNG path needs the full analysis (color matrices,
+			// ICC profile, alpha detection for makedng). Running it for
+			// plain exports would cost a needless exiftool round-trip per file.
+			log.info("Analyzing bitmap...");
+			const analyzer = new ImageAnalyzer(filePath);
+			const metadata = await analyzer.analyze();
+			analyzer.printSummary();
 			return this._produceDng(filePath, ext, ratioX, ratioY, metadata);
 		}
 		return this._produceExport(filePath, ext, ratioX / ratioY, outputOpts);
@@ -91,11 +93,15 @@ class BitmapProcessor {
 			log.info(`Command: ${commandArgs.join(" ")}`);
 
 			await this._dngOps.convertBitmapToDNG(outputPath, commandArgs);
-			await this._dngOps.copyMetadataToDNG(filePath, outputPath, DNG_PRESERVE_TAGS);
-			await this._dngOps.writeDesqueezeTag(outputPath, ratioX, ratioY);
+			// Metadata copy + DefaultScale in one exiftool pass (one DNG rewrite)
+			await this._dngOps.finalizeDNG(filePath, outputPath, ratioX, ratioY, DNG_PRESERVE_TAGS);
 
 			log.info(`Bitmap processed (DNG): ${outputPath}`);
 			return outputPath;
+		} catch (error) {
+			// Don't leave a partial/untagged DNG behind
+			await safeUnlink(outputPath);
+			throw error;
 		} finally {
 			if (alphaTemp) await safeUnlink(alphaTemp);
 		}
@@ -109,9 +115,15 @@ class BitmapProcessor {
 	async _produceExport(filePath, ext, stretchFactor, outputOpts) {
 		const outputPath = await getOutputPath(filePath, ext, outputOpts.ext);
 
-		await this._sharp.exportToFormat(
-			filePath, outputPath, outputOpts.format, outputOpts.options, stretchFactor
-		);
+		try {
+			await this._sharp.exportToFormat(
+				filePath, outputPath, outputOpts.format, outputOpts.options, stretchFactor
+			);
+		} catch (error) {
+			// Don't leave a partial export behind
+			await safeUnlink(outputPath);
+			throw error;
+		}
 
 		log.info(`Bitmap processed (${outputOpts.format.toUpperCase()}): ${outputPath}`);
 		return outputPath;

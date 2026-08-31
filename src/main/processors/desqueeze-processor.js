@@ -41,6 +41,20 @@ class DesqueezeProcessor {
 
 		// Centralized concurrency queue
 		this._queue = new PQueue({ concurrency: AppConfig.MAX_CONCURRENCY });
+
+		// Cancellation: aborting rejects every queued-but-not-started job.
+		// Jobs already running finish normally (their child processes are
+		// not killed mid-write, so no partial output is left behind).
+		this._abort = new AbortController();
+	}
+
+	/**
+	 * Cancel all queued (not yet started) jobs. In-flight jobs finish.
+	 * A fresh AbortController is armed for the next batch.
+	 */
+	cancel() {
+		this._abort.abort();
+		this._abort = new AbortController();
 	}
 
 	/**
@@ -80,27 +94,33 @@ class DesqueezeProcessor {
 	 * @param {number} ratioX - Horizontal stretch ratio
 	 * @param {number} ratioY - Vertical stretch ratio
 	 * @param {{ format?: string, options?: object }} [outputRaw] - Output format payload from renderer
+	 * @param {{ onStart?: (filePath: string) => void }} [hooks] - Lifecycle callbacks
 	 * @returns {Promise<string>} Output file path
-	 * @throws {Error} If file format is unsupported or validation fails
+	 * @throws {Error} If file format is unsupported, validation fails, or the job is cancelled
 	 */
-	async process(filePath, ratioX, ratioY, outputRaw) {
+	async process(filePath, ratioX, ratioY, outputRaw, hooks = {}) {
 		validateFilePath(filePath);
 		validateRatios(ratioX, ratioY);
 
-		return this._queue.add(async () => {
-			const ext = path.extname(filePath).toLowerCase();
-			const outputOpts = this._buildOutputOpts(outputRaw);
+		return this._queue.add(
+			async () => {
+				hooks.onStart?.(filePath);
 
-			if (AppConfig.RAW_FORMATS.has(ext)) {
-				return this._rawProcessor.process(filePath, ext, ratioX, ratioY, outputOpts);
-			}
+				const ext = path.extname(filePath).toLowerCase();
+				const outputOpts = this._buildOutputOpts(outputRaw);
 
-			if (AppConfig.BITMAP_FORMATS.has(ext)) {
-				return this._bitmapProcessor.process(filePath, ext, ratioX, ratioY, outputOpts);
-			}
+				if (AppConfig.RAW_FORMATS.has(ext)) {
+					return this._rawProcessor.process(filePath, ext, ratioX, ratioY, outputOpts);
+				}
 
-			throw new Error(`File format "${ext}" is not supported.`);
-		});
+				if (AppConfig.BITMAP_FORMATS.has(ext)) {
+					return this._bitmapProcessor.process(filePath, ext, ratioX, ratioY, outputOpts);
+				}
+
+				throw new Error(`File format "${ext}" is not supported.`);
+			},
+			{ signal: this._abort.signal }
+		);
 	}
 }
 

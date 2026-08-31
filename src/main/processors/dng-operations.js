@@ -106,26 +106,35 @@ class DngOperations {
 	}
 
 	/**
-	 * Copy metadata from source file to DNG, preserving DNG-specific tags.
+	 * Copy metadata from the source file and set DefaultScale in a single
+	 * exiftool pass. Each -overwrite_original write rewrites the entire DNG
+	 * on disk, so combining the two operations halves the I/O per file.
+	 *
 	 * @param {string} sourcePath - Original file to copy metadata from
 	 * @param {string} dngPath - DNG file to write metadata to
-	 * @param {string[]} [preserveTags=["DefaultScale"]] - Tags to preserve
+	 * @param {number} ratioX - Horizontal ratio component of DefaultScale
+	 * @param {number} ratioY - Vertical ratio component of DefaultScale
+	 * @param {string[]} [preserveTags=["DefaultScale"]] - DNG tags to protect from the copy
 	 */
-	async copyMetadataToDNG(sourcePath, dngPath, preserveTags = ["DefaultScale"]) {
-		log.info("Copying metadata from original file...");
+	async finalizeDNG(sourcePath, dngPath, ratioX, ratioY, preserveTags = ["DefaultScale"]) {
+		log.info(`Copying metadata and setting DefaultScale to ${ratioX} ${ratioY}...`);
 
 		const excludeArgs = preserveTags.map((tag) => `--${tag}`);
 
-		await this._exiftool.write(dngPath, {}, [
-			"-overwrite_original",
-			"-TagsFromFile",
-			sourcePath,
-			"-all:all",
-			"-unsafe",
-			...excludeArgs,
-		]);
+		await this._exiftool.write(
+			dngPath,
+			{ DefaultScale: `${ratioX} ${ratioY}` },
+			[
+				"-overwrite_original",
+				"-TagsFromFile",
+				sourcePath,
+				"-all:all",
+				"-unsafe",
+				...excludeArgs,
+			]
+		);
 
-		log.info("Metadata copied successfully.");
+		log.info("DNG metadata finalized.");
 	}
 
 	/**

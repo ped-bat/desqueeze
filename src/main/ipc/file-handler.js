@@ -56,13 +56,18 @@ class FileHandler {
 
 	/**
 	 * Filter out files that have already been desqueezed (carry the output suffix).
+	 * Only the app's own naming is matched — a stem *ending* in "-desqueezed"
+	 * or "-desqueezed-N" — so user files that merely contain the word
+	 * (e.g. "beach-desqueezed-final.jpg") are not silently skipped.
 	 * @param {string[]} filePaths
 	 * @returns {{ toProcess: string[], skippedCount: number }}
 	 */
 	filterDesqueezed(filePaths) {
-		const toProcess = filePaths.filter(
-			(fp) => !path.basename(fp).toLowerCase().includes(AppConfig.OUTPUT_SUFFIX)
-		);
+		const suffixPattern = new RegExp(`${AppConfig.OUTPUT_SUFFIX}(-\\d+)?$`, "i");
+		const toProcess = filePaths.filter((fp) => {
+			const stem = path.basename(fp, path.extname(fp));
+			return !suffixPattern.test(stem);
+		});
 		return { toProcess, skippedCount: filePaths.length - toProcess.length };
 	}
 

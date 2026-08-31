@@ -30,17 +30,28 @@ class AppManager {
 	 * Create the main browser window and wire up all services.
 	 */
 	createWindow() {
+		// Frameless chrome with vibrancy is macOS-only; Windows/Linux get a
+		// standard frame so the window still has close/minimize controls.
+		const platformWindowOptions =
+			process.platform === "darwin"
+				? {
+						titleBarStyle: "hiddenInset",
+						trafficLightPosition: { x: 16, y: 16 },
+						vibrancy: "under-window",
+						visualEffectState: "active",
+					}
+				: {
+						backgroundColor: "#101014",
+					};
+
 		this._win = new BrowserWindow({
 			width: 1000,
 			height: 500,
 			minWidth: 720,
 			minHeight: 420,
 			center: true,
-			titleBarStyle: "hiddenInset",
-			trafficLightPosition: { x: 16, y: 16 },
-			vibrancy: "under-window",
-			visualEffectState: "active",
 			show: false,
+			...platformWindowOptions,
 			webPreferences: {
 				preload: path.join(__dirname, "../preload/index.js"),
 				contextIsolation: true,
@@ -51,6 +62,12 @@ class AppManager {
 		this._win.once("ready-to-show", () => {
 			this._win.show();
 		});
+
+		// The app loads only its own local UI — deny popups and navigation
+		// (a file dropped outside the drop handler would otherwise navigate
+		// the window to that file).
+		this._win.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
+		this._win.webContents.on("will-navigate", (event) => event.preventDefault());
 
 		// Load renderer (electron-vite sets ELECTRON_RENDERER_URL in dev)
 		if (process.env.ELECTRON_RENDERER_URL) {
@@ -91,10 +108,29 @@ class AppManager {
 			}
 		});
 
-		// before-quit fires on the FIRST Ctrl+C / Cmd+Q.
-		// Shut down ExifTool here so the process can exit immediately.
-		app.on("before-quit", async () => {
-			await ExifToolService.getInstance().shutdown();
+		// before-quit fires on the FIRST Ctrl+C / Cmd+Q. Electron does not
+		// await async listeners, so prevent the quit, shut ExifTool down,
+		// then quit for real — otherwise the perl process gets orphaned.
+		let shutdownDone = false;
+		app.on("before-quit", (event) => {
+			if (shutdownDone) return;
+			event.preventDefault();
+			ExifToolService.getInstance()
+				.shutdown()
+				.finally(() => {
+					shutdownDone = true;
+					app.quit();
+				});
+		});
+
+		// Last-resort handlers: log instead of silently dying. Per-file
+		// errors are already caught in ProcessHandler; anything landing
+		// here is a programming error worth having in the log file.
+		process.on("unhandledRejection", (reason) => {
+			log.error(`Unhandled rejection: ${reason?.stack || reason}`);
+		});
+		process.on("uncaughtException", (error) => {
+			log.error(`Uncaught exception: ${error?.stack || error}`);
 		});
 	}
 }

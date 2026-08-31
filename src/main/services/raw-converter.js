@@ -18,10 +18,11 @@
  */
 
 import path from "path";
+import fs from "fs/promises";
 import log from "../logger.js";
 import { BinaryResolver } from "./binary-resolver.js";
 import { CommandRunner } from "./command-runner.js";
-import { getTempFilePath } from "../utils/file-utils.js";
+import { getTempFilePath, safeUnlink } from "../utils/file-utils.js";
 
 /** Only TIFF truly benefits from 16-bit; PNG photos are virtually always 8-bit */
 const HIGH_BIT_DEPTH_FORMATS = new Set(["tiff"]);
@@ -92,9 +93,19 @@ class RawConverterService {
 
 		try {
 			await this._runner.exec(dcrawPath, args);
+
+			// dcraw_emu can exit 0 while writing nothing (or a truncated file)
+			// for unsupported/corrupt raws — verify before handing to Sharp.
+			const stat = await fs.stat(tempTiff).catch(() => null);
+			if (!stat || stat.size === 0) {
+				throw new Error("dcraw_emu produced no output (unsupported or corrupt RAW?)");
+			}
+
 			log.info(`TIFF rendered: ${tempTiff}`);
 			return tempTiff;
 		} catch (error) {
+			// Don't leak a partial TIFF in the temp dir on failure
+			await safeUnlink(tempTiff);
 			log.error(`dcraw_emu conversion failed: ${error.message}`);
 			throw new Error(
 				`Failed to convert RAW to TIFF: ${error.message}`

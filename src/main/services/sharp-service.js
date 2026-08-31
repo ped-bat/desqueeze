@@ -9,8 +9,19 @@
  * Avoids creating multiple Sharp instances for the same file.
  */
 
+import os from "os";
 import sharp from "sharp";
 import log from "../logger.js";
+import { AppConfig } from "../config.js";
+
+// Batch processing touches each large file once, so libvips' operation
+// cache only holds memory hostage — disable it. Split the CPU threads
+// across the app's concurrent jobs instead of letting every pipeline
+// spawn a full thread pool (queue slots × cores oversubscribes badly).
+sharp.cache(false);
+sharp.concurrency(
+	Math.max(1, Math.ceil(os.cpus().length / AppConfig.MAX_CONCURRENCY))
+);
 
 class SharpService {
 	/**
@@ -66,18 +77,23 @@ class SharpService {
 		// — significant speed-up for large TIFFs from dcraw_emu.
 		const sharpOpts = { failOn: "none", sequentialRead: true };
 
-		// Apply horizontal pixel stretch if needed.
-		// Read metadata from the same input to calculate the new width, then
-		// create a single pipeline so the file is decoded only once.
-		let pipeline;
+		// autoOrient() applies the EXIF Orientation tag before any resize, so
+		// the stretch always lands on the *displayed* horizontal axis — without
+		// it, images stored rotated 90° (orientation 5-8) would be stretched
+		// vertically. keepMetadata() carries EXIF/ICC/XMP through to the output;
+		// dropping the ICC profile visibly shifts colors for AdobeRGB/P3 files.
+		let pipeline = sharp(inputPath, sharpOpts).autoOrient().keepMetadata();
+
+		// Apply horizontal pixel stretch if needed, sized against the
+		// orientation-corrected (displayed) dimensions.
 		if (stretchFactor && stretchFactor !== 1) {
 			const meta = await sharp(inputPath, sharpOpts).metadata();
-			const newWidth = Math.round(meta.width * stretchFactor);
-			log.info(`Stretching ${meta.width}→${newWidth}px (×${stretchFactor})`);
-			pipeline = sharp(inputPath, sharpOpts)
-				.resize({ width: newWidth, height: meta.height, fit: "fill" });
-		} else {
-			pipeline = sharp(inputPath, sharpOpts);
+			const rotated = (meta.orientation || 1) >= 5;
+			const dispWidth = meta.autoOrient?.width ?? (rotated ? meta.height : meta.width);
+			const dispHeight = meta.autoOrient?.height ?? (rotated ? meta.width : meta.height);
+			const newWidth = Math.round(dispWidth * stretchFactor);
+			log.info(`Stretching ${dispWidth}→${newWidth}px (×${stretchFactor})`);
+			pipeline = pipeline.resize({ width: newWidth, height: dispHeight, fit: "fill" });
 		}
 
 		// Encode to target format
