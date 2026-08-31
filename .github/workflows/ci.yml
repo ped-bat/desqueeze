@@ -51,6 +51,9 @@ jobs:
           # CI builds are unsigned; release signing/notarization happens
           # locally (or in a release workflow with certificate secrets)
           CSC_IDENTITY_AUTO_DISCOVERY: "false"
+          # Copy extraResources instead of hardlinking so signing never
+          # rewrites the checked-in binaries in resources/bin/
+          USE_HARD_LINKS: "false"
         run: npx electron-builder --publish never
 
       - name: Upload installer artifact

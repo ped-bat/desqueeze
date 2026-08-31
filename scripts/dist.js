@@ -269,9 +269,31 @@ async function main() {
 	// ── Step 7: Build ───────────────────────────────────────
 	heading(7, "Building distributable");
 
+	// Notarization credentials come from the keychain profile created with
+	// `xcrun notarytool store-credentials "Desqueeze"` — the profile name is
+	// not a secret; the password never leaves the keychain. APPLE_* env vars
+	// (if exported) still take precedence inside electron-builder. Only set
+	// the profile when notarytool actually has stored credentials, otherwise
+	// electron-builder would fail the build instead of skipping notarization.
+	// Copy extraResources instead of hardlinking — otherwise signing the
+	// binaries inside the .app also rewrites the committed source files
+	// in resources/bin/ (same inode), dirtying git on every build.
+	const buildEnv = { ...process.env, USE_HARD_LINKS: "false" };
+	if (!buildEnv.APPLE_KEYCHAIN_PROFILE && !buildEnv.APPLE_ID) {
+		try {
+			execSync('security find-generic-password -s "com.apple.gke.notary.tool"', {
+				stdio: ["pipe", "pipe", "pipe"],
+			});
+			buildEnv.APPLE_KEYCHAIN_PROFILE = "Desqueeze";
+		} catch {
+			console.log(`  ${YELLOW}⚠${RESET} No notarytool credentials in keychain — build will be signed but not notarized.`);
+			console.log(`  ${DIM}Run: xcrun notarytool store-credentials "Desqueeze" --apple-id <id> --team-id YRSL39K9B4 --password <app-specific>${RESET}`);
+		}
+	}
+
 	try {
 		execSync("npx electron-vite build", { cwd: rootDir, stdio: "inherit" });
-		execSync("npx electron-builder", { cwd: rootDir, stdio: "inherit" });
+		execSync("npx electron-builder", { cwd: rootDir, stdio: "inherit", env: buildEnv });
 	} catch {
 		console.error(`\n${RED}❌ Build failed.${RESET} Version has been bumped to ${newVersion}.`);
 		console.error(`Fix the issue and run: npx electron-vite build && npx electron-builder`);
