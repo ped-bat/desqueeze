@@ -60,6 +60,8 @@ class DngOperations {
 		const args = [
 			"convert",
 			"--dng-preview", "true",
+			// Don't duplicate the original raw file inside the DNG (~doubles size)
+			"--embed-raw", "false",
 			"--override",
 			inputPath,
 			outputPath,
