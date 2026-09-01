@@ -51,8 +51,7 @@
 		"versionCommand": null,
 		"versionParser": null,
 		"systemVersionCommand": {
-			"darwin": "brew info --json=v2 libraw | node -e \"process.stdin.on('data',d=>console.log(JSON.parse(d).formulae[0].versions.stable))\"",
-			"linux": "dpkg-query -W -f='${source:Upstream-Version}' libraw-bin"
+			"darwin": "brew info --json=v2 libraw | node -e \"process.stdin.on('data',d=>console.log(JSON.parse(d).formulae[0].versions.stable))\""
 		},
 		"systemUpgradeCommand": {
 			"darwin": "brew upgrade libraw"

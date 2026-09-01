@@ -481,9 +481,13 @@ export async function updateBinaries() {
 		}
 
 		// ── Step 2b: Check system version ───────────────────
+		// Presence on PATH decides whether we can bundle; the version is
+		// only metadata. A binary built from source (no package manager
+		// entry, no --version flag) is still perfectly bundleable.
 		let systemVersion = getSystemVersion(dep);
+		const systemPath = findInPath(dep.binary);
 
-		if (!systemVersion) {
+		if (!systemPath) {
 			// Not installed at all
 			console.log(`  ${YELLOW}⚠${RESET} ${dep.binary} not found on system`);
 			const hint = dep.installHint?.[currentPlatform];
@@ -501,7 +505,11 @@ export async function updateBinaries() {
 		}
 
 		// ── Step 2a: Upgrade system if behind ───────────────
-		if (compareSemver(systemVersion, targetVersion) < 0) {
+		// Skipped when the version is undetectable (source build): there is
+		// nothing to compare, and no package manager entry to upgrade.
+		if (!systemVersion) {
+			console.log(`  ${DIM}Version not detectable — using ${projectVersion} from manifest${RESET}`);
+		} else if (compareSemver(systemVersion, targetVersion) < 0) {
 			console.log(`  ${YELLOW}⚠${RESET} System version ${systemVersion} is behind ${targetVersion}`);
 			const upgraded = upgradeSystem(dep);
 			if (upgraded) {
