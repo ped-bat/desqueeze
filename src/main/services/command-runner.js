@@ -5,6 +5,7 @@
  * and stderr classification (some CLIs write progress to stderr).
  */
 
+import path from "path";
 import { promisify } from "util";
 import { execFile } from "child_process";
 import log from "../logger.js";
@@ -67,7 +68,24 @@ class CommandRunner {
 			if (error.stderr) {
 				log.error(`stderr: ${error.stderr.trim()}`);
 			}
-			throw error;
+
+			// Surface the tool's own message. Node's default is
+			// "Command failed: <the entire command line>", which tells the
+			// user nothing about what actually went wrong — the reason is in
+			// stderr, so lift the last couple of lines into the message that
+			// reaches the UI.
+			const output = String(error.stderr || error.stdout || "").trim();
+			const reason = output
+				.split(/\r?\n/)
+				.map((line) => line.trim())
+				.filter(Boolean)
+				.slice(-2)
+				.join(" — ");
+			const tool = path.basename(binaryPath);
+
+			throw new Error(
+				reason ? `${tool}: ${reason}` : `${tool} failed (exit code ${exitCode})`
+			);
 		}
 	}
 }
