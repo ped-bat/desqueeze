@@ -1,7 +1,7 @@
 # Desqueeze
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/platform-macOS-lightgrey)]()
+[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey)]()
 
 **Desktop app for desqueezing anamorphic photos and RAW files.**
 
@@ -34,7 +34,7 @@ Common anamorphic squeeze factors:
 - **Bitmap support** — converts JPG, PNG, TIFF, WebP to DNG with proper color profiles
 - **Batch processing** — drag-and-drop entire folders, process multiple files in parallel
 - **Color-accurate** — dual-illuminant DNG profiles for proper D65↔D50 chromatic adaptation
-- **macOS app** — Windows/Linux support planned (binaries are currently bundled for macOS only)
+- **Cross-platform** — macOS, Windows, and Linux, each with its own bundled binaries
 
 <!-- BEGIN:RAW_FORMATS -->
 ### Supported RAW Formats
@@ -71,15 +71,19 @@ formats bake the stretch into the pixels.
 
 ## Development Setup
 
-Requires **Node.js ≥ 18** and macOS (for now — see platform support above).
+Requires **Node.js ≥ 18**.
 
 ```bash
 npm install
-npm run setup   # copies system-installed dnglab + dcraw_emu into resources/bin
-                # (brew install dnglab libraw — only needed to refresh binaries;
-                #  the repo already contains bundled copies)
+npm run setup   # downloads dnglab from its official release and bundles
+                # dcraw_emu (brew install libraw on macOS; on Linux run
+                # scripts/build-libraw-linux.sh first)
 npm run dev
 ```
+
+`npm run setup` also refreshes the supported-camera list from the bundled
+dnglab binary. The repo already contains bundled binaries, so this is only
+needed to update them.
 
 ---
 
@@ -89,25 +93,47 @@ npm run dev
 npm run dist
 ```
 
-This creates a distributable app in the `dist/` folder.
+This creates a distributable app in the `dist/` folder. Each installer is
+built on its own platform, since the bundled binaries are platform-specific
+(see [.github/workflows/ci.yml](.github/workflows/ci.yml)).
 
 | Platform | Build Target |
 |---|---|
 | macOS | `.dmg` (signed + notarized when credentials are configured) |
+| Windows | `.exe` (NSIS installer) |
+| Linux | `.AppImage` |
 
 ### Code signing & notarization (macOS)
 
 Signing happens automatically when a `Developer ID Application` certificate
-is present in the keychain. For notarization, export these before building:
+is present in the keychain. For notarization, store credentials once:
 
 ```bash
-export APPLE_ID="you@example.com"
-export APPLE_APP_SPECIFIC_PASSWORD="xxxx-xxxx-xxxx-xxxx"  # appleid.apple.com → App-Specific Passwords
-export APPLE_TEAM_ID="XXXXXXXXXX"
+xcrun notarytool store-credentials "Desqueeze" \
+  --apple-id "you@example.com" \
+  --team-id "XXXXXXXXXX" \
+  --password "xxxx-xxxx-xxxx-xxxx"   # appleid.apple.com → App-Specific Passwords
 ```
 
-Without them, the build still succeeds but skips notarization (fine for
-local testing; not for public distribution).
+`npm run dist` picks that keychain profile up automatically, so the password
+never lands in a file, an env var, or your shell history. Without it the
+build still succeeds but skips notarization — fine for local testing, not
+for distribution (Gatekeeper blocks unnotarized apps on other Macs).
+
+Verify a finished build with:
+
+```bash
+spctl -a -vv "dist/mac-arm64/Desqueeze.app"   # expect: accepted / Notarized Developer ID
+```
+
+### Linux build note
+
+Ubuntu's `libraw-bin` package is too old for recent cameras, so build
+LibRaw from source before `npm run setup`:
+
+```bash
+bash scripts/build-libraw-linux.sh
+```
 
 ---
 
@@ -178,6 +204,9 @@ animated dot-grid engine.
 | `npm run preview` | Preview the production build |
 | `npm run setup` | Update bundled binaries + camera support list |
 | `npm run dist` | Full release flow: binaries, version bump, notes, build |
+
+Testing the Windows and Linux builds from a Mac is covered in
+[docs/vm-testing.md](docs/vm-testing.md).
 
 
 ---

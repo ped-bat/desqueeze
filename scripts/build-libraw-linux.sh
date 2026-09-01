@@ -70,10 +70,18 @@ if head -c 2 "$INSTALLED" | grep -q '#!'; then
 	head -3 "$INSTALLED" >&2
 	exit 1
 fi
-if ! "$INSTALLED" 2>&1 | grep -qi "dcraw"; then
-	echo "ERROR: $INSTALLED did not run correctly" >&2
-	exit 1
-fi
+# dcraw_emu exits 1 when printing its usage banner, so capture the output
+# rather than piping it — under `set -o pipefail` a non-zero exit here would
+# fail the pipeline and reject a perfectly good binary.
+USAGE_OUT="$("$INSTALLED" 2>&1 || true)"
+case "$USAGE_OUT" in
+	*dcraw*) ;;
+	*)
+		echo "ERROR: $INSTALLED did not run correctly. Output was:" >&2
+		echo "$USAGE_OUT" >&2
+		exit 1
+		;;
+esac
 
 echo "Installed: $INSTALLED (LibRaw ${VERSION})"
 file "$INSTALLED"
