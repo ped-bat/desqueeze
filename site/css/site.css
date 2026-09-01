@@ -161,6 +161,30 @@ h2.section-title {
 	max-width: 20ch;
 }
 
+/* A heading carrying a version badge needs room for both on one line */
+h2.section-title:has(.version) {
+	max-width: none;
+}
+
+/* Version badge beside a section title */
+.version {
+	display: inline-block;
+	vertical-align: 0.28em;
+	margin-left: 0.55em;
+	white-space: nowrap;
+	font-size: 0.36em;
+	text-transform: none; /* v0.1.0, not V0.1.0 */
+	letter-spacing: var(--dg-tracking-bar);
+	font-variation-settings: "wght" 400, "wdth" 88;
+	color: var(--dg-fg-faint);
+	border: 1px solid var(--dg-border-soft);
+	border-radius: 2px;
+	padding: 0.42em 0.62em 0.34em;
+	text-shadow: none;
+	/* cancels the heading's scaleX so the badge stays optically normal */
+	transform: scaleX(0.943);
+}
+
 h3 {
 	font-size: clamp(0.95rem, 1.4vw, 1.1rem);
 	text-transform: uppercase;
@@ -400,20 +424,30 @@ a:hover {
 }
 
 /*
- * The wordmark performs the product on load: it arrives squeezed — narrow
- * optical width, no horizontal scale — and desqueezes to the app's resting
- * scaleX(1.5) / wdth 80. Same end state as <dg-chroma-text variant="title">.
+ * The wordmark is the app's title, verbatim.
+ *
+ * Careful reading dg-chroma-text: its stylesheet declares font-weight 600
+ * and letter-spacing 0.1em, but the engine overwrites both inline on every
+ * frame via applyFrame() — at rest (stretchW 0) that is wght 300, wdth 80
+ * and 8px of tracking. font-variation-settings beats font-weight, so the
+ * 600 never renders. The values below are the ones actually on screen.
+ *
+ * Tracking is set in em, not the app's literal 8px: the app's title tops out
+ * at 2.88rem where 8px is 0.174em, and a hero at twice that size needs the
+ * ratio, not the pixel count, to look like the same typeface setting.
+ *
+ * It arrives squeezed and desqueezes into that rest state on load.
  */
 .hero-title {
-	font-size: clamp(2.15rem, 8vw, 5.6rem);
+	font-size: clamp(1.85rem, 6.4vw, 4.4rem);
 	text-transform: uppercase;
 	line-height: 1;
 	transform-origin: center center;
 
 	opacity: 0;
 	transform: scaleX(1);
-	font-variation-settings: "wght" 600, "wdth" 54;
-	letter-spacing: 0.02em;
+	font-variation-settings: "wght" 300, "wdth" 54;
+	letter-spacing: 0.05em;
 	transition: opacity 0.75s ease, transform 1.5s cubic-bezier(0.16, 1, 0.3, 1),
 		font-variation-settings 1.5s cubic-bezier(0.16, 1, 0.3, 1),
 		letter-spacing 1.5s cubic-bezier(0.16, 1, 0.3, 1);
@@ -422,8 +456,8 @@ a:hover {
 .ready .hero-title {
 	opacity: 1;
 	transform: scaleX(1.5);
-	font-variation-settings: "wght" 600, "wdth" 80;
-	letter-spacing: var(--dg-tracking-tight);
+	font-variation-settings: "wght" 300, "wdth" 80;
+	letter-spacing: 0.174em;
 }
 
 .hero-title .layer-r {
@@ -594,169 +628,28 @@ a:hover {
 	}
 }
 
-/* ─────────────────────────────────────────────────────────────
-   Squeeze demo
-   ───────────────────────────────────────────────────────────── */
-
-/*
- * Both frames share a height; the desqueezed one is wider, because that is
- * what a desqueeze actually does — the sensor's 3:2 recording becomes
- * 3f:2 once the horizontal compression is undone. Nothing is cropped and
- * no vertical resolution is gained, which is the whole point.
- */
-.demo {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: flex-start;
-	/* Shares the left edge with the heading, lead and controls */
-	justify-content: flex-start;
-	gap: clamp(16px, 2.6vw, 32px);
-}
-
-.demo .frame {
-	flex: 0 1 auto;
-	max-width: 100%;
-}
-
-.frame {
-	position: relative;
-	border: 1px solid var(--dg-border-soft);
-	border-radius: var(--dg-radius);
-	background: rgba(0, 0, 0, 0.42);
-	overflow: hidden;
-	box-shadow: var(--dg-glow-surface);
-}
-
-.frame-label {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	z-index: 2;
-	display: flex;
-	justify-content: space-between;
-	gap: 10px;
-	padding: 10px 12px;
-	font-size: clamp(0.56rem, 0.8vw, 0.68rem);
-	text-transform: uppercase;
-	letter-spacing: var(--dg-tracking-bar);
-	color: var(--dg-fg-faint);
-	background: linear-gradient(to bottom, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
-	pointer-events: none;
-}
-
-.frame-label .val {
-	color: var(--dg-fg);
-	font-variation-settings: "wght" 500, "wdth" 80;
-}
-
-.sensor {
-	position: relative;
-	overflow: hidden;
-	/* Capped so the pair still fits the 1120 column at 2x, where the two
-	   frames together are 4.5 x this height plus the gap. */
-	height: clamp(132px, 17vw, 236px);
-	width: auto;
-	transition: aspect-ratio 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* As recorded: always the sensor's own 3:2, whatever the lens squeezed */
-.sensor-squeezed {
-	aspect-ratio: 3 / 2;
-}
-
-/* Desqueezed: 3:2 widened by the squeeze factor */
-.sensor-desqueezed {
-	aspect-ratio: calc(3 * var(--f) / 2);
-}
-
-/* preserveAspectRatio="none" means the box does the distorting: the scene
-   is authored 300f x 200, so squeezing it into 3:2 compresses it by exactly
-   f, and letting it fill 3f:2 restores it. */
-.sensor svg {
-	display: block;
-	width: 100%;
-	height: 100%;
-}
-
-.demo-controls {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 10px;
-	margin-top: clamp(24px, 4vh, 38px);
-}
-
-.demo-controls .label {
-	font-size: clamp(0.6rem, 0.85vw, 0.72rem);
-	text-transform: uppercase;
-	letter-spacing: var(--dg-tracking-bar);
-	color: var(--dg-fg-faint);
-	margin-right: 6px;
-}
-
-.seg {
-	display: inline-flex;
-	border: 1.5px solid var(--dg-border-soft);
-	border-radius: var(--dg-radius);
-	background: rgba(0, 0, 0, 0.3);
-	backdrop-filter: var(--dg-blur-glass);
-	-webkit-backdrop-filter: var(--dg-blur-glass);
-	overflow: hidden;
-}
-
-.seg button {
-	appearance: none;
-	border: 0;
-	border-right: 1px solid var(--site-hairline);
-	background: transparent;
-	color: var(--dg-fg-soft);
-	font-family: var(--dg-font);
-	font-size: clamp(0.72rem, 1vw, 0.86rem);
-	text-transform: uppercase;
-	letter-spacing: var(--dg-tracking-bar);
-	font-variation-settings: "wght" 350, "wdth" 80;
-	padding: 0.65em 1.1em 0.58em;
-	cursor: pointer;
-	transition: background 0.45s ease-in-out, color 0.45s ease-in-out;
-}
-
-.seg button:last-child {
-	border-right: 0;
-}
-
-.seg button:hover {
-	background: rgba(255, 255, 255, 0.07);
-	color: var(--dg-fg-strong);
-	transition: background 0.12s cubic-bezier(0, 0, 0.2, 1), color 0.12s cubic-bezier(0, 0, 0.2, 1);
-}
-
-.seg button[aria-pressed="true"] {
-	background: rgba(255, 255, 255, 0.13);
-	color: #fff;
-	text-shadow: var(--dg-glow-white);
-}
-
-.seg button:focus-visible {
-	outline: 2px solid rgba(255, 255, 255, 0.7);
-	outline-offset: -2px;
-}
-
-.demo-note {
-	margin-top: 1.1rem;
-	font-size: 0.86rem;
-	color: var(--dg-fg-faint);
-	max-width: 70ch;
-}
 
 /* ─────────────────────────────────────────────────────────────
-   Comparison (lossless vs resample)
+   Lossless: prose alongside a spec panel
    ───────────────────────────────────────────────────────────── */
 
-.compare {
+.split {
 	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: clamp(16px, 2.4vw, 26px);
+	grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+	gap: clamp(24px, 4vw, 60px);
+	align-items: start;
+}
+
+.split-prose p + p {
+	margin-top: 1.1rem;
+}
+
+.split-prose p.note {
+	margin-top: 1.7rem;
+	padding-top: 1.4rem;
+	border-top: 1px solid var(--site-hairline);
+	font-size: 0.9rem;
+	color: var(--dg-fg-faint);
 }
 
 .card {
@@ -902,34 +795,24 @@ a:hover {
 	background: rgba(255, 255, 255, 0.07);
 }
 
-.stats {
-	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: clamp(16px, 2.4vw, 28px);
-	margin-top: clamp(36px, 5vh, 56px);
-	padding-top: clamp(30px, 4vh, 44px);
+.camera-link {
+	margin-top: clamp(30px, 4vh, 44px);
+	padding-top: clamp(24px, 3vh, 34px);
 	border-top: 1px solid var(--site-hairline);
+	max-width: none;
 }
 
-.stat .num {
-	display: block;
-	font-size: clamp(1.9rem, 4.4vw, 3rem);
-	font-variation-settings: "wght" 400, "wdth" 72;
-	color: var(--dg-fg-strong);
-	line-height: 1;
-	letter-spacing: 0.02em;
-	text-shadow: var(--dg-glow-white);
-	transform: scaleX(1.14);
-	transform-origin: left center;
-}
-
-.stat .cap {
-	display: block;
-	margin-top: 0.95rem;
-	font-size: 0.7rem;
+.camera-link a {
+	font-size: clamp(0.86rem, 1.15vw, 1rem);
 	text-transform: uppercase;
 	letter-spacing: var(--dg-tracking-bar);
-	color: var(--dg-fg-faint);
+	font-variation-settings: "wght" 400, "wdth" 82;
+	text-decoration: none;
+	color: var(--dg-fg-mid);
+}
+
+.camera-link a:hover {
+	color: #fff;
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -986,18 +869,25 @@ a:hover {
 	color: var(--dg-fg-faint);
 }
 
-.dl .file {
-	margin-top: auto;
-	padding-top: 1.3rem;
-	font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
-	font-size: 0.72rem;
-	color: var(--dg-fg-ghost);
-	word-break: break-word;
-	transition: color var(--dg-ease);
+.dl-logo {
+	display: block;
+	margin-bottom: 1.15rem;
+	color: var(--dg-fg-soft);
+	transition: color 0.45s ease-in-out;
 }
 
-.dl:hover .file {
-	color: var(--dg-fg-mid);
+.dl-logo svg {
+	display: block;
+	width: 34px;
+	height: 34px;
+	/* The mark carries the same glow the type does, so it sits in the
+	   same light as everything else on the page. */
+	filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.12));
+}
+
+.dl:hover .dl-logo {
+	color: var(--dg-fg-strong);
+	transition: color 0.12s cubic-bezier(0, 0, 0.2, 1);
 }
 
 /* The visitor's own platform, detected client-side and lifted forward */
@@ -1079,26 +969,14 @@ a:hover {
    ───────────────────────────────────────────────────────────── */
 
 @media (max-width: 860px) {
-	.compare,
+	.split,
 	.steps,
-	.downloads,
-	.stats {
+	.downloads {
 		grid-template-columns: minmax(0, 1fr);
 	}
 
-	.stats {
-		gap: 26px;
-	}
-
-	/* Stacked frames go full-width and take their height from the aspect
-	   ratio, so the widening still reads even without them side by side. */
-	.demo .frame {
-		flex: 1 1 100%;
-	}
-
-	.sensor {
-		height: auto;
-		width: 100%;
+	.split {
+		gap: 32px;
 	}
 
 	h2.section-title {

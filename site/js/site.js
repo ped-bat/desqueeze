@@ -1,8 +1,8 @@
 /*
  * Desqueeze landing page — page wiring.
  *
- * Owns: the background dot grid, the hero intro, the squeeze demo, the
- * format chips, scroll reveals and the platform-aware download cards.
+ * Owns: the background dot grid, the hero intro, the format chips, scroll
+ * reveals and the platform-aware download cards.
  */
 
 import { DotGrid } from "./dot-grid.js";
@@ -106,7 +106,7 @@ function initHero(grid) {
 	// fallback face and then snap-swaps mid-animation.
 	if (document.fonts && document.fonts.load) {
 		const timeout = new Promise((r) => setTimeout(r, 1200));
-		Promise.race([document.fonts.load('600 60px "Science Gothic"'), timeout]).then(reveal, reveal);
+		Promise.race([document.fonts.load('300 60px "Science Gothic"'), timeout]).then(reveal, reveal);
 	} else {
 		reveal();
 	}
@@ -152,94 +152,6 @@ function initReveals(grid) {
 	items.forEach((el) => io.observe(el));
 }
 
-/* ─────────────────────────────────────────────────────────────
-   Squeeze demo
-
-   The scene is authored 300f x 200 — a world that is f times wider than
-   the sensor is. Dropping that viewBox into a 3:2 box with
-   preserveAspectRatio="none" compresses it by exactly f (what the lens
-   does); letting it fill a 3f:2 box restores it (what Desqueeze does).
-   ───────────────────────────────────────────────────────────── */
-
-const SCENE_H = 200;
-const SCENE_UNIT_W = 300; // scene width at 1x
-
-function buildChart(factor) {
-	const w = SCENE_UNIT_W * factor;
-	const cx = w / 2;
-	const cy = SCENE_H / 2;
-	const parts = [];
-
-	parts.push(`<rect width="${w}" height="${SCENE_H}" fill="#0b0b0b"/>`);
-
-	// Dot lattice — the app's own motif, and the clearest tell that
-	// something has been squeezed: round dots become tall ellipses.
-	const spacing = 25;
-	const cols = Math.round(w / spacing);
-	const rows = Math.round(SCENE_H / spacing);
-	const ox = (w - (cols - 1) * spacing) / 2;
-	const oy = (SCENE_H - (rows - 1) * spacing) / 2;
-	const dots = [];
-	for (let r = 0; r < rows; r++) {
-		for (let c = 0; c < cols; c++) {
-			dots.push(`<circle cx="${(ox + c * spacing).toFixed(1)}" cy="${(oy + r * spacing).toFixed(1)}" r="1.7"/>`);
-		}
-	}
-	parts.push(`<g fill="rgba(255,255,255,0.34)">${dots.join("")}</g>`);
-
-	// Crosshair
-	parts.push(
-		`<g stroke="rgba(255,255,255,0.14)" stroke-width="1" fill="none">` +
-			`<path d="M0 ${cy} H${w} M${cx} 0 V${SCENE_H}"/></g>`
-	);
-
-	// Reference geometry: a true circle and a true square
-	parts.push(
-		`<g fill="none">` +
-			`<circle cx="${cx}" cy="${cy}" r="62" stroke="rgba(255,255,255,0.8)" stroke-width="1.7"/>` +
-			`<circle cx="${cx}" cy="${cy}" r="34" stroke="rgba(255,255,255,0.3)" stroke-width="1.4"/>` +
-			`<rect x="${cx - 44}" y="${cy - 44}" width="88" height="88" stroke="rgba(255,255,255,0.26)" stroke-width="1.4"/>` +
-			`</g>`
-	);
-
-	// 45-degree corner ticks — they stop being 45 degrees when squeezed
-	parts.push(
-		`<g stroke="rgba(255,255,255,0.45)" stroke-width="1.5" fill="none">` +
-			`<path d="M14 14 L44 44 M${w - 14} 14 L${w - 44} 44 ` +
-			`M14 ${SCENE_H - 14} L44 ${SCENE_H - 44} M${w - 14} ${SCENE_H - 14} L${w - 44} ${SCENE_H - 44}"/></g>`
-	);
-
-	return { w, markup: parts.join("") };
-}
-
-function initDemo(grid) {
-	const demo = document.getElementById("demo");
-	if (!demo) return;
-
-	const svgs = demo.querySelectorAll(".sensor svg");
-	const label = document.getElementById("label-squeezed");
-	const buttons = document.querySelectorAll(".seg [data-factor]");
-
-	const apply = (factor) => {
-		const { w, markup } = buildChart(factor);
-		svgs.forEach((svg) => {
-			svg.setAttribute("viewBox", `0 0 ${w} ${SCENE_H}`);
-			svg.innerHTML = markup;
-		});
-		demo.style.setProperty("--f", String(factor));
-		if (label) label.textContent = `${factor}× squeeze`;
-		buttons.forEach((b) => b.setAttribute("aria-pressed", String(Number(b.dataset.factor) === factor)));
-	};
-
-	buttons.forEach((btn) => {
-		btn.addEventListener("click", () => {
-			apply(Number(btn.dataset.factor));
-			if (grid && !reduceMotion) grid.pulse();
-		});
-	});
-
-	apply(1.5);
-}
 
 /* ─────────────────────────────────────────────────────────────
    Format chips — kept in sync with the README's generated lists
@@ -285,6 +197,5 @@ const grid = initGrid();
 initHero(grid);
 initHeader();
 initReveals(grid);
-initDemo(grid);
 initChips();
 initDownloads();

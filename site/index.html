@@ -6,7 +6,7 @@
 		<title>Desqueeze — Lossless anamorphic image processor</title>
 		<meta
 			name="description"
-			content="Desktop app for desqueezing anamorphic photos and RAW files. Writes DNG DefaultScale metadata instead of resampling pixels — no quality loss. macOS, Windows and Linux."
+			content="Desktop app for desqueezing anamorphic photos and RAW files. In DNG mode it writes metadata instead of resampling pixels, so you can edit anamorphic shots straight in Lightroom. macOS, Windows and Linux."
 		/>
 		<link rel="canonical" href="https://desqueeze.io/" />
 		<meta name="theme-color" content="#111111" />
@@ -15,7 +15,7 @@
 		<meta property="og:title" content="Desqueeze — Lossless anamorphic image processor" />
 		<meta
 			property="og:description"
-			content="Restore anamorphic proportions by writing DNG metadata, not by resampling pixels. 25+ RAW formats, batch processing, everything local."
+			content="Restore anamorphic proportions without resampling a single pixel. Edit straight in Lightroom, no Photoshop round-trip. 25+ RAW formats, batch processing, everything local."
 		/>
 		<meta property="og:url" content="https://desqueeze.io/" />
 		<meta name="twitter:card" content="summary_large_image" />
@@ -48,7 +48,7 @@
 				<span class="brand-name">Desqueeze</span>
 			</a>
 			<nav class="site-nav">
-				<a href="#squeeze" class="nav-hide-sm">The&nbsp;squeeze</a>
+				<a href="#workflow" class="nav-hide-sm">How&nbsp;it&nbsp;works</a>
 				<a href="#lossless" class="nav-hide-sm">Lossless</a>
 				<a href="#formats" class="nav-hide-sm">Formats</a>
 				<a href="https://github.com/ped-bat/desqueeze">GitHub</a>
@@ -59,7 +59,7 @@
 		<main class="page" id="top">
 			<!-- ── Hero ───────────────────────────────────────────────── -->
 			<section class="hero">
-				<h1 class="hero-title chroma hero-fade" id="hero-title">
+				<h1 class="hero-title chroma" id="hero-title">
 					<span class="layer layer-r" aria-hidden="true">Desqueeze</span>
 					<span class="layer layer-g">Desqueeze</span>
 					<span class="layer layer-b" aria-hidden="true">Desqueeze</span>
@@ -78,56 +78,37 @@
 				<span class="scroll-cue" aria-hidden="true"></span>
 			</section>
 
-			<!-- ── The squeeze ────────────────────────────────────────── -->
-			<section class="section" id="squeeze">
+			<!-- ── How it works ───────────────────────────────────────── -->
+			<section class="section" id="workflow">
 				<div class="section-inner">
 					<div class="section-head reveal">
-						<span class="eyebrow">01 — The squeeze</span>
-						<h2 class="section-title">Anamorphic lenses record the world narrow</h2>
-						<p class="lead">
-							They fit a wider field of view onto the same sensor by compressing it horizontally. Straight
-							out of the camera everything is tall and thin — circles come back as ellipses. Desqueezing
-							restores the proportions the lens was actually seeing.
-						</p>
+						<span class="eyebrow">The workflow</span>
+						<h2 class="section-title">Drop. Set. Done.</h2>
 					</div>
 
-					<div class="demo reveal" id="demo" style="--f: 1.5">
-						<figure class="frame">
-							<figcaption class="frame-label">
-								<span>As recorded</span>
-								<span class="val" id="label-squeezed">1.5&times; squeeze</span>
-							</figcaption>
-							<div class="sensor sensor-squeezed">
-								<!-- preserveAspectRatio="none" makes the box aspect do the
-								     squeezing, exactly like the lens does to the sensor -->
-								<svg viewBox="0 0 450 200" preserveAspectRatio="none" aria-hidden="true"></svg>
-							</div>
-						</figure>
-
-						<figure class="frame">
-							<figcaption class="frame-label">
-								<span>Desqueezed</span>
-								<span class="val">Correct proportions</span>
-							</figcaption>
-							<div class="sensor sensor-desqueezed">
-								<svg viewBox="0 0 450 200" preserveAspectRatio="none" aria-hidden="true"></svg>
-							</div>
-						</figure>
-					</div>
-
-					<div class="demo-controls reveal">
-						<span class="label">Squeeze factor</span>
-						<div class="seg" role="group" aria-label="Squeeze factor">
-							<button type="button" data-factor="1.33" aria-pressed="false">1.33&times;</button>
-							<button type="button" data-factor="1.5" aria-pressed="true">1.5&times;</button>
-							<button type="button" data-factor="2" aria-pressed="false">2&times;</button>
+					<div class="steps reveal">
+						<div class="step">
+							<h3>Drag and drop</h3>
+							<p>
+								Drop your photos or entire folders straight onto the window. There is no drop target to
+								aim for and no dialog to click through — anywhere in the app will do.
+							</p>
+						</div>
+						<div class="step">
+							<h3>Pick the factor</h3>
+							<p>
+								Select your anamorphic lens&rsquo;s squeeze ratio — 1.33&times;, 1.5&times;, 2&times; or a
+								custom value — and choose the output format you want to end up with.
+							</p>
+						</div>
+						<div class="step">
+							<h3>Collect your files</h3>
+							<p>
+								Processed files land in a <code>desqueezed/</code> folder right next to the originals.
+								Batches run in parallel, and nothing ever leaves your machine.
+							</p>
 						</div>
 					</div>
-
-					<p class="demo-note reveal">
-						1.33&times; and 1.5&times; are the common still-photography adapters; 2&times; is the cinema
-						standard. Desqueeze ships all three as presets, plus a custom field for anything in between.
-					</p>
 				</div>
 			</section>
 
@@ -135,78 +116,43 @@
 			<section class="section" id="lossless">
 				<div class="section-inner">
 					<div class="section-head reveal">
-						<span class="eyebrow">02 — Lossless by default</span>
-						<h2 class="section-title">Metadata, not pixels</h2>
+						<span class="eyebrow">Lossless by default</span>
+						<h2 class="section-title">Edit straight in Lightroom</h2>
 						<p class="lead">
-							Every other desqueeze workflow stretches the image. Desqueeze writes a tag and leaves your
-							pixels exactly where the sensor put them.
+							In DNG mode, Desqueeze processes your images with no loss of quality at all — so you can
+							open your anamorphic photos in Lightroom and grade them as they are, without converting
+							them to bitmaps in Photoshop first.
 						</p>
 					</div>
 
-					<div class="compare reveal">
-						<article class="card">
-							<span class="tag">The usual way</span>
-							<h3>Resample the image</h3>
+					<div class="split reveal">
+						<div class="split-prose">
 							<p>
-								Stretching means interpolating every pixel onto a new grid. Detail gets invented where
-								there wasn&rsquo;t any, the stretch is baked in permanently, and you have spent quality
-								before grading has even started.
+								It works because nothing is stretched. Desqueeze converts to DNG and records the squeeze
+								factor in the file&rsquo;s <code>DefaultScale</code> tag, leaving every pixel exactly
+								where the sensor put it. Lightroom, Camera Raw and any other DNG-aware app read that tag
+								and apply the correct proportions on the fly.
 							</p>
-						</article>
+							<p>
+								Resampling would mean interpolating the whole image onto a new grid — inventing detail,
+								baking the stretch in permanently, and spending quality before grading has even started.
+							</p>
+							<p class="note">
+								DNGLab, <code>dcraw_emu</code> and ExifTool all ship inside the app, so there is nothing
+								else to install. Prefer a flat file? Export to JPEG, PNG, TIFF or WebP and Desqueeze
+								bakes the stretch into the pixels instead, with dual-illuminant DNG profiles handling
+								the D65&rarr;D50 chromatic adaptation.
+							</p>
+						</div>
 
-						<article class="card accent">
-							<span class="tag">Desqueeze</span>
-							<h3>Write <code>DefaultScale</code></h3>
-							<p>
-								Desqueeze converts to DNG and records the squeeze factor in the file&rsquo;s
-								<code>DefaultScale</code> tag. Not one pixel is resampled. Lightroom, Camera Raw and
-								every other DNG-aware app read the tag and apply the stretch on the fly.
-							</p>
+						<div class="card accent">
+							<span class="tag">DNG output</span>
 							<ul class="kv">
 								<li><span>Pixel data</span><span>Untouched</span></li>
-								<li><span>Reversible</span><span>Yes</span></li>
 								<li><span>Quality cost</span><span>None</span></li>
+								<li><span>Reversible</span><span>Yes</span></li>
+								<li><span>Photoshop step</span><span>Not needed</span></li>
 							</ul>
-						</article>
-					</div>
-
-					<p class="demo-note reveal">
-						Need a flat file instead? Export to JPEG, PNG, TIFF or WebP and Desqueeze bakes the stretch into
-						the pixels — with dual-illuminant DNG profiles handling the D65&rarr;D50 chromatic adaptation so
-						the colour still lands where it should.
-					</p>
-				</div>
-			</section>
-
-			<!-- ── Workflow ───────────────────────────────────────────── -->
-			<section class="section" id="workflow">
-				<div class="section-inner">
-					<div class="section-head reveal">
-						<span class="eyebrow">03 — The workflow</span>
-						<h2 class="section-title">Drop. Set. Done.</h2>
-					</div>
-
-					<div class="steps reveal">
-						<div class="step">
-							<h3>Drop the files</h3>
-							<p>
-								Drag images or entire folders anywhere in the window — no drop target to aim for. Or
-								browse, if you prefer.
-							</p>
-						</div>
-						<div class="step">
-							<h3>Pick the factor</h3>
-							<p>
-								1.33&times;, 1.5&times;, 2&times; or a custom ratio, then choose your output: DNG for
-								lossless, or JPEG, PNG, TIFF and WebP for a flat file.
-							</p>
-						</div>
-						<div class="step">
-							<h3>Collect the results</h3>
-							<p>
-								Everything lands in a <code>desqueezed/</code> folder next to the originals. Batches run
-								in parallel, and nothing leaves your machine.
-							</p>
 						</div>
 					</div>
 				</div>
@@ -216,12 +162,9 @@
 			<section class="section" id="formats">
 				<div class="section-inner">
 					<div class="section-head reveal">
-						<span class="eyebrow">04 — Coverage</span>
-						<h2 class="section-title">Whatever the lens was bolted to</h2>
-						<p class="lead">
-							RAW conversion runs through DNGLab and LibRaw, both bundled. There is nothing else to
-							install.
-						</p>
+						<span class="eyebrow">Coverage</span>
+						<h2 class="section-title">Most cameras, most RAW formats</h2>
+						<p class="lead">If your camera writes it, Desqueeze most likely reads it.</p>
 					</div>
 
 					<div class="format-block reveal">
@@ -234,11 +177,11 @@
 						<div class="chips" id="bitmap-chips"></div>
 					</div>
 
-					<div class="stats reveal">
-						<div class="stat"><span class="num">25</span><span class="cap">RAW formats</span></div>
-						<div class="stat"><span class="num">897</span><span class="cap">Cameras supported</span></div>
-						<div class="stat"><span class="num">34</span><span class="cap">Manufacturers</span></div>
-					</div>
+					<p class="camera-link reveal">
+						<a href="https://github.com/ped-bat/desqueeze/blob/main/resources/cameras.json"
+							>See the full list of supported cameras &rarr;</a
+						>
+					</p>
 				</div>
 			</section>
 
@@ -246,8 +189,10 @@
 			<section class="section" id="download">
 				<div class="section-inner">
 					<div class="section-head reveal">
-						<span class="eyebrow">05 — Get it</span>
-						<h2 class="section-title">Download Desqueeze</h2>
+						<span class="eyebrow">Get it</span>
+						<h2 class="section-title">
+							Download Desqueeze <span class="version">v0.1.0</span>
+						</h2>
 					</div>
 
 					<div class="downloads reveal">
@@ -255,32 +200,62 @@
 							class="dl"
 							href="https://github.com/ped-bat/desqueeze/releases/latest/download/Desqueeze-macOS-arm64.dmg"
 						>
+							<span class="dl-logo" aria-hidden="true">
+								<svg viewBox="0 0 24 24" fill="currentColor">
+									<path
+										d="M17.05 12.54c-.02-2.69 2.2-3.98 2.3-4.05-1.25-1.83-3.2-2.08-3.89-2.11-1.65-.17-3.23.97-4.07.97-.84 0-2.13-.95-3.51-.92-1.8.02-3.47 1.05-4.4 2.66-1.88 3.25-.48 8.07 1.35 10.71.89 1.29 1.96 2.74 3.36 2.69 1.35-.06 1.86-.87 3.49-.87s2.09.87 3.51.84c1.45-.02 2.37-1.32 3.26-2.61 1.03-1.5 1.45-2.95 1.47-3.02-.03-.01-2.83-1.09-2.86-4.3z"
+									/>
+									<path
+										d="M14.86 4.56c.74-.9 1.24-2.15 1.1-3.4-1.07.04-2.37.71-3.14 1.61-.69.79-1.29 2.06-1.13 3.28 1.2.09 2.42-.61 3.17-1.49z"
+									/>
+								</svg>
+							</span>
 							<span class="os">macOS</span>
-							<span class="arch">Apple Silicon</span>
-							<span class="file">Desqueeze-macOS-arm64.dmg</span>
+							<span class="arch">Apple Silicon &middot; DMG</span>
 						</a>
+
 						<a
 							class="dl"
 							href="https://github.com/ped-bat/desqueeze/releases/latest/download/Desqueeze-Windows-x64.exe"
 						>
+							<span class="dl-logo" aria-hidden="true">
+								<svg viewBox="0 0 24 24" fill="currentColor">
+									<path d="M2.6 5.4 10.3 4.3v7.2H2.6V5.4z" />
+									<path d="M11.4 4.15 21.4 2.8v8.7h-10V4.15z" />
+									<path d="M2.6 12.5h7.7v7.2L2.6 18.6v-6.1z" />
+									<path d="M11.4 12.5h10v8.7l-10-1.35V12.5z" />
+								</svg>
+							</span>
 							<span class="os">Windows</span>
-							<span class="arch">x64 installer</span>
-							<span class="file">Desqueeze-Windows-x64.exe</span>
+							<span class="arch">x64 &middot; Installer</span>
 						</a>
+
 						<a
 							class="dl"
 							href="https://github.com/ped-bat/desqueeze/releases/latest/download/Desqueeze-Linux-x86_64.AppImage"
 						>
+							<span class="dl-logo" aria-hidden="true">
+								<!-- Tux, drawn as a silhouette: narrow head over a wide body,
+								     flippers and feet outside it, eyes and beak punched
+								     through with fill-rule="evenodd". -->
+								<svg viewBox="0 0 24 24" fill="currentColor">
+									<ellipse cx="8.8" cy="21.4" rx="2.6" ry="1.3" transform="rotate(-17 8.8 21.4)" />
+									<ellipse cx="15.2" cy="21.4" rx="2.6" ry="1.3" transform="rotate(17 15.2 21.4)" />
+									<ellipse cx="4.5" cy="15.4" rx="1.5" ry="3.4" transform="rotate(16 4.5 15.4)" />
+									<ellipse cx="19.5" cy="15.4" rx="1.5" ry="3.4" transform="rotate(-16 19.5 15.4)" />
+									<path
+										fill-rule="evenodd"
+										d="M12 2.15c-2.25 0-4.05 1.85-4.05 4.15 0 1.3.45 2.3 1.15 3.05-1.5 1.25-3.6 3.55-4.15 6.95-.35 2.2.65 3.8 2.65 4.7 1.3.6 2.8.85 4.4.85s3.1-.25 4.4-.85c2-.9 3-2.5 2.65-4.7-.55-3.4-2.65-5.7-4.15-6.95.7-.75 1.15-1.75 1.15-3.05 0-2.3-1.8-4.15-4.05-4.15zM10.45 4.8a.92 1.18 0 1 0 0 2.36.92 1.18 0 0 0 0-2.36zm3.1 0a.92 1.18 0 1 0 0 2.36.92 1.18 0 0 0 0-2.36zM12 6.95c-.99 0-1.8.55-1.8 1.22s.81 1.23 1.8 1.23 1.8-.55 1.8-1.23-.81-1.22-1.8-1.22z"
+									/>
+								</svg>
+							</span>
 							<span class="os">Linux</span>
-							<span class="arch">x86_64 AppImage</span>
-							<span class="file">Desqueeze-Linux-x86_64.AppImage</span>
+							<span class="arch">x86_64 &middot; AppImage</span>
 						</a>
 					</div>
 
 					<p class="dl-note reveal">
-						DNGLab, <code>dcraw_emu</code> and ExifTool ship inside the app — nothing else to install. Or
-						browse <a href="https://github.com/ped-bat/desqueeze/releases/latest">every release</a> if you
-						need an older build.
+						Or browse <a href="https://github.com/ped-bat/desqueeze/releases">every release</a>.
 					</p>
 				</div>
 			</section>
