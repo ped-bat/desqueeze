@@ -51,6 +51,11 @@ jobs:
       - name: Acquire bundled binaries
         run: node scripts/setup-binaries.js
 
+      # See ci.yml — the VC++ runtime is missing on clean Windows installs
+      - name: Bundle MSVC runtime (Windows)
+        if: runner.os == 'Windows'
+        run: node scripts/bundle-msvc-runtime.js
+
       - name: Run tests
         run: npm test
 

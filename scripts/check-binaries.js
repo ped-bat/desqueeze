@@ -90,6 +90,17 @@ for (const [, dep] of Object.entries(manifest)) {
 	}
 }
 
+// On Windows the bundled binaries import the VC++ runtime, which is absent
+// from a clean Windows install. Dev machines and CI runners have it, so a
+// missing copy here is invisible until an end user hits exit 0xC0000135.
+if (platform === "win32") {
+	for (const dll of ["VCRUNTIME140.dll", "MSVCP140.dll"]) {
+		if (!fs.existsSync(path.join(binDir, dll))) {
+			notSelfContained.push(`${dll}: missing (run scripts/bundle-msvc-runtime.js)`);
+		}
+	}
+}
+
 if (missing.length > 0 || notSelfContained.length > 0) {
 	console.error(`\n${RED}🚨 BINARY PROBLEMS DETECTED 🚨${RESET}`);
 	if (missing.length > 0) {
