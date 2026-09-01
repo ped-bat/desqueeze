@@ -39,7 +39,7 @@
 		"binary": "dcraw_emu",
 		"installHint": {
 			"darwin": "brew install libraw",
-			"linux": "sudo apt-get install libraw-bin patchelf"
+			"linux": "bash scripts/build-libraw-linux.sh (apt's libraw-bin is too old for recent cameras)"
 		},
 		"assets": {
 			"win32-x64": {

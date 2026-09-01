@@ -33,9 +33,12 @@ jobs:
         if: runner.os == 'macOS'
         run: brew install libraw
 
-      - name: Install LibRaw + patchelf (Linux)
+      # Ubuntu's libraw-bin is 0.21.x and rejects newer camera raws (e.g.
+      # Sony "Lossless Compressed RAW 2"). Build from source so Linux ships
+      # the same LibRaw version as macOS and Windows.
+      - name: Build LibRaw from source (Linux)
         if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y libraw-bin patchelf
+        run: bash scripts/build-libraw-linux.sh
 
       - name: Acquire bundled binaries
         run: node scripts/setup-binaries.js

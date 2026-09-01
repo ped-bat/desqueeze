@@ -86,7 +86,6 @@
 			]
 		},
 		"linux": {
-			"comment": "No explicit arch: dcraw_emu comes from the host's package manager, so the AppImage must be built on the architecture it targets (x64 in CI, arm64 inside an arm64 VM).",
 			"target": [
 				"AppImage"
 			],

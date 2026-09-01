@@ -36,14 +36,31 @@ Steps:
 4. In the guest, install the toolchain and build natively:
 
    ```bash
-   sudo apt update && sudo apt install -y nodejs npm libraw-bin patchelf git
+   sudo apt update && sudo apt install -y nodejs npm git
    git clone https://github.com/ped-bat/desqueeze.git && cd desqueeze
    npm install
-   npm run setup          # downloads dnglab aarch64, bundles libraw via patchelf
+   bash scripts/build-libraw-linux.sh   # apt's libraw is too old (see note)
+   npm run setup          # downloads dnglab aarch64, bundles libs via patchelf
    npm test               # e2e runs the real binaries
    npx electron-vite build && npx electron-builder --linux
    ./dist/Desqueeze-*.AppImage
    ```
+
+   > **Do not use `apt install libraw-bin`.** Ubuntu ships LibRaw 0.21.x,
+   > which rejects raws from recent cameras (Sony "Lossless Compressed
+   > RAW 2" bodies such as the A7C II). The build script installs 0.22.x,
+   > matching macOS and Windows.
+
+### If the VM boots to a text console instead of the installer
+
+Ubuntu's ARM64 desktop ISO needs a graphical console that UTM's **Apple
+Virtualization** backend doesn't provide out of the box. In the VM's
+settings, uncheck **Use Apple Virtualization** (i.e. use the QEMU backend),
+and make sure Display is `virtio-gpu-pci` (or `virtio-ramfb`). Then boot again.
+
+If instead you land at a `UEFI Interactive Shell` or GRUB prompt, the ISO
+isn't attached as a boot device — re-add it under **Drives → New Drive →
+CD/DVD (External)** and move it above the disk in the boot order.
 
 What to check: window has normal decorations (no macOS traffic lights),
 drag-and-drop works, conversions succeed, output lands in `desqueezed/`.
@@ -57,10 +74,35 @@ official Windows 11 ARM image from Microsoft's UUP servers.
    It downloads and assembles an ISO (~5 GB, 15–30 min).
 2. UTM → **Create a New Virtual Machine** → **Virtualize** → **Windows**,
    select that ISO. 8 GB RAM, 4 CPUs, 64 GB disk.
-3. Install Windows (it can be used unactivated for testing; a local account
-   works via `Shift+F10` → `oobe\bypassnro` if it insists on a Microsoft account).
+3. Install Windows (it can be used unactivated for testing).
 4. Copy in the `desqueeze-windows-latest` artifact from CI (or build in the
    guest) and run the NSIS installer.
+
+### Stuck at "Let's connect you to a network"
+
+Windows 11 has no in-box driver for UTM's default virtio network adapter,
+so OOBE dead-ends at the network screen and offers to load a driver from
+disk. Skip the network requirement instead:
+
+1. Press **Shift+F10** to open a command prompt.
+2. Run `oobe\bypassnro` — the VM reboots and the network screen then shows
+   **"I don't have internet"** → **"Continue with limited setup"**.
+3. If that command no longer exists (removed in newer 24H2/25H2 builds),
+   use `start ms-cxh:localonly` at the same prompt instead. It jumps
+   straight to local-account creation.
+
+Then fix networking once you're on the desktop, either by:
+
+- **Changing the adapter** (simplest): VM settings → **Network** →
+  *Emulated Network Card* → `e1000` or `rtl8139`, which Windows supports
+  in-box; or
+- **Installing virtio drivers**: mount the
+  [virtio-win ISO](https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso)
+  as a second CD drive and run `virtio-win-guest-tools.exe`.
+
+Creating the VM through UTM's **Virtualize → Windows** wizard with
+*"Install drivers and SPICE tools"* checked mounts that driver ISO for you
+and avoids the whole problem.
 
 What to check: installer completes, app launches, `dnglab.exe` and
 `dcraw_emu.exe` resolve (a conversion succeeding proves it), window controls
