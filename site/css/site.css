@@ -1,0 +1,1133 @@
+/*
+ * Desqueeze — landing page styles.
+ *
+ * Design tokens are lifted from the app's src/renderer/styles/global.css so
+ * the site and the product share one palette, one type ramp and one set of
+ * glass/glow effects. Where the site needs something the app doesn't have
+ * (prose colours, section rhythm, a real content column) those tokens are
+ * namespaced --site-* to keep the shared --dg-* set honest.
+ *
+ * The app is uppercase everywhere; that works in a 1120x720 window with
+ * six words on screen. Here, headings, labels and buttons keep the caps and
+ * the wide tracking, and running prose drops to sentence case at a wider
+ * optical width so paragraphs stay readable.
+ */
+
+@font-face {
+	font-family: "Science Gothic";
+	font-style: normal;
+	font-weight: 100 900;
+	font-stretch: 50% 200%;
+	font-display: swap;
+	src: url("../assets/fonts/science-gothic.woff2") format("woff2");
+}
+
+:root {
+	/* — Colors (from the app) — */
+	--dg-bg-page: #333333;
+	--dg-bg-canvas: #111111;
+
+	--dg-chroma-red: #ff0000;
+	--dg-chroma-blue: #0050cc;
+	--dg-chroma-green: #00cc44;
+
+	--dg-fg-strong: rgba(255, 255, 255, 0.9);
+	--dg-fg: rgba(255, 255, 255, 0.7);
+	--dg-fg-mid: rgba(255, 255, 255, 0.55);
+	--dg-fg-soft: rgba(255, 255, 255, 0.45);
+	--dg-fg-faint: rgba(255, 255, 255, 0.35);
+	--dg-fg-ghost: rgba(255, 255, 255, 0.28);
+
+	--dg-border: rgba(255, 255, 255, 0.35);
+	--dg-border-soft: rgba(255, 255, 255, 0.2);
+	--dg-border-hover: rgba(255, 255, 255, 0.4);
+
+	--dg-surface: rgba(255, 255, 255, 0.03);
+	--dg-surface-hover: rgba(255, 255, 255, 0.13);
+
+	/* — Site-only — */
+	--site-hairline: rgba(255, 255, 255, 0.09);
+	--site-prose: rgba(255, 255, 255, 0.64);
+	--site-lead: rgba(255, 255, 255, 0.78);
+	--site-panel: rgba(10, 10, 10, 0.52);
+	--site-max: 1120px; /* the app's design window width */
+	--site-gutter: clamp(20px, 5vw, 60px);
+	--site-section-y: clamp(80px, 12vh, 150px);
+
+	/* — Typography — */
+	--dg-font: "Science Gothic", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	--dg-tracking: 0.15em;
+	--dg-tracking-tight: 0.1em;
+	--dg-tracking-bar: 0.12em;
+	--dg-font-variation-rest: "wght" 300, "wdth" 80;
+
+	/* — Effects — */
+	--dg-glow-white: 0 1px 3px rgba(0, 0, 0, 0.85), 0 0 10px rgba(0, 0, 0, 0.6),
+		0 0 8px rgba(255, 255, 255, 0.15), 0 0 20px rgba(255, 255, 255, 0.08);
+	--dg-glow-surface: 0 0 8px rgba(255, 255, 255, 0.08), 0 0 20px rgba(255, 255, 255, 0.04);
+	--dg-blur-glass: blur(8px);
+
+	--dg-ease: 0.2s ease;
+	--dg-radius: 4px;
+
+	color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+html {
+	scroll-behavior: smooth;
+}
+
+body {
+	background: var(--dg-bg-canvas);
+	color: var(--dg-fg);
+	font-family: var(--dg-font);
+	font-variation-settings: "wght" 350, "wdth" 92;
+	font-size: 16px;
+	line-height: 1.6;
+	-webkit-font-smoothing: antialiased;
+	overflow-x: hidden;
+}
+
+::selection {
+	background: rgba(255, 255, 255, 0.18);
+	color: #fff;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Background: the dot grid + CRT overlays, fixed behind everything.
+   Mirrors <dg-canvas> in the app, which owns the same three layers.
+   ───────────────────────────────────────────────────────────── */
+
+#grid-canvas {
+	position: fixed;
+	inset: 0;
+	z-index: 0;
+	display: block;
+	background: var(--dg-bg-canvas);
+	pointer-events: none;
+}
+
+.scanlines {
+	position: fixed;
+	inset: 0;
+	z-index: 1;
+	pointer-events: none;
+	background: repeating-linear-gradient(
+		to bottom,
+		transparent 0px,
+		transparent 1px,
+		rgba(0, 0, 0, 0.14) 1px,
+		rgba(0, 0, 0, 0.14) 2px
+	);
+}
+
+/* Everything readable rides above the canvas */
+.page {
+	position: relative;
+	z-index: 2;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Shared type
+   ───────────────────────────────────────────────────────────── */
+
+.eyebrow {
+	font-size: clamp(0.62rem, 0.9vw, 0.75rem);
+	text-transform: uppercase;
+	letter-spacing: var(--dg-tracking);
+	font-variation-settings: "wght" 400, "wdth" 80;
+	color: var(--dg-fg-faint);
+}
+
+h2.section-title {
+	font-size: clamp(1.6rem, 3.6vw, 2.6rem);
+	text-transform: uppercase;
+	letter-spacing: var(--dg-tracking-tight);
+	font-variation-settings: "wght" 500, "wdth" 78;
+	color: var(--dg-fg-strong);
+	line-height: 1.1;
+	text-shadow: var(--dg-glow-white);
+	/* The brand move: headings sit slightly desqueezed, like the app title */
+	transform: scaleX(1.06);
+	transform-origin: left center;
+	max-width: 20ch;
+}
+
+h3 {
+	font-size: clamp(0.95rem, 1.4vw, 1.1rem);
+	text-transform: uppercase;
+	letter-spacing: var(--dg-tracking-bar);
+	font-variation-settings: "wght" 450, "wdth" 82;
+	color: var(--dg-fg-strong);
+	line-height: 1.3;
+}
+
+p {
+	color: var(--site-prose);
+	font-size: clamp(0.95rem, 1.15vw, 1.06rem);
+	line-height: 1.68;
+	max-width: 62ch;
+}
+
+p.lead {
+	color: var(--site-lead);
+	font-size: clamp(1.05rem, 1.6vw, 1.3rem);
+	line-height: 1.55;
+	font-variation-settings: "wght" 330, "wdth" 90;
+	max-width: 54ch;
+}
+
+strong {
+	color: var(--dg-fg-strong);
+	font-variation-settings: "wght" 500, "wdth" 92;
+}
+
+/* Tag and identifier names keep their real casing inside uppercase headings */
+h2 code,
+h3 code {
+	text-transform: none;
+	letter-spacing: 0;
+	font-size: 0.72em;
+	vertical-align: 0.06em;
+}
+
+code,
+.mono {
+	font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+	font-size: 0.86em;
+	letter-spacing: 0;
+	color: var(--dg-fg-strong);
+	background: rgba(255, 255, 255, 0.06);
+	border: 1px solid var(--site-hairline);
+	border-radius: 3px;
+	padding: 0.08em 0.38em;
+}
+
+a {
+	color: var(--dg-fg-strong);
+	text-decoration-color: rgba(255, 255, 255, 0.3);
+	text-underline-offset: 3px;
+	transition: color var(--dg-ease), text-decoration-color var(--dg-ease);
+}
+
+a:hover {
+	color: #fff;
+	text-decoration-color: rgba(255, 255, 255, 0.7);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Glass button — ported verbatim from styles/effects.css.js,
+   including the asymmetric hover timing (fast in, slow out).
+   ───────────────────────────────────────────────────────────── */
+
+.btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.6em;
+	line-height: 1;
+	color: var(--dg-fg);
+	text-decoration: none;
+	cursor: pointer;
+	padding: 0.78em 1.5em 0.7em;
+	font-family: var(--dg-font);
+	font-size: clamp(0.8rem, 1.05vw, 0.94rem);
+	text-transform: uppercase;
+	letter-spacing: var(--dg-tracking);
+	font-variation-settings: var(--dg-font-variation-rest);
+	text-shadow: var(--dg-glow-white);
+	border: 1.5px solid var(--dg-border);
+	border-radius: var(--dg-radius);
+	background: rgba(0, 0, 0, 0.3);
+	backdrop-filter: var(--dg-blur-glass);
+	-webkit-backdrop-filter: var(--dg-blur-glass);
+	box-shadow: var(--dg-glow-surface);
+	transition: background 0.45s ease-in-out, color 0.45s ease-in-out, box-shadow 0.45s ease-in-out,
+		border-color 0.45s ease-in-out;
+}
+
+.btn:hover {
+	color: rgba(255, 255, 255, 0.9);
+	background: rgba(40, 40, 40, 0.4);
+	border-color: var(--dg-border-hover);
+	box-shadow: 0 0 12px rgba(255, 255, 255, 0.12), 0 0 28px rgba(255, 255, 255, 0.06);
+	transition: background 0.12s cubic-bezier(0, 0, 0.2, 1), color 0.12s cubic-bezier(0, 0, 0.2, 1),
+		box-shadow 0.12s cubic-bezier(0, 0, 0.2, 1), border-color 0.12s cubic-bezier(0, 0, 0.2, 1);
+}
+
+.btn:focus-visible {
+	outline: 2px solid rgba(255, 255, 255, 0.7);
+	outline-offset: 3px;
+}
+
+.btn-ghost {
+	border-color: var(--dg-border-soft);
+	color: var(--dg-fg-soft);
+	background: rgba(0, 0, 0, 0.18);
+}
+
+.btn-sm {
+	font-size: 0.8rem;
+	padding: 0.62em 1.15em 0.55em;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Header — the app's top letterbox bar, made persistent
+   ───────────────────────────────────────────────────────────── */
+
+.site-header {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 20;
+	height: 62px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 var(--site-gutter);
+	font-size: clamp(0.6rem, 0.85vw, 0.72rem);
+	text-transform: uppercase;
+	letter-spacing: var(--dg-tracking-bar);
+	color: var(--dg-fg-ghost);
+	text-shadow: var(--dg-glow-white);
+	background: linear-gradient(to bottom, rgba(10, 10, 10, 0.72), rgba(10, 10, 10, 0));
+	backdrop-filter: blur(3px);
+	-webkit-backdrop-filter: blur(3px);
+	transition: background 0.3s ease, backdrop-filter 0.3s ease, border-color 0.3s ease;
+	border-bottom: 1px solid transparent;
+}
+
+.site-header.stuck {
+	background: rgba(12, 12, 12, 0.82);
+	backdrop-filter: var(--dg-blur-glass);
+	-webkit-backdrop-filter: var(--dg-blur-glass);
+	border-bottom-color: var(--site-hairline);
+}
+
+.brand {
+	display: flex;
+	align-items: center;
+	gap: 0.7em;
+	text-decoration: none;
+	color: var(--dg-fg-soft);
+}
+
+.brand svg {
+	width: 20px;
+	height: 20px;
+	opacity: 0.75;
+	flex: none;
+}
+
+.brand-name {
+	/* the wordmark carries a hint of the desqueeze stretch */
+	font-variation-settings: "wght" 500, "wdth" 74;
+	letter-spacing: 0.18em;
+	transform: scaleX(1.18);
+	transform-origin: left center;
+	color: var(--dg-fg);
+}
+
+.site-nav {
+	display: flex;
+	align-items: center;
+	gap: clamp(14px, 2.4vw, 30px);
+}
+
+.site-nav a {
+	color: var(--dg-fg-ghost);
+	text-decoration: none;
+	letter-spacing: var(--dg-tracking-bar);
+	transition: color var(--dg-ease);
+}
+
+.site-nav a:hover {
+	color: var(--dg-fg-strong);
+}
+
+.nav-hide-sm {
+	display: inline;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Hero
+   ───────────────────────────────────────────────────────────── */
+
+.hero {
+	position: relative;
+	min-height: 100svh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	padding: 90px var(--site-gutter) 0;
+}
+
+/* The app's title: three RGB layers, screen-blended, stretched on X */
+.chroma {
+	position: relative;
+	display: inline-block;
+	pointer-events: none;
+}
+
+.chroma .layer {
+	display: block;
+	mix-blend-mode: screen;
+	will-change: transform;
+	white-space: nowrap;
+}
+
+.chroma .layer-r,
+.chroma .layer-b {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+}
+
+.chroma .layer-g {
+	position: relative;
+}
+
+/*
+ * The wordmark performs the product on load: it arrives squeezed — narrow
+ * optical width, no horizontal scale — and desqueezes to the app's resting
+ * scaleX(1.5) / wdth 80. Same end state as <dg-chroma-text variant="title">.
+ */
+.hero-title {
+	font-size: clamp(2.15rem, 8vw, 5.6rem);
+	text-transform: uppercase;
+	line-height: 1;
+	transform-origin: center center;
+
+	opacity: 0;
+	transform: scaleX(1);
+	font-variation-settings: "wght" 600, "wdth" 54;
+	letter-spacing: 0.02em;
+	transition: opacity 0.75s ease, transform 1.5s cubic-bezier(0.16, 1, 0.3, 1),
+		font-variation-settings 1.5s cubic-bezier(0.16, 1, 0.3, 1),
+		letter-spacing 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ready .hero-title {
+	opacity: 1;
+	transform: scaleX(1.5);
+	font-variation-settings: "wght" 600, "wdth" 80;
+	letter-spacing: var(--dg-tracking-tight);
+}
+
+.hero-title .layer-r {
+	color: var(--dg-chroma-red);
+	text-shadow: 0 0 12px rgba(255, 0, 0, 0.6), 0 0 30px rgba(255, 0, 0, 0.3);
+}
+
+.hero-title .layer-g {
+	color: var(--dg-chroma-blue);
+	text-shadow: 0 0 12px rgba(0, 80, 204, 0.6), 0 0 30px rgba(0, 80, 204, 0.3);
+}
+
+.hero-title .layer-b {
+	color: var(--dg-chroma-green);
+	text-shadow: 0 0 12px rgba(0, 200, 68, 0.6), 0 0 30px rgba(0, 200, 68, 0.3);
+}
+
+.hero-sub {
+	margin-top: clamp(1.3rem, 3vh, 2.1rem);
+	font-size: clamp(0.88rem, 1.75vw, 1.32rem);
+	font-variation-settings: "wght" 300, "wdth" 80;
+	text-transform: uppercase;
+	letter-spacing: var(--dg-tracking);
+	color: var(--dg-fg-mid);
+	text-shadow: var(--dg-glow-white);
+}
+
+.hero-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 14px;
+	justify-content: center;
+	margin-top: clamp(2rem, 5vh, 3.2rem);
+}
+
+.hero-meta {
+	margin-top: 1.4rem;
+	font-size: clamp(0.62rem, 0.85vw, 0.73rem);
+	text-transform: uppercase;
+	letter-spacing: var(--dg-tracking-bar);
+	color: var(--dg-fg-ghost);
+	text-shadow: var(--dg-glow-white);
+}
+
+/* Bottom letterbox caption — the app's "no uploads" line, same position */
+.hero-caption {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: clamp(28px, 6vh, 58px);
+	text-align: center;
+	font-size: clamp(0.66rem, 0.95vw, 0.8rem);
+	text-transform: uppercase;
+	letter-spacing: var(--dg-tracking-bar);
+	color: var(--dg-fg-mid);
+	text-shadow: var(--dg-glow-white);
+	pointer-events: none;
+	max-width: none; /* beats the global prose measure */
+}
+
+.scroll-cue {
+	position: absolute;
+	bottom: 14px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 1px;
+	height: 26px;
+	background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.4));
+	animation: cue 2.4s ease-in-out infinite;
+}
+
+@keyframes cue {
+	0%,
+	100% {
+		opacity: 0.25;
+		transform: translateX(-50%) scaleY(0.7);
+	}
+	50% {
+		opacity: 0.9;
+		transform: translateX(-50%) scaleY(1);
+	}
+}
+
+/* Intro: the whole hero fades up once the font is ready */
+.hero-fade {
+	opacity: 0;
+	transform: translateY(10px);
+	transition: opacity 0.9s ease, transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ready .hero-fade {
+	opacity: 1;
+	transform: none;
+}
+
+.ready .hero-sub {
+	transition-delay: 0.14s;
+}
+
+.ready .hero-actions {
+	transition-delay: 0.24s;
+}
+
+.ready .hero-meta {
+	transition-delay: 0.32s;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Sections
+   ───────────────────────────────────────────────────────────── */
+
+.section {
+	position: relative;
+	padding: var(--site-section-y) var(--site-gutter);
+	border-top: 1px solid var(--site-hairline);
+	/* A soft scrim keeps prose legible where the grid is brightest */
+	background: linear-gradient(
+		to bottom,
+		rgba(10, 10, 10, 0.72) 0%,
+		rgba(10, 10, 10, 0.84) 35%,
+		rgba(10, 10, 10, 0.84) 65%,
+		rgba(10, 10, 10, 0.72) 100%
+	);
+}
+
+.section-inner {
+	max-width: var(--site-max);
+	margin: 0 auto;
+}
+
+.section-head {
+	margin-bottom: clamp(38px, 6vh, 66px);
+}
+
+.section-head .eyebrow {
+	display: block;
+	margin-bottom: 1.1rem;
+}
+
+.section-head p {
+	margin-top: 1.25rem;
+}
+
+/* Reveal on scroll */
+.reveal {
+	opacity: 0;
+	transform: translateY(18px);
+	transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal.in {
+	opacity: 1;
+	transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+	.reveal,
+	.hero-fade {
+		opacity: 1;
+		transform: none;
+		transition: none;
+	}
+	.scroll-cue {
+		animation: none;
+	}
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Squeeze demo
+   ───────────────────────────────────────────────────────────── */
+
+/*
+ * Both frames share a height; the desqueezed one is wider, because that is
+ * what a desqueeze actually does — the sensor's 3:2 recording becomes
+ * 3f:2 once the horizontal compression is undone. Nothing is cropped and
+ * no vertical resolution is gained, which is the whole point.
+ */
+.demo {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	/* Shares the left edge with the heading, lead and controls */
+	justify-content: flex-start;
+	gap: clamp(16px, 2.6vw, 32px);
+}
+
+.demo .frame {
+	flex: 0 1 auto;
+	max-width: 100%;
+}
+
+.frame {
+	position: relative;
+	border: 1px solid var(--dg-border-soft);
+	border-radius: var(--dg-radius);
+	background: rgba(0, 0, 0, 0.42);
+	overflow: hidden;
+	box-shadow: var(--dg-glow-surface);
+}
+
+.frame-label {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 2;
+	display: flex;
+	justify-content: space-between;
+	gap: 10px;
+	padding: 10px 12px;
+	font-size: clamp(0.56rem, 0.8vw, 0.68rem);
+	text-transform: uppercase;
+	letter-spacing: var(--dg-tracking-bar);
+	color: var(--dg-fg-faint);
+	background: linear-gradient(to bottom, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+	pointer-events: none;
+}
+
+.frame-label .val {
+	color: var(--dg-fg);
+	font-variation-settings: "wght" 500, "wdth" 80;
+}
+
+.sensor {
+	position: relative;
+	overflow: hidden;
+	/* Capped so the pair still fits the 1120 column at 2x, where the two
+	   frames together are 4.5 x this height plus the gap. */
+	height: clamp(132px, 17vw, 236px);
+	width: auto;
+	transition: aspect-ratio 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* As recorded: always the sensor's own 3:2, whatever the lens squeezed */
+.sensor-squeezed {
+	aspect-ratio: 3 / 2;
+}
+
+/* Desqueezed: 3:2 widened by the squeeze factor */
+.sensor-desqueezed {
+	aspect-ratio: calc(3 * var(--f) / 2);
+}
+
+/* preserveAspectRatio="none" means the box does the distorting: the scene
+   is authored 300f x 200, so squeezing it into 3:2 compresses it by exactly
+   f, and letting it fill 3f:2 restores it. */
+.sensor svg {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+.demo-controls {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 10px;
+	margin-top: clamp(24px, 4vh, 38px);
+}
+
+.demo-controls .label {
+	font-size: clamp(0.6rem, 0.85vw, 0.72rem);
+	text-transform: uppercase;
+	letter-spacing: var(--dg-tracking-bar);
+	color: var(--dg-fg-faint);
+	margin-right: 6px;
+}
+
+.seg {
+	display: inline-flex;
+	border: 1.5px solid var(--dg-border-soft);
+	border-radius: var(--dg-radius);
+	background: rgba(0, 0, 0, 0.3);
+	backdrop-filter: var(--dg-blur-glass);
+	-webkit-backdrop-filter: var(--dg-blur-glass);
+	overflow: hidden;
+}
+
+.seg button {
+	appearance: none;
+	border: 0;
+	border-right: 1px solid var(--site-hairline);
+	background: transparent;
+	color: var(--dg-fg-soft);
+	font-family: var(--dg-font);
+	font-size: clamp(0.72rem, 1vw, 0.86rem);
+	text-transform: uppercase;
+	letter-spacing: var(--dg-tracking-bar);
+	font-variation-settings: "wght" 350, "wdth" 80;
+	padding: 0.65em 1.1em 0.58em;
+	cursor: pointer;
+	transition: background 0.45s ease-in-out, color 0.45s ease-in-out;
+}
+
+.seg button:last-child {
+	border-right: 0;
+}
+
+.seg button:hover {
+	background: rgba(255, 255, 255, 0.07);
+	color: var(--dg-fg-strong);
+	transition: background 0.12s cubic-bezier(0, 0, 0.2, 1), color 0.12s cubic-bezier(0, 0, 0.2, 1);
+}
+
+.seg button[aria-pressed="true"] {
+	background: rgba(255, 255, 255, 0.13);
+	color: #fff;
+	text-shadow: var(--dg-glow-white);
+}
+
+.seg button:focus-visible {
+	outline: 2px solid rgba(255, 255, 255, 0.7);
+	outline-offset: -2px;
+}
+
+.demo-note {
+	margin-top: 1.1rem;
+	font-size: 0.86rem;
+	color: var(--dg-fg-faint);
+	max-width: 70ch;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Comparison (lossless vs resample)
+   ───────────────────────────────────────────────────────────── */
+
+.compare {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: clamp(16px, 2.4vw, 26px);
+}
+
+.card {
+	position: relative;
+	border: 1px solid var(--site-hairline);
+	border-radius: var(--dg-radius);
+	background: var(--site-panel);
+	backdrop-filter: var(--dg-blur-glass);
+	-webkit-backdrop-filter: var(--dg-blur-glass);
+	padding: clamp(22px, 2.8vw, 32px);
+	transition: border-color var(--dg-ease), background var(--dg-ease);
+}
+
+.card:hover {
+	border-color: var(--dg-border-soft);
+}
+
+.card h3 {
+	margin-bottom: 0.85rem;
+}
+
+.card p {
+	font-size: 0.95rem;
+}
+
+.card.accent {
+	border-color: rgba(255, 255, 255, 0.22);
+	background: rgba(255, 255, 255, 0.045);
+	box-shadow: var(--dg-glow-surface);
+}
+
+.tag {
+	display: inline-block;
+	font-size: 0.6rem;
+	text-transform: uppercase;
+	letter-spacing: var(--dg-tracking-bar);
+	padding: 0.3em 0.62em 0.25em;
+	border: 1px solid var(--dg-border-soft);
+	border-radius: 2px;
+	color: var(--dg-fg-mid);
+	margin-bottom: 0.9rem;
+}
+
+.card.accent .tag {
+	color: var(--dg-fg-strong);
+	border-color: var(--dg-border);
+}
+
+.kv {
+	list-style: none;
+	margin-top: 1.2rem;
+	border-top: 1px solid var(--site-hairline);
+}
+
+.kv li {
+	display: flex;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 0.62rem 0;
+	border-bottom: 1px solid var(--site-hairline);
+	font-size: 0.84rem;
+	text-transform: uppercase;
+	letter-spacing: var(--dg-tracking-bar);
+	color: var(--dg-fg-faint);
+}
+
+.kv li span:last-child {
+	color: var(--dg-fg-strong);
+	text-align: right;
+	font-variation-settings: "wght" 450, "wdth" 82;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Steps
+   ───────────────────────────────────────────────────────────── */
+
+.steps {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: clamp(16px, 2.4vw, 28px);
+	counter-reset: step;
+}
+
+.step {
+	position: relative;
+	padding-top: 26px;
+	border-top: 1px solid var(--dg-border-soft);
+}
+
+.step::before {
+	counter-increment: step;
+	content: "0" counter(step);
+	position: absolute;
+	top: 14px;
+	left: 0;
+	font-size: 0.66rem;
+	letter-spacing: var(--dg-tracking);
+	color: var(--dg-fg-ghost);
+}
+
+.step h3 {
+	margin: 22px 0 0.75rem;
+}
+
+.step p {
+	font-size: 0.94rem;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Formats
+   ───────────────────────────────────────────────────────────── */
+
+.format-block + .format-block {
+	margin-top: clamp(30px, 4vh, 46px);
+}
+
+.format-block > .eyebrow {
+	display: block;
+	margin-bottom: 1rem;
+}
+
+.chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 7px;
+}
+
+.chip {
+	font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+	font-size: 0.76rem;
+	letter-spacing: 0.02em;
+	color: var(--dg-fg-mid);
+	border: 1px solid var(--site-hairline);
+	border-radius: 3px;
+	background: rgba(255, 255, 255, 0.028);
+	padding: 0.36em 0.6em 0.32em;
+	transition: color var(--dg-ease), border-color var(--dg-ease), background var(--dg-ease);
+}
+
+.chip:hover {
+	color: var(--dg-fg-strong);
+	border-color: var(--dg-border-soft);
+	background: rgba(255, 255, 255, 0.07);
+}
+
+.stats {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: clamp(16px, 2.4vw, 28px);
+	margin-top: clamp(36px, 5vh, 56px);
+	padding-top: clamp(30px, 4vh, 44px);
+	border-top: 1px solid var(--site-hairline);
+}
+
+.stat .num {
+	display: block;
+	font-size: clamp(1.9rem, 4.4vw, 3rem);
+	font-variation-settings: "wght" 400, "wdth" 72;
+	color: var(--dg-fg-strong);
+	line-height: 1;
+	letter-spacing: 0.02em;
+	text-shadow: var(--dg-glow-white);
+	transform: scaleX(1.14);
+	transform-origin: left center;
+}
+
+.stat .cap {
+	display: block;
+	margin-top: 0.95rem;
+	font-size: 0.7rem;
+	text-transform: uppercase;
+	letter-spacing: var(--dg-tracking-bar);
+	color: var(--dg-fg-faint);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Download
+   ───────────────────────────────────────────────────────────── */
+
+.downloads {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: clamp(16px, 2.4vw, 26px);
+}
+
+.dl {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 0.55rem;
+	padding: clamp(24px, 3vw, 34px);
+	border: 1px solid var(--site-hairline);
+	border-radius: var(--dg-radius);
+	background: var(--site-panel);
+	backdrop-filter: var(--dg-blur-glass);
+	-webkit-backdrop-filter: var(--dg-blur-glass);
+	text-decoration: none;
+	transition: border-color 0.45s ease-in-out, background 0.45s ease-in-out, box-shadow 0.45s ease-in-out;
+}
+
+.dl:hover {
+	border-color: var(--dg-border-hover);
+	background: rgba(255, 255, 255, 0.055);
+	box-shadow: 0 0 12px rgba(255, 255, 255, 0.1), 0 0 28px rgba(255, 255, 255, 0.05);
+	transition: border-color 0.12s cubic-bezier(0, 0, 0.2, 1), background 0.12s cubic-bezier(0, 0, 0.2, 1),
+		box-shadow 0.12s cubic-bezier(0, 0, 0.2, 1);
+}
+
+.dl:focus-visible {
+	outline: 2px solid rgba(255, 255, 255, 0.7);
+	outline-offset: 3px;
+}
+
+.dl .os {
+	font-size: clamp(1rem, 1.5vw, 1.2rem);
+	text-transform: uppercase;
+	letter-spacing: var(--dg-tracking-bar);
+	font-variation-settings: "wght" 480, "wdth" 78;
+	color: var(--dg-fg-strong);
+	text-shadow: var(--dg-glow-white);
+}
+
+.dl .arch {
+	font-size: 0.76rem;
+	text-transform: uppercase;
+	letter-spacing: var(--dg-tracking-bar);
+	color: var(--dg-fg-faint);
+}
+
+.dl .file {
+	margin-top: auto;
+	padding-top: 1.3rem;
+	font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+	font-size: 0.72rem;
+	color: var(--dg-fg-ghost);
+	word-break: break-word;
+	transition: color var(--dg-ease);
+}
+
+.dl:hover .file {
+	color: var(--dg-fg-mid);
+}
+
+/* The visitor's own platform, detected client-side and lifted forward */
+.dl.match {
+	border-color: var(--dg-border);
+	background: rgba(255, 255, 255, 0.055);
+	box-shadow: var(--dg-glow-surface);
+	order: -1;
+}
+
+.dl.match::after {
+	content: "Your platform";
+	position: absolute;
+	top: 14px;
+	right: 14px;
+	font-size: 0.56rem;
+	text-transform: uppercase;
+	letter-spacing: var(--dg-tracking-bar);
+	font-variation-settings: "wght" 350, "wdth" 82;
+	color: var(--dg-fg-faint);
+	border: 1px solid var(--site-hairline);
+	border-radius: 2px;
+	padding: 0.34em 0.55em 0.28em;
+}
+
+.dl-note {
+	margin-top: clamp(24px, 3vh, 34px);
+	font-size: 0.88rem;
+	color: var(--dg-fg-faint);
+	max-width: 68ch;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Footer
+   ───────────────────────────────────────────────────────────── */
+
+.site-footer {
+	position: relative;
+	z-index: 2;
+	padding: clamp(44px, 6vh, 70px) var(--site-gutter);
+	border-top: 1px solid var(--site-hairline);
+	background: rgba(8, 8, 8, 0.88);
+	backdrop-filter: var(--dg-blur-glass);
+	-webkit-backdrop-filter: var(--dg-blur-glass);
+}
+
+.footer-inner {
+	max-width: var(--site-max);
+	margin: 0 auto;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 20px 40px;
+	align-items: center;
+	justify-content: space-between;
+	font-size: 0.74rem;
+	text-transform: uppercase;
+	letter-spacing: var(--dg-tracking-bar);
+	color: var(--dg-fg-ghost);
+}
+
+.footer-links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 20px;
+}
+
+.footer-links a {
+	color: var(--dg-fg-faint);
+	text-decoration: none;
+	transition: color var(--dg-ease);
+}
+
+.footer-links a:hover {
+	color: var(--dg-fg-strong);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Responsive
+   ───────────────────────────────────────────────────────────── */
+
+@media (max-width: 860px) {
+	.compare,
+	.steps,
+	.downloads,
+	.stats {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.stats {
+		gap: 26px;
+	}
+
+	/* Stacked frames go full-width and take their height from the aspect
+	   ratio, so the widening still reads even without them side by side. */
+	.demo .frame {
+		flex: 1 1 100%;
+	}
+
+	.sensor {
+		height: auto;
+		width: 100%;
+	}
+
+	h2.section-title {
+		max-width: none;
+	}
+}
+
+@media (max-width: 620px) {
+	.nav-hide-sm {
+		display: none;
+	}
+
+	.site-header {
+		height: 54px;
+	}
+
+	.hero-actions {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.hero-actions .btn {
+		width: 100%;
+	}
+}
+
+/* Coarse pointers get no cursor magnetism, so lean on the centre spotlight */
+@media (hover: none) {
+	.scroll-cue {
+		display: none;
+	}
+}
