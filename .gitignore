@@ -37,3 +37,6 @@ tests/fixtures/desqueezed/
 
 # Personal test images (local only — never commit)
 tests-user/
+
+# Local tool state (permissions, worktrees) — machine-specific
+.claude/
