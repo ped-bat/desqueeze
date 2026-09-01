@@ -1,0 +1,130 @@
+name: Release
+
+# Publishes installers as GitHub Release assets, which gives the landing
+# page permanent public download URLs (see docs/release.md).
+#
+# Trigger: push a version tag, e.g.
+#   npm version minor && git push --follow-tags
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to build and release (e.g. v0.1.0)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install LibRaw (macOS)
+        if: runner.os == 'macOS'
+        run: brew install libraw
+
+      - name: Build LibRaw from source (Linux)
+        if: runner.os == 'Linux'
+        run: bash scripts/build-libraw-linux.sh
+
+      - name: Acquire bundled binaries
+        run: node scripts/setup-binaries.js
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build app bundle
+        run: npx electron-vite build
+
+      # macOS is signed and notarized only when the secrets are present.
+      # Without them the DMG is unsigned and Gatekeeper will block it on
+      # other Macs — fine for a test build, not for public download.
+      - name: Package installer (macOS)
+        if: runner.os == 'macOS'
+        env:
+          CSC_LINK: ${{ secrets.MAC_CERT_P12_BASE64 }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CERT_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          CSC_IDENTITY_AUTO_DISCOVERY: ${{ secrets.MAC_CERT_P12_BASE64 != '' }}
+          USE_HARD_LINKS: "false"
+        run: npx electron-builder --mac --publish never
+
+      - name: Package installer (Windows/Linux)
+        if: runner.os != 'macOS'
+        env:
+          USE_HARD_LINKS: "false"
+        run: npx electron-builder --publish never
+
+      - name: Collect installers
+        shell: bash
+        run: |
+          mkdir -p out-release
+          # Installers only — skip unpacked dirs, blockmaps and metadata
+          find dist -maxdepth 1 -type f \
+            \( -name "*.dmg" -o -name "*.exe" -o -name "*.AppImage" \) \
+            -exec cp {} out-release/ \;
+          ls -la out-release/
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: installers-${{ matrix.os }}
+          path: out-release/*
+          if-no-files-found: error
+
+  release:
+    name: Publish release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/download-artifact@v5
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: List assets
+        run: ls -la artifacts/
+
+      - name: Create or update release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.inputs.tag || github.ref_name }}
+        run: |
+          notes_file="releases/${TAG}.md"
+          if [ -f "$notes_file" ]; then
+            notes_arg=(--notes-file "$notes_file")
+          else
+            notes_arg=(--generate-notes)
+          fi
+
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" artifacts/* --clobber
+          else
+            gh release create "$TAG" artifacts/* \
+              --title "Desqueeze ${TAG}" \
+              "${notes_arg[@]}"
+          fi

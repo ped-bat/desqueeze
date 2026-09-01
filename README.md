@@ -54,10 +54,21 @@ Common anamorphic squeeze factors:
 
 ---
 
+## Download
+
+| Platform | Download |
+|---|---|
+| macOS (Apple Silicon) | [Desqueeze-macOS-arm64.dmg](https://github.com/ped-bat/desqueeze/releases/latest/download/Desqueeze-macOS-arm64.dmg) |
+| Windows (x64) | [Desqueeze-Windows-x64.exe](https://github.com/ped-bat/desqueeze/releases/latest/download/Desqueeze-Windows-x64.exe) |
+| Linux (x86_64) | [Desqueeze-Linux-x86_64.AppImage](https://github.com/ped-bat/desqueeze/releases/latest/download/Desqueeze-Linux-x86_64.AppImage) |
+
+Or browse [all releases](https://github.com/ped-bat/desqueeze/releases/latest).
+
 ## Using the App
 
-Download the latest release, open the DMG, and drag Desqueeze to Applications.
-DNGLab, `dcraw_emu`, and ExifTool are bundled — nothing else to install.
+Open the DMG and drag Desqueeze to Applications (macOS), run the installer
+(Windows), or `chmod +x` the AppImage and run it (Linux). DNGLab,
+`dcraw_emu`, and ExifTool are bundled — nothing else to install.
 
 1. **Drop files** — Drag and drop image files or folders anywhere in the window (or browse)
 2. **Pick your settings** — Choose the squeeze factor preset (1.33×, 1.5×, 2×, or custom) and the output format (DNG, JPEG, PNG, TIFF, WebP)

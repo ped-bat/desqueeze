@@ -42,6 +42,7 @@
 			],
 			"category": "public.app-category.photography",
 			"icon": "build/icon.png",
+			"artifactName": "Desqueeze-macOS-${arch}.${ext}",
 			"hardenedRuntime": true,
 			"gatekeeperAssess": false,
 			"entitlements": "build/entitlements.mac.plist",
@@ -75,6 +76,7 @@
 				}
 			],
 			"icon": "build/icon.png",
+			"artifactName": "Desqueeze-Windows-${arch}.${ext}",
 			"extraResources": [
 				{
 					"from": "resources/bin/win32",
@@ -90,6 +92,7 @@
 				"AppImage"
 			],
 			"icon": "build/icon.png",
+			"artifactName": "Desqueeze-Linux-${arch}.${ext}",
 			"category": "Graphics",
 			"extraResources": [
 				{
