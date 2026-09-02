@@ -73,15 +73,19 @@ export const ENGINE_CONFIG = {
 		size: 1, // pixel size of grain (1 = native resolution)
 	},
 
-	// Title font animation (variable font axes, driven by stretch spring)
-	fontWeight: { rest: 300, stretch: 500 },
-	fontWidth: { rest: 80, stretch: 100 },
-	letterSpacing: { rest: 8, stretch: 12 },
+	// Title font animation (variable font axes, driven by stretch spring).
+	// Width now comes from the wdth axis instead of a scaleX transform on the
+	// element, so these carry the display line's whole optical width: 125 is
+	// the resting look, widening to 148 at the peak of the stretch.
+	fontWeight: { rest: 520, stretch: 620 },
+	fontWidth: { rest: 125, stretch: 148 },
+	letterSpacing: { rest: 2, stretch: 5 },
 
-	// Subtitle font animation (processing state)
-	subFontWeight: { rest: 300, stretch: 350 },
-	subFontWidth: { rest: 80, stretch: 95 },
-	subLetterSpacing: { rest: 2.4, stretch: 5 },
+	// Subtitle font animation (processing state). Sentence case, so tracking
+	// stays near zero — the old 2.4px pulled short words apart.
+	subFontWeight: { rest: 400, stretch: 460 },
+	subFontWidth: { rest: 96, stretch: 108 },
+	subLetterSpacing: { rest: 0, stretch: 1.6 },
 	subChromaStrength: 0.6, // max px offset for subtitle RGB split
 };
 

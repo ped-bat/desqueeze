@@ -3,20 +3,29 @@ import { typography } from "../styles/typography.css.js";
 import { effects } from "../styles/effects.css.js";
 
 /**
- * <dg-actions> — per-mode action buttons under the subtitle.
+ * <dg-actions> — the action set for the current mode.
  * Emits semantic events; dg-app decides what they do.
  *
- * @fires browse    - open the native file picker
- * @fires start     - process the queued files (settings confirm step)
- * @fires back      - leave settings, discarding queued files
- * @fires retry     - back to ready after an error
- * @fires show-result - reveal the first processed file in Finder
- * @fires desqueeze-more - back to ready after success
+ * Exactly one button per mode carries `btn-primary`, and it is always the
+ * one the user came to press. The discard sits left of it and quiet, so
+ * "Clear" and "Desqueeze 12 images" can no longer be mistaken for each
+ * other the way two identical glass pills could.
+ *
+ * @fires browse         - open the native file picker
+ * @fires start          - process the queued files
+ * @fires clear          - discard the queued batch
+ * @fires cancel         - stop the run (in-flight files finish)
+ * @fires retry-failed   - re-run only the files that failed
+ * @fires copy-errors    - copy the failure list to the clipboard
+ * @fires show-result    - reveal the first output in the file manager
+ * @fires desqueeze-more - start a new batch
  */
 export class DgActions extends LitElement {
 	static properties = {
 		mode: { type: String },
 		pendingCount: { type: Number },
+		failedCount: { type: Number },
+		successCount: { type: Number },
 		cancelling: { type: Boolean },
 	};
 
@@ -26,33 +35,10 @@ export class DgActions extends LitElement {
 		css`
 			:host {
 				display: flex;
+				align-items: center;
 				justify-content: center;
-				align-items: center;
-				white-space: nowrap;
-				text-align: center;
+				gap: 8px;
 				pointer-events: auto;
-				z-index: 2;
-				font-family: var(--dg-font);
-				font-size: var(--dg-font-size-sub);
-				font-weight: 300;
-				text-transform: uppercase;
-				letter-spacing: var(--dg-tracking);
-				text-shadow: var(--dg-glow-white);
-			}
-
-			.desc {
-				font-size: 0.9em;
-				/* same hierarchy level as the bottom caption */
-				color: var(--dg-fg-mid);
-				letter-spacing: var(--dg-tracking-bar);
-				line-height: 2.2;
-			}
-
-			.stack {
-				display: flex;
-				flex-direction: column;
-				align-items: center;
-				gap: 0.5em;
 			}
 		`,
 	];
@@ -61,38 +47,59 @@ export class DgActions extends LitElement {
 		super();
 		this.mode = "ready";
 		this.pendingCount = 0;
+		this.failedCount = 0;
+		this.successCount = 0;
 		this.cancelling = false;
 	}
 
 	render() {
-		const btn = (event, label, cls = "btn") =>
-			html`<a class="${cls} glass" @click=${() => this._emit(event)}>${label}</a>`;
+		const btn = (event, label, role = "ghost", opts = {}) => html`
+			<button
+				class="btn btn-${role}"
+				?disabled=${opts.disabled || false}
+				@click=${() => this._emit(event)}
+			>
+				${label}
+			</button>
+		`;
 
 		switch (this.mode) {
 			case "ready":
-				return html`
-					<div class="stack">
-						<span class="desc">Drag and drop anywhere, or</span>
-						<span>${btn("browse", "Browse files")}</span>
-					</div>
-				`;
+				return btn("browse", "Choose files…", "primary");
+
 			case "settings": {
 				const n = this.pendingCount;
-				const label = `Desqueeze ${n} ${n === 1 ? "image" : "images"}`;
+				if (n === 0) return btn("clear", "Clear", "ghost");
 				return html`
-					${btn("back", n > 0 ? "Cancel" : "Back")}
-					${n > 0 ? btn("start", label) : nothing}
+					${btn("clear", "Clear", "quiet")}
+					${btn("start", `Desqueeze ${n} ${n === 1 ? "image" : "images"}`, "primary")}
 				`;
 			}
-			case "error":
-				return btn("retry", "Try again");
-			case "success":
-				return html`${btn("show-result", "Show result")} ${btn("desqueeze-more", "Desqueeze more")}`;
+
 			case "processing":
-				// Cancel drops queued files; in-flight conversions finish
-				return this.cancelling
-					? html`<span class="desc">Cancelling — finishing current files</span>`
-					: btn("cancel", "Cancel");
+				return btn("cancel", this.cancelling ? "Cancelling…" : "Cancel", "ghost", {
+					disabled: this.cancelling,
+				});
+
+			case "success":
+				return html`
+					${btn("desqueeze-more", "Desqueeze more", "quiet")}
+					${this.successCount > 0
+						? btn("show-result", "Reveal in Finder", "primary")
+						: btn("browse", "Choose files…", "primary")}
+				`;
+
+			case "error":
+				// No "Reveal results" here: every row that succeeded carries its
+				// own Reveal, so a batch-wide one would be a second way to do the
+				// same thing. The slot goes to starting over instead, which the
+				// user otherwise had no route to from a partial failure.
+				return html`
+					${btn("copy-errors", "Copy errors", "quiet")}
+					${btn("desqueeze-more", "Desqueeze more", "quiet")}
+					${btn("retry-failed", `Retry the ${this.failedCount} that failed`, "primary")}
+				`;
+
 			default:
 				return nothing;
 		}

@@ -5,29 +5,23 @@ import "./dg-canvas.js";
 import "./dg-chroma-text.js";
 import "./dg-settings-panel.js";
 import "./dg-actions.js";
-import "./dg-letterbox.js";
-
-/** Title label per mode */
-const TITLES = {
-	ready: "Desqueeze.io",
-	settings: "Settings",
-	processing: "Processing",
-	error: "Error!",
-	success: "Success!",
-};
+import "./dg-top-bar.js";
+import "./dg-file-list.js";
+import "./dg-footer-bar.js";
 
 /**
- * <dg-app> — root component. Owns the store lifecycle, the drop zone,
- * and bridges the engine's frame/swap callbacks to the text components.
+ * <dg-app> — root component.
  *
- * `store.mode` drives the engine transition; `displayMode` (what text is
- * currently shown) lags behind and flips at the transition midpoint via
- * the engine's onSwap callback, matching the original crossfade.
+ * The window is a persistent working surface: a top bar carrying the
+ * wordmark and live settings, a body, and a footer action bar. The body is
+ * the ceremony while nothing is queued, and the file list from the moment
+ * something is. The dot grid keeps running full-bleed behind both, dimmed
+ * once there are filenames to read against it.
  */
 export class DgApp extends LitElement {
 	static properties = {
 		displayMode: { type: String, state: true },
-		captionText: { type: String, state: true },
+		dragging: { type: Boolean, state: true },
 	};
 
 	static styles = css`
@@ -38,72 +32,83 @@ export class DgApp extends LitElement {
 			overflow: hidden;
 		}
 
-		.titlebar-drag {
-			-webkit-app-region: drag;
-			height: 48px;
-			position: absolute;
-			top: 0;
-			left: 0;
-			right: 0;
-			z-index: 50;
+		dg-canvas {
+			transition: opacity 0.35s ease;
 		}
 
-		.content {
+		dg-canvas.dim {
+			opacity: var(--dg-canvas-dim);
+		}
+
+		.shell {
 			position: absolute;
-			top: 50%;
-			left: 50%;
-			transition: top 0.3s ease;
-			transform: translate(-50%, -50%);
+			inset: 0;
+			z-index: 6;
+			display: flex;
+			flex-direction: column;
+			min-height: 0;
+		}
+
+		.body {
+			flex: 1;
+			min-height: 0;
+			display: flex;
+			flex-direction: column;
+			padding: 14px;
+		}
+
+		/* ── Empty state ───────────────────────────────────────
+		   The drop target is a bounded rectangle rather than an
+		   invisible whole-window region, so there is somewhere to
+		   aim. Dropping anywhere still works. */
+		.stage {
+			flex: 1;
+			min-height: 0;
 			display: flex;
 			flex-direction: column;
 			align-items: center;
-			pointer-events: none;
-			z-index: 1;
+			justify-content: center;
+			gap: 1.1rem;
+			text-align: center;
+			padding: 2rem;
+			border: 1px dashed rgba(255, 255, 255, 0.16);
+			border-radius: 10px;
+			transition:
+				border-color 0.18s ease,
+				background 0.18s ease;
+		}
+
+		:host([dragging]) .stage {
+			border-color: var(--dg-accent-ring);
+			background: var(--dg-accent-wash);
 		}
 
 		dg-chroma-text[variant="subtitle"] {
-			margin-top: 1.5rem;
-			z-index: 2;
+			margin-top: 0.2rem;
 		}
 
-		.actions-slot {
+		.stage dg-actions {
+			margin-top: 0.8rem;
+		}
+
+		/* Drop feedback while the list is showing — the panel keeps its
+		   own ground, so the cue is a ring on the window instead. */
+		.dropring {
 			position: absolute;
-			top: 100%;
-			left: 0;
-			right: 0;
-			display: flex;
-			justify-content: center;
-			margin-top: 2.4em;
-			font-size: var(--dg-font-size-sub);
+			inset: 6px;
+			z-index: 20;
+			border: 2px solid var(--dg-accent-ring);
+			border-radius: 12px;
+			pointer-events: none;
+			background: rgba(76, 141, 255, 0.06);
 		}
 
-		.actions-slot.ready {
-			/* vh cap keeps the button clear of the bottom caption in short windows */
-			margin-top: min(4.4em, 10vh);
-		}
-
-		.actions-slot.in-flow {
-			position: relative;
-			top: auto;
-			margin-top: 2.4em;
-		}
-
-		/* Ready only: slightly above center so the actions keep clear of the
-		   bottom caption. Other modes stay dead-centered. */
-		.content.raised {
-			top: 46.5%;
-		}
-
-		/* Caption crossfade timed to the engine's content fades:
-		   fast fade-out (~first third of the 0.3s transition), text swap at
-		   the midpoint, slower fade-in through the rest. */
-		dg-letterbox[position="bottom"] {
-			transition: opacity 0.2s ease;
-		}
-
-		dg-letterbox[position="bottom"].caption-fade {
-			opacity: 0;
-			transition: opacity 0.12s ease;
+		/* ── Settings popover ──────────────────────────────────── */
+		.popover {
+			position: absolute;
+			top: 52px;
+			right: 14px;
+			z-index: 40;
 		}
 	`;
 
@@ -111,186 +116,146 @@ export class DgApp extends LitElement {
 		super();
 		new StoreController(this);
 		this.displayMode = "ready";
-		this.captionText = "Images processed locally, no uploads";
+		this.dragging = false;
+		this._dragDepth = 0;
 		this._prevent = this._prevent.bind(this);
 		this._onDropBound = (e) => this._onDrop(e);
+		this._onDragEnter = (e) => {
+			this._prevent(e);
+			this._dragDepth++;
+			if (store.mode !== "processing") this.dragging = true;
+		};
+		this._onDragLeave = (e) => {
+			this._prevent(e);
+			this._dragDepth = Math.max(0, this._dragDepth - 1);
+			if (this._dragDepth === 0) this.dragging = false;
+		};
+		this._onDocClick = () => {
+			if (store.settingsOpen) store.toggleSettings(false);
+		};
+		this._onKey = (e) => {
+			if (e.key === "Escape" && store.settingsOpen) store.toggleSettings(false);
+		};
 	}
 
 	connectedCallback() {
 		super.connectedCallback();
 		store.init();
 		// Drop zone covers the whole window, overlays included
-		this.addEventListener("dragenter", this._prevent);
+		this.addEventListener("dragenter", this._onDragEnter);
 		this.addEventListener("dragover", this._prevent);
+		this.addEventListener("dragleave", this._onDragLeave);
 		this.addEventListener("drop", this._onDropBound);
+		document.addEventListener("click", this._onDocClick);
+		document.addEventListener("keydown", this._onKey);
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
-		this.removeEventListener("dragenter", this._prevent);
+		this.removeEventListener("dragenter", this._onDragEnter);
 		this.removeEventListener("dragover", this._prevent);
+		this.removeEventListener("dragleave", this._onDragLeave);
 		this.removeEventListener("drop", this._onDropBound);
-		clearTimeout(this._captionTimer);
+		document.removeEventListener("click", this._onDocClick);
+		document.removeEventListener("keydown", this._onKey);
+	}
+
+	updated(changed) {
+		if (changed.has("dragging")) this.toggleAttribute("dragging", this.dragging);
 	}
 
 	render() {
+		const showList = store.files.length > 0 && store.mode !== "ready";
+
 		return html`
 			<dg-canvas
+				class=${showList ? "dim" : ""}
 				.mode=${store.mode}
 				.onFrame=${(f) => this._applyFrame(f)}
 				.onSwap=${(m) => (this.displayMode = m)}
 			></dg-canvas>
 
-			<div class="titlebar-drag"></div>
+			<div class="shell">
+				<dg-top-bar
+					.open=${store.settingsOpen}
+					@toggle-settings=${() => store.toggleSettings()}
+				></dg-top-bar>
 
-			<dg-letterbox position="bottom">
-				<span>${this.captionText}</span>
-			</dg-letterbox>
+				<div class="body">
+					${showList
+						? html`<dg-file-list
+								@reveal=${(e) => store.revealFile(e.detail.path)}
+							></dg-file-list>`
+						: this._stage()}
+				</div>
 
-			<div class="content ${this.displayMode === "ready" ? "raised" : ""}">
-				<dg-chroma-text
-					id="title"
-					variant="title"
-					.text=${TITLES[this.displayMode]}
-				></dg-chroma-text>
-
-				${this.displayMode === "settings"
-					? html`<dg-settings-panel id="settings"></dg-settings-panel>`
-					: html`
-							<dg-chroma-text
-								id="subtitle"
-								variant="subtitle"
-								.text=${this._subtitle()}
-							></dg-chroma-text>
-						`}
-
-				<div class="actions-slot ${this.displayMode === "settings" ? "in-flow" : this.displayMode}">
-					<dg-actions
-						id="actions"
-						.mode=${this.displayMode}
-						.pendingCount=${store.pendingFiles.length}
+				<dg-footer-bar>
+					${showList
+						? html`<dg-actions
+						slot="actions"
+						.mode=${store.mode}
+						.pendingCount=${store.actionable.length}
+						.failedCount=${store.failedFiles.length}
+						.successCount=${store.result?.successCount ?? 0}
 						.cancelling=${store.cancelRequested}
 						@browse=${this._onBrowse}
 						@start=${() => store.processPending()}
-						@back=${() => store.cancelPending()}
+						@clear=${() => store.clearFiles()}
 						@cancel=${() => store.cancelProcessing()}
-						@retry=${() => store.setMode("ready")}
+						@retry-failed=${() => store.retryFailed()}
+						@copy-errors=${() => store.copyErrors()}
 						@show-result=${() => store.revealResult()}
-						@desqueeze-more=${() => store.setMode("ready")}
-					></dg-actions>
-				</div>
+						@desqueeze-more=${() => store.clearFiles()}
+					></dg-actions>`
+						: nothing}
+				</dg-footer-bar>
+			</div>
+
+			${this.dragging && showList ? html`<div class="dropring"></div>` : nothing}
+
+			${store.settingsOpen
+				? html`<div class="popover" @click=${(e) => e.stopPropagation()}>
+						<dg-settings-panel></dg-settings-panel>
+					</div>`
+				: nothing}
+		`;
+	}
+
+	/** The empty state: the ceremony, with the drop target made visible. */
+	_stage() {
+		return html`
+			<div class="stage">
+				<dg-chroma-text id="title" variant="title" text="Drop images here"></dg-chroma-text>
+				<dg-chroma-text
+					id="subtitle"
+					variant="subtitle"
+					text="RAW, JPG, PNG, TIFF or WebP — folders work too"
+				></dg-chroma-text>
+				<dg-actions
+					id="actions"
+					mode="ready"
+					@browse=${this._onBrowse}
+				></dg-actions>
 			</div>
 		`;
 	}
 
-	// ── Subtitle content per display mode ──
-
-	_subtitle() {
-		const plural = (n) => (n === 1 ? "image" : "images");
-		switch (this.displayMode) {
-			case "ready":
-				return "Lossless anamorphic image processor";
-			case "processing": {
-				const { done, total } = store.progress;
-				return `${done} out of ${total} ${plural(total)}`;
-			}
-			case "error": {
-				const r = store.result;
-				if (!r) return "Something went wrong";
-				const ok = r.successCount > 0 ? ` (${r.successCount} succeeded)` : "";
-				const msg = r.firstError ? ` — ${r.firstError}` : "";
-				return `${r.failedCount} ${plural(r.failedCount)} failed${ok}${msg}`;
-			}
-			case "success": {
-				const r = store.result;
-				if (!r) return "";
-				if (r.successCount === 0 && r.cancelledCount > 0)
-					return `Cancelled — ${r.cancelledCount} ${plural(r.cancelledCount)} not processed`;
-				if (r.successCount === 0)
-					return `${r.skippedCount} ${plural(r.skippedCount)} already desqueezed`;
-				const skipped = r.skippedCount > 0 ? `, ${r.skippedCount} already desqueezed` : "";
-				const cancelled = r.cancelledCount > 0 ? `, ${r.cancelledCount} cancelled` : "";
-				return `${r.successCount} ${plural(r.successCount)} desqueezed to ${r.factor}x${skipped}${cancelled}`;
-			}
-			default:
-				return "";
-		}
-	}
-
-	// ── Bottom caption ──
-	// captionText lags the computed target by a fade-out so any change —
-	// mode switch or a settings-hint change — crossfades instead of
-	// hard-swapping (see updated()).
-
-	_captionFor(mode) {
-		switch (mode) {
-			case "settings":
-				return this._hint();
-			case "processing":
-				// Show the file currently being converted so big batches
-				// (or one huge RAW) don't look frozen
-				return store.currentFile;
-			case "error": {
-				const failures = store.result?.failures || [];
-				if (failures.length === 0) return "";
-				const names = failures.slice(0, 3).map((f) => f.name).join(", ");
-				const more = failures.length > 3 ? ` and ${failures.length - 3} more` : "";
-				return `Failed: ${names}${more}`;
-			}
-			case "success": {
-				const r = store.result;
-				return r && r.successCount > 0 ? `Processed in ${this._formatTime(r.elapsed)}` : "";
-			}
-			default:
-				return "Images processed locally, no uploads";
-		}
-	}
-
-	updated() {
-		// Keyed off store.mode (not displayMode) so the fade-out starts the
-		// moment a transition begins, in sync with the engine's content fades.
-		const target = this._captionFor(store.mode);
-		if (target === this.captionText) return;
-		const box = this.renderRoot.querySelector('dg-letterbox[position="bottom"]');
-		box?.classList.add("caption-fade");
-		clearTimeout(this._captionTimer);
-		this._captionTimer = setTimeout(() => {
-			// Recompute — the target may have changed again mid-fade
-			this.captionText = this._captionFor(store.mode);
-			box?.classList.remove("caption-fade");
-		}, 120);
-	}
-
-	_hint() {
-		if (store.format === "dng") return "These settings are lossless";
-		const lossy = store.format === "jpg" || (store.format === "webp" && !store.formatOptions.webp.lossless);
-		return lossy
-			? "Pixel data is resampled — these settings are lossy"
-			: "Pixel data is resampled for this format";
-	}
-
-	_formatTime(seconds) {
-		if (seconds < 1) return `${(seconds * 1000).toFixed(0)}ms`;
-		if (seconds < 60) return `${seconds.toFixed(2)}s`;
-		return `${Math.floor(seconds / 60)}m ${(seconds % 60).toFixed(0)}s`;
-	}
-
 	// ── Engine frame bridge ──
 
+	/**
+	 * Only the display text takes per-frame typography from the engine.
+	 * The chrome does not: the engine emits stretch values for weight,
+	 * width, tracking and scaleX, and applying those to buttons pulled
+	 * their labels apart mid-transition. Opacity is the one value the
+	 * action row still takes, so it fades with the rest of the content.
+	 */
 	_applyFrame(f) {
 		const $ = (id) => this.renderRoot.getElementById(id);
 		$("title")?.applyFrame(f.title);
 		$("subtitle")?.applyFrame(f.subtitle);
 
 		const actions = $("actions");
-		if (actions) {
-			actions.style.opacity = f.actions.opacity;
-			actions.style.fontVariationSettings = `'wght' ${f.actions.wght}, 'wdth' ${f.actions.wdth}`;
-			actions.style.letterSpacing = `${f.actions.letterSpacing}px`;
-			actions.style.transform = `scaleX(${f.actions.scaleX})`;
-		}
-		const settings = $("settings");
-		if (settings) settings.style.opacity = f.subtitle.opacity;
+		if (actions) actions.style.opacity = f.actions.opacity;
 	}
 
 	// ── File intake ──
@@ -308,6 +273,8 @@ export class DgApp extends LitElement {
 
 	async _onDrop(e) {
 		this._prevent(e);
+		this._dragDepth = 0;
+		this.dragging = false;
 		if (store.mode === "processing") return;
 
 		const paths = Array.from(e.dataTransfer.files)
@@ -322,7 +289,6 @@ export class DgApp extends LitElement {
 		}
 		store.queueFiles(expanded);
 	}
-
 }
 
 customElements.define("dg-app", DgApp);

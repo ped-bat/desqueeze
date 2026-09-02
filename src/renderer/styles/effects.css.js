@@ -1,8 +1,13 @@
 import { css } from "lit";
 
 /**
- * Glass-panel and glow effects shared across components:
- * buttons, dropdown toggles, inputs, menus, letterbox bars.
+ * Glass-panel, glow and button styles shared across components.
+ *
+ * The button set is deliberately three roles, not one look: exactly one
+ * primary per screen carries the action the user came for, ghost carries
+ * the reversible alternative, and quiet carries the discard. Before this
+ * they were a single `.btn.glass` pill, which left "Cancel" and
+ * "Desqueeze 12 images" visually identical.
  */
 export const effects = css`
 	.glass {
@@ -28,44 +33,75 @@ export const effects = css`
 		text-shadow: var(--dg-glow-white);
 	}
 
+	/* ── Buttons ─────────────────────────────────────────────────
+	   Sentence case, no tracking, no glow stack. These are <button>
+	   elements now, so they take keyboard focus and Enter/Space for
+	   free — the old <a class="btn"> had no href and did neither. */
+
 	.btn {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
+		gap: 0.5em;
+		font-family: var(--dg-font);
+		font-size: var(--dg-ui);
+		font-variation-settings: var(--dg-var-ui-strong);
 		line-height: 1;
-		color: var(--dg-fg);
+		white-space: nowrap;
+		padding: 0.72em 1.1em;
+		border: 1px solid transparent;
+		border-radius: 6px;
+		background: transparent;
+		color: var(--dg-fg-strong);
 		text-decoration: none;
 		cursor: pointer;
-		padding: 0.62em 1.44em 0.55em;
-		margin-left: 10px;
-		margin-right: 10px;
-		background: rgba(0, 0, 0, 0.3);
-		font-variation-settings: var(--dg-font-variation-rest);
-		/* mouse-out: slow ease-in-out (base transition applies when leaving) */
 		transition:
-			background 0.45s ease-in-out,
-			color 0.45s ease-in-out,
-			box-shadow 0.45s ease-in-out,
-			border-color 0.45s ease-in-out;
+			background 0.16s ease,
+			border-color 0.16s ease,
+			color 0.16s ease;
 	}
 
-	.btn:hover {
-		color: rgba(255, 255, 255, 0.8);
-		background: rgba(40, 40, 40, 0.4);
-		box-shadow: 0 0 12px rgba(255, 255, 255, 0.12), 0 0 28px rgba(255, 255, 255, 0.06);
-		/* mouse-in: quick decelerate */
-		transition:
-			background 0.12s cubic-bezier(0, 0, 0.2, 1),
-			color 0.12s cubic-bezier(0, 0, 0.2, 1),
-			box-shadow 0.12s cubic-bezier(0, 0, 0.2, 1),
-			border-color 0.12s cubic-bezier(0, 0, 0.2, 1);
+	.btn:focus-visible {
+		outline: 2px solid var(--dg-accent-ring);
+		outline-offset: 2px;
+	}
+
+	.btn:disabled {
+		opacity: 0.4;
+		cursor: default;
+	}
+
+	.btn-primary {
+		background: var(--dg-accent);
+		color: var(--dg-accent-fg);
+		box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+	}
+
+	.btn-primary:hover:not(:disabled) {
+		background: var(--dg-accent-hover);
+	}
+
+	.btn-ghost {
+		background: rgba(255, 255, 255, 0.05);
+		border-color: rgba(255, 255, 255, 0.2);
+	}
+
+	.btn-ghost:hover:not(:disabled) {
+		background: rgba(255, 255, 255, 0.1);
+		border-color: rgba(255, 255, 255, 0.32);
+	}
+
+	.btn-quiet {
+		color: var(--dg-fg-soft);
+	}
+
+	.btn-quiet:hover:not(:disabled) {
+		color: var(--dg-fg-strong);
+		background: rgba(255, 255, 255, 0.07);
 	}
 
 	.btn-sm {
-		font-size: 0.85em;
-		padding: 0.57em 1.2em 0.5em;
-		font-variation-settings: inherit;
-		color: var(--dg-fg-soft);
-		border-color: var(--dg-border-soft);
+		font-size: var(--dg-ui-sm);
+		padding: 0.55em 0.85em;
 	}
 `;

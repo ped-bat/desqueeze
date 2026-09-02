@@ -31,9 +31,12 @@
 	--dg-fg-strong: rgba(255, 255, 255, 0.9);
 	--dg-fg: rgba(255, 255, 255, 0.7);
 	--dg-fg-mid: rgba(255, 255, 255, 0.55);
-	--dg-fg-soft: rgba(255, 255, 255, 0.45);
-	--dg-fg-faint: rgba(255, 255, 255, 0.35);
-	--dg-fg-ghost: rgba(255, 255, 255, 0.28);
+	--dg-fg-soft: rgba(255, 255, 255, 0.62);
+	/* Raised from 0.35/0.28: at those values small text measured about
+	   2.4:1 against the canvas, under the 4.5:1 floor, and it sat over
+	   moving dots. These clear it while staying clearly secondary. */
+	--dg-fg-faint: rgba(255, 255, 255, 0.52);
+	--dg-fg-ghost: rgba(255, 255, 255, 0.45);
 
 	--dg-border: rgba(255, 255, 255, 0.35);
 	--dg-border-soft: rgba(255, 255, 255, 0.2);
@@ -43,6 +46,33 @@
 	--dg-surface-hover: rgba(255, 255, 255, 0.13);
 	--dg-surface-focus: rgba(255, 255, 255, 0.08);
 	--dg-surface-menu: rgba(20, 20, 20, 0.85);
+
+	/* Accent — the anamorphic flare blue, related to --dg-chroma-blue but
+	   lifted until white text on it clears 4.5:1. Used for exactly one
+	   control per screen: the primary action. */
+	--dg-accent: #2f6fe0;
+	--dg-accent-hover: #3d7ef0;
+	--dg-accent-fg: #ffffff;
+	--dg-accent-ring: rgba(76, 141, 255, 0.55);
+	--dg-accent-wash: rgba(76, 141, 255, 0.16);
+
+	/* Semantic status, kept separate from the accent so a green row and a
+	   blue button never compete for the same meaning. */
+	--dg-ok: #54c184;
+	--dg-bad: #ff5c52;
+	--dg-bad-soft: #ff9a93;
+	--dg-bad-wash: rgba(255, 92, 82, 0.1);
+
+	/* Chrome for the working surface: bars and the file panel sit on these
+	   rather than on the raw canvas, so filenames are read against a
+	   consistent ground instead of moving dots. */
+	--dg-chrome: rgba(12, 12, 13, 0.72);
+	--dg-chrome-border: rgba(255, 255, 255, 0.08);
+	--dg-row: rgba(255, 255, 255, 0.035);
+	--dg-row-hover: rgba(255, 255, 255, 0.07);
+
+	/* Canvas opacity once the grid is a backdrop rather than the subject */
+	--dg-canvas-dim: 0.42;
 
 	/* — Typography — */
 	/* Fluid type: preferred values are calibrated to the 1120x720 design
@@ -56,6 +86,27 @@
 	--dg-tracking-tight: 0.1em;
 	--dg-tracking-bar: 0.12em;
 	--dg-font-variation-rest: "wght" 300, "wdth" 80;
+
+	/* — UI type scale —
+	   The display clamps above scale with the window because the empty state
+	   is a composition. Chrome and list text do not: a filename should be the
+	   same size in a 900px window and a 1900px one, so these are fixed. */
+	--dg-ui-xs: 11px;
+	--dg-ui-sm: 12.5px;
+	--dg-ui: 14px;
+	--dg-ui-lg: 16px;
+	--dg-ui-xl: 20px;
+
+	/* Sentence-case UI text: normal width, mid weight, no tracking. The
+	   0.15em tracking above is for uppercase display only — applied to
+	   sentence case it destroys word shapes. */
+	--dg-var-ui: "wght" 450, "wdth" 92;
+	--dg-var-ui-strong: "wght" 560, "wdth" 92;
+	--dg-var-mark: "wght" 600, "wdth" 88;
+
+	/* Monospace is reserved for filenames and paths — data the user may need
+	   to match character for character against Finder. */
+	--dg-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
 
 	/* — Layout — */
 	/* Letterbox horizontal padding: 52px / 62px at the 1120px design width */

@@ -14,6 +14,13 @@ export const FACTOR_PRESETS = [
 	{ value: "custom", label: "Custom" },
 ];
 
+/**
+ * Per-file states shown in the file list.
+ * "skipped" is assigned at queue time — a file already carrying the output
+ * suffix is listed and greyed rather than silently dropped from the count.
+ */
+export const FILE_STATES = ["queued", "running", "done", "failed", "cancelled", "skipped"];
+
 const persist = (key, value) => localStorage.setItem(key, String(value));
 
 /** Processing screen shows at least this long. Display-only: the elapsed
@@ -23,6 +30,13 @@ const MIN_PROCESSING_MS = 400;
 
 /** Extract a display name from an absolute path (either separator style) */
 const basename = (p) => String(p).split(/[\\/]/).pop();
+
+/** Uppercase extension without the dot, for the row badge ("ARW", "JPG") */
+const extOf = (p) => {
+	const b = basename(p);
+	const i = b.lastIndexOf(".");
+	return i > 0 ? b.slice(i + 1).toUpperCase() : "";
+};
 
 /**
  * Singleton store: mode machine + settings + processing pipeline.
@@ -38,11 +52,18 @@ class AppStore extends EventTarget {
 	format = "dng";
 	formatOptions = {};
 
-	progress = { done: 0, total: 0 };
+	/**
+	 * The batch, in the order it was queued. This is the file list's model and
+	 * survives from queue through processing into the result screen, so a row
+	 * that failed can name itself instead of being folded into a count.
+	 * @type {{path:string, name:string, ext:string, status:string,
+	 *         error:string|null, outputFile:string|null}[]}
+	 */
+	files = [];
+
 	result = null; // { successCount, failedCount, cancelledCount, elapsed, skippedCount, firstError, failures }
-	pendingFiles = []; // queued by drop/browse, confirmed on the settings screen
-	currentFile = ""; // basename of the most recently started file
 	cancelRequested = false;
+	settingsOpen = false;
 
 	async init() {
 		this.config = await ipc.getConfig();
@@ -50,7 +71,7 @@ class AppStore extends EventTarget {
 		// Live progress pushed from the main process (which file just started)
 		ipc.onProcessingProgress(({ state, file }) => {
 			if (state === "started") {
-				this.currentFile = basename(file);
+				this._setStatus(file, "running");
 				this._emit();
 			}
 		});
@@ -86,14 +107,47 @@ class AppStore extends EventTarget {
 		this._emit();
 	}
 
+	// ── Derived views over `files` ──
+
+	/** Files that would actually be converted (everything not already desqueezed) */
+	get actionable() {
+		return this.files.filter((f) => f.status !== "skipped");
+	}
+
+	get progress() {
+		const total = this.actionable.length;
+		const done = this.files.filter((f) => f.status === "done" || f.status === "failed").length;
+		return { done, total };
+	}
+
+	get failedFiles() {
+		return this.files.filter((f) => f.status === "failed");
+	}
+
+	/** Label of the current output format ("DNG", "JPEG", …) */
+	get formatLabel() {
+		return this.config?.OUTPUT_FORMATS?.[this.format]?.label || this.format.toUpperCase();
+	}
+
 	/** Effective anamorphic stretch factor */
 	get factor() {
 		return this.factorPreset === "custom" ? parseFloat(this.customFactor) : parseFloat(this.factorPreset);
 	}
 
+	/** Factor rendered for the settings chip — "1.33x", not "1.3300000000000001x" */
+	get factorLabel() {
+		const f = this.factor;
+		return Number.isFinite(f) ? `${parseFloat(f.toFixed(2))}x` : "—";
+	}
+
 	setMode(mode) {
 		if (!MODES.includes(mode) || mode === this.mode) return;
 		this.mode = mode;
+		this._emit();
+	}
+
+	toggleSettings(open) {
+		this.settingsOpen = open === undefined ? !this.settingsOpen : open;
 		this._emit();
 	}
 
@@ -170,34 +224,80 @@ class AppStore extends EventTarget {
 		return factor;
 	}
 
+	// ── Queue ──
+
 	/**
-	 * Queue dropped/browsed files and show the settings screen as a
-	 * confirmation step. Dropping again while on settings replaces the queue.
+	 * Queue dropped/browsed files and show the list as a confirmation step.
+	 * Dropping again while queued replaces the batch.
+	 *
+	 * The already-desqueezed check runs here rather than only at process time,
+	 * so those files are visible in the list — greyed and labelled — before the
+	 * user commits, instead of quietly vanishing from the count afterwards.
 	 * @param {string[]} filePaths absolute paths (already expanded)
 	 */
-	queueFiles(filePaths) {
+	async queueFiles(filePaths) {
 		if (this.mode === "processing" || filePaths.length === 0) return;
-		this.pendingFiles = filePaths;
+
+		let skipped = new Set();
+		try {
+			const res = await ipc.filterDesqueezed(filePaths);
+			skipped = new Set(res.skipped || []);
+		} catch {
+			// A failed pre-check must not block the batch — handleFiles filters again.
+		}
+
+		this.files = filePaths.map((p) => ({
+			path: p,
+			name: basename(p),
+			ext: extOf(p),
+			status: skipped.has(p) ? "skipped" : "queued",
+			error: null,
+			outputFile: null,
+		}));
+		this.result = null;
+		this.cancelRequested = false;
+
 		if (this.mode !== "settings") this.setMode("settings");
 		else this._emit();
 	}
 
-	/** Leave settings without processing. The queue is left in place until the
-	 * next drop/browse replaces it — clearing it here would shrink the actions
-	 * row (Desqueeze button vanishes) and make the UI jump mid-fade-out. */
+	/** Drop the batch entirely and return to the empty state. */
+	clearFiles() {
+		if (this.mode === "processing") return;
+		this.files = [];
+		this.result = null;
+		this.settingsOpen = false;
+		if (this.mode !== "ready") this.setMode("ready");
+		else this._emit();
+	}
+
+	/** Leave the list without processing, keeping the batch queued. */
 	cancelPending() {
+		this.settingsOpen = false;
 		this.setMode("ready");
 	}
 
-	/** Process the queued files. Keeps the queue if validation bounced. */
+	/** Process everything currently queued. */
 	async processPending() {
-		await this.handleFiles(this.pendingFiles);
-		if (this.mode !== "settings") this.pendingFiles = [];
+		await this.handleFiles(this.actionable.map((f) => f.path));
+	}
+
+	/** Re-run only the files that failed, leaving the successes in place. */
+	async retryFailed() {
+		const paths = this.failedFiles.map((f) => f.path);
+		if (paths.length === 0) return;
+		for (const f of this.files) {
+			if (f.status === "failed") {
+				f.status = "queued";
+				f.error = null;
+			}
+		}
+		await this.handleFiles(paths);
 	}
 
 	/**
 	 * Full processing pipeline: validate → filter already-processed →
-	 * process with live progress → land on success/error mode.
+	 * process with live per-file status → land on success/error mode.
 	 * @param {string[]} filePaths absolute paths (already expanded)
 	 */
 	async handleFiles(filePaths) {
@@ -206,7 +306,8 @@ class AppStore extends EventTarget {
 		const factor = await this.validateFactor();
 		if (factor === null) return;
 
-		const { toProcess, skippedCount } = await ipc.filterDesqueezed(filePaths);
+		const { toProcess, skipped = [], skippedCount } = await ipc.filterDesqueezed(filePaths);
+		for (const p of skipped) this._setStatus(p, "skipped");
 
 		if (toProcess.length === 0) {
 			if (skippedCount > 0) {
@@ -226,9 +327,7 @@ class AppStore extends EventTarget {
 			return;
 		}
 
-		this.progress = { done: 0, total: toProcess.length };
-		this.result = null;
-		this.currentFile = "";
+		for (const p of toProcess) this._setStatus(p, "queued");
 		this.cancelRequested = false;
 		this.setMode("processing");
 
@@ -238,7 +337,14 @@ class AppStore extends EventTarget {
 		const results = await Promise.all(
 			toProcess.map((fp) =>
 				ipc.desqueezeFile(fp, factor, 1, outputOpts).then((r) => {
-					this.progress = { ...this.progress, done: this.progress.done + 1 };
+					// Each result lands here individually — that is what lets a row
+					// flip to done or failed the moment its own conversion returns.
+					const entry = this.files.find((f) => f.path === fp);
+					if (entry) {
+						entry.status = r.success ? "done" : r.cancelled ? "cancelled" : "failed";
+						entry.error = r.success ? null : r.error || null;
+						entry.outputFile = r.outputFile || null;
+					}
 					this._emit();
 					return r;
 				})
@@ -264,13 +370,12 @@ class AppStore extends EventTarget {
 			failedCount: failures.length,
 			cancelledCount,
 			elapsed,
-			skippedCount,
+			skippedCount: this.files.filter((f) => f.status === "skipped").length,
 			firstError,
 			failures,
 			factor,
 			outputFiles,
 		};
-		this.currentFile = "";
 		this.cancelRequested = false;
 		this.setMode(failures.length > 0 ? "error" : "success");
 	}
@@ -285,12 +390,58 @@ class AppStore extends EventTarget {
 
 	/** Reveal the first processed file in Finder */
 	revealResult() {
-		const file = this.result?.outputFiles?.[0];
+		const file = this.files.find((f) => f.outputFile)?.outputFile;
 		if (file) ipc.showInFolder(file);
 	}
 
+	/** Reveal one specific row's output in Finder */
+	revealFile(path) {
+		const entry = this.files.find((f) => f.path === path);
+		if (entry?.outputFile) ipc.showInFolder(entry.outputFile);
+	}
+
+	/** Copy every failure as "name: error" lines, for pasting into a bug report */
+	async copyErrors() {
+		const text = this.failedFiles.map((f) => `${f.name}: ${f.error || "Unknown error"}`).join("\n");
+		if (!text) return;
+		try {
+			await navigator.clipboard.writeText(text);
+		} catch {
+			// Clipboard permission can be refused; the errors stay visible in the list.
+		}
+	}
+
+	_setStatus(path, status) {
+		const entry = this.files.find((f) => f.path === path);
+		if (entry) entry.status = status;
+	}
+
+	/**
+	 * Notify subscribers, at most once per frame.
+	 *
+	 * With MAX_CONCURRENCY files in flight and a folder of several hundred
+	 * queued, results land in bursts; emitting synchronously per result made
+	 * the list re-render once per file. Coalescing bounds that to one render
+	 * per frame no matter how large the batch is.
+	 *
+	 * The timer is not redundant with the frame callback: a minimised or
+	 * fully occluded window stops firing requestAnimationFrame, and on rAF
+	 * alone every state change would stall until the window came back.
+	 * Whichever fires first flushes; the other is a no-op.
+	 */
 	_emit() {
-		this.dispatchEvent(new Event("change"));
+		if (this._emitQueued) return;
+		this._emitQueued = true;
+
+		const flush = () => {
+			if (!this._emitQueued) return;
+			this._emitQueued = false;
+			clearTimeout(this._emitTimer);
+			this.dispatchEvent(new Event("change"));
+		};
+
+		this._emitTimer = setTimeout(flush, 32);
+		if (typeof requestAnimationFrame === "function") requestAnimationFrame(flush);
 	}
 }
 

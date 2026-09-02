@@ -27,11 +27,21 @@ export class DgChromaText extends LitElement {
 		.stack {
 			position: relative;
 			font-family: var(--dg-font);
+		}
+
+		/* Uppercase is display treatment, applied to the one short hero line.
+		   The subtitle below it is a sentence and stays in sentence case. */
+		:host([variant="title"]) .stack {
 			text-transform: uppercase;
 		}
 
+		/* No scaleX here any more. Scaling the rendered glyph stretched the
+		   vertical stems 50% heavier than the horizontal crossbars, which is
+		   what made the display line read as broken rather than wide. The
+		   width now comes from the font's own wdth axis, driven by the
+		   engine (see ENGINE_CONFIG.fontWidth), which widens the letterforms
+		   while holding stroke weight even. */
 		:host([variant="title"]) .stack {
-			transform: scaleX(1.5);
 			font-weight: 600;
 			font-size: var(--dg-font-size-title);
 			letter-spacing: var(--dg-tracking-tight);
@@ -39,10 +49,13 @@ export class DgChromaText extends LitElement {
 
 		:host([variant="subtitle"]) .stack {
 			font-size: var(--dg-font-size-sub);
-			font-weight: 300;
-			letter-spacing: var(--dg-tracking);
-			white-space: nowrap;
+			font-weight: 400;
+			letter-spacing: 0;
 			text-align: center;
+			/* Was nowrap: a sentence long enough to say what is supported
+			   overflows the 720px minimum window. */
+			text-wrap: balance;
+			max-width: 32ch;
 		}
 
 		.layer {
@@ -56,6 +69,10 @@ export class DgChromaText extends LitElement {
 			position: absolute;
 			left: 0;
 			top: 0;
+			/* The R and B layers are taken out of flow, so they need the
+			   stack's width explicitly or they wrap at a different point
+			   than the G layer and the channels separate. */
+			width: 100%;
 		}
 
 		.layer-g {

@@ -3,7 +3,11 @@ import { typography } from "../styles/typography.css.js";
 import { effects } from "../styles/effects.css.js";
 
 /**
- * <dg-dropdown> — inline glass dropdown used in settings sentences.
+ * <dg-dropdown> — inline dropdown used in the settings sentences.
+ *
+ * The toggle and the options are real <button> elements, so the control can
+ * be reached and operated from the keyboard; they were <span>/<a> before and
+ * could only be clicked.
  *
  * @fires change - CustomEvent<{value: string}> on selection
  */
@@ -22,26 +26,41 @@ export class DgDropdown extends LitElement {
 				position: relative;
 				display: inline-block;
 				pointer-events: auto;
-				cursor: pointer;
 			}
 
 			.toggle {
-				display: inline-block;
-				color: var(--dg-fg);
-				padding: 0.2em 0.9em;
+				display: inline-flex;
+				align-items: center;
+				gap: 0.4em;
+				font-family: var(--dg-font);
+				font-size: inherit;
+				font-variation-settings: var(--dg-var-ui-strong);
+				letter-spacing: 0;
+				color: var(--dg-fg-strong);
+				background: rgba(255, 255, 255, 0.07);
+				border: 1px solid rgba(255, 255, 255, 0.22);
+				border-radius: 6px;
+				padding: 0.28em 0.7em;
 				cursor: pointer;
-				font: inherit;
-				font-size: 1em;
-				line-height: 1.6em;
-				text-transform: uppercase;
-				letter-spacing: var(--dg-tracking);
-				font-variation-settings: var(--dg-font-variation-rest);
+				transition:
+					background 0.16s ease,
+					border-color 0.16s ease;
 			}
 
-			.toggle::after {
-				content: " \\25BE";
-				font-size: 0.8em;
-				opacity: 0.5;
+			.toggle:hover,
+			:host([open]) .toggle {
+				background: rgba(255, 255, 255, 0.12);
+				border-color: rgba(255, 255, 255, 0.34);
+			}
+
+			.toggle:focus-visible {
+				outline: 2px solid var(--dg-accent-ring);
+				outline-offset: 2px;
+			}
+
+			.cv {
+				font-size: 0.75em;
+				opacity: 0.55;
 			}
 
 			.menu {
@@ -53,40 +72,53 @@ export class DgDropdown extends LitElement {
 				background: var(--dg-surface-menu);
 				backdrop-filter: var(--dg-blur-glass);
 				-webkit-backdrop-filter: var(--dg-blur-glass);
-				border: 1.5px solid rgba(255, 255, 255, 0.15);
-				border-radius: var(--dg-radius);
-				padding: 4px 0;
+				border: 1px solid rgba(255, 255, 255, 0.15);
+				border-radius: 8px;
+				padding: 4px;
 				z-index: 30;
 				min-width: 100%;
 				white-space: nowrap;
-				box-shadow: var(--dg-glow-surface);
+				box-shadow: 0 14px 34px -14px rgba(0, 0, 0, 0.9);
 			}
 
 			:host([open]) .menu {
-				display: block;
+				display: flex;
+				flex-direction: column;
+				gap: 1px;
 			}
 
-			.menu a {
+			.menu button {
 				display: block;
-				padding: 0.2em 0.9em;
-				color: rgba(255, 255, 255, 0.6);
-				text-decoration: none;
-				font: inherit;
-				font-size: 0.8em;
-				text-transform: uppercase;
-				letter-spacing: var(--dg-tracking);
-				font-variation-settings: var(--dg-font-variation-rest);
-				transition: background var(--dg-ease-fast), color var(--dg-ease-fast);
+				width: 100%;
+				text-align: left;
+				padding: 0.36em 0.8em;
+				color: var(--dg-fg-soft);
+				background: transparent;
+				border: 0;
+				border-radius: 5px;
+				font-family: var(--dg-font);
+				font-size: var(--dg-ui-sm);
+				font-variation-settings: var(--dg-var-ui);
+				letter-spacing: 0;
 				cursor: pointer;
+				transition:
+					background var(--dg-ease-fast),
+					color var(--dg-ease-fast);
 			}
 
-			.menu a:hover {
+			.menu button:hover {
 				background: rgba(255, 255, 255, 0.1);
 				color: var(--dg-fg-strong);
 			}
 
-			.menu a.active {
+			.menu button:focus-visible {
+				outline: 2px solid var(--dg-accent-ring);
+				outline-offset: -2px;
+			}
+
+			.menu button.active {
 				color: var(--dg-fg-strong);
+				background: var(--dg-accent-wash);
 			}
 		`,
 	];
@@ -99,30 +131,46 @@ export class DgDropdown extends LitElement {
 		this.value = "";
 		this.open = false;
 		this._onDocClick = () => this._close();
+		this._onKey = (e) => {
+			if (e.key === "Escape" && this.open) this._close();
+		};
 	}
 
 	connectedCallback() {
 		super.connectedCallback();
 		document.addEventListener("click", this._onDocClick);
+		document.addEventListener("keydown", this._onKey);
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
 		document.removeEventListener("click", this._onDocClick);
+		document.removeEventListener("keydown", this._onKey);
 		if (DgDropdown.openInstance === this) DgDropdown.openInstance = null;
 	}
 
 	render() {
 		const selected = this.options.find((o) => o.value === this.value);
 		return html`
-			<span class="toggle glass" @click=${this._toggle}>${selected?.label ?? this.value}</span>
-			<span class="menu">
+			<button
+				class="toggle"
+				aria-haspopup="listbox"
+				aria-expanded=${this.open ? "true" : "false"}
+				@click=${this._toggle}
+			>
+				${selected?.label ?? this.value}<span class="cv">&#9662;</span>
+			</button>
+			<span class="menu" role="listbox">
 				${this.options.map(
 					(o) => html`
-						<a
+						<button
+							role="option"
+							aria-selected=${o.value === this.value ? "true" : "false"}
 							class=${o.value === this.value ? "active" : ""}
 							@click=${(e) => this._select(e, o.value)}
-						>${o.label}</a>
+						>
+							${o.label}
+						</button>
 					`
 				)}
 			</span>
