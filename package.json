@@ -107,7 +107,7 @@
 	},
 	"dependencies": {
 		"electron-log": "^5.1.2",
-		"exiftool-vendored": "^34.2.0",
+		"exiftool-vendored": "^37.2.0",
 		"icc": "^3.0.0",
 		"lit": "^3.3.3",
 		"p-queue": "^9.1.0",

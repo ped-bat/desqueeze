@@ -43,7 +43,9 @@ class ExifToolService {
 	 * @param {string[]} [args=[]] - Additional exiftool arguments
 	 */
 	async write(filePath, tags, args = []) {
-		return this._exiftool.write(filePath, tags, args);
+		// The bare-array overload is deprecated upstream; writeArgs is the
+		// supported form and keeps working across major versions.
+		return this._exiftool.write(filePath, tags, { writeArgs: args });
 	}
 
 	/**

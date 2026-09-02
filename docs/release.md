@@ -96,6 +96,14 @@ Verify any DMG before publishing:
 spctl -a -vv dist/mac-arm64/Desqueeze.app   # expect: accepted, Notarized Developer ID
 ```
 
+A local Mac build re-signs the checked-in binaries in `resources/bin/darwin/`,
+so `git status` shows them modified afterwards. Only the signature blob
+changes (same size, same linkage) — discard it rather than committing noise:
+
+```bash
+git checkout -- resources/bin/darwin
+```
+
 ## Windows signing
 
 The Windows installer is unsigned, so SmartScreen shows "Windows protected
