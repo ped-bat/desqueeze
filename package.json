@@ -1,6 +1,6 @@
 {
 	"name": "desqueeze",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Desktop app for desqueezing anamorphic photos and RAW files",
 	"author": "Pedro Batista",
 	"type": "module",
