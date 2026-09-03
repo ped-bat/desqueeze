@@ -25,15 +25,40 @@ export class DgTopBar extends LitElement {
 				align-items: center;
 				justify-content: space-between;
 				gap: 1rem;
+				position: relative;
 				min-height: var(--dg-bar-h);
 				padding: 0 var(--dg-bar-pad);
-				border-bottom: 1px solid var(--dg-chrome-border);
 				background: var(--dg-chrome);
 				backdrop-filter: var(--dg-blur-chrome);
 				-webkit-backdrop-filter: var(--dg-blur-chrome);
 				/* Sits under the draggable titlebar strip, so the bar itself
 				   must opt its controls back in to pointer events. */
 				-webkit-app-region: drag;
+			}
+
+
+			/* The rule fades out towards both ends: full strength at the
+			   centre, nothing at the edges. A hairline running the whole
+			   width boxed the window in; this reads as a horizon instead.
+			   Drawn as a pseudo-element because a border cannot hold a
+			   gradient. */
+			:host::after {
+				content: "";
+				position: absolute;
+				left: 0;
+				right: 0;
+				height: 1px;
+				pointer-events: none;
+				background: linear-gradient(
+					to right,
+					transparent 0%,
+					var(--dg-chrome-border) 50%,
+					transparent 100%
+				);
+			}
+
+			:host::after {
+				bottom: 0;
 			}
 
 			/* macOS uses titleBarStyle "hiddenInset" with the traffic lights

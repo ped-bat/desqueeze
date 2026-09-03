@@ -26,6 +26,13 @@ const CROSS = html`<svg class="ico" viewBox="0 0 16 16" aria-hidden="true">
 		stroke-linecap="round" />
 </svg>`;
 
+/** The remove control's X — lighter stroke than the status cross above, which
+ *  is reporting a failure rather than offering an action. */
+const EX = html`<svg viewBox="0 0 16 16" aria-hidden="true">
+	<path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="1.7"
+		stroke-linecap="round" />
+</svg>`;
+
 /**
  * <dg-file-list> — the batch, one row per file.
  *
@@ -297,55 +304,75 @@ export class DgFileList extends LitElement {
 			}
 
 			/* ── Remove ──────────────────────────────────────────────
-			   Until now a file could only leave the batch by clearing the
-			   whole thing. The button sits in the status cell and takes the
-			   place of the word while the row is hovered: before a run,
-			   "Queued" is the least useful thing that cell could say, since
-			   every row says it. Absolutely positioned over the label so the
-			   swap shifts nothing, and revealed on focus-within too, so it is
-			   reachable by keyboard rather than hover alone. */
-			.cell-status {
-				position: relative;
-				display: inline-flex;
-				align-items: center;
-				justify-content: flex-end;
-				min-width: 7.5em;
-			}
-
-			.cell-status .status {
-				transition: opacity 0.12s ease;
-			}
-
+			   An X on the row's right edge, resting off-stage and sliding in
+			   under the cursor. The status word steps aside to make room
+			   rather than being covered, so the row reads as opening up for
+			   the control instead of swapping one label for another. Revealed
+			   on focus-within too, so it is reachable without a mouse. */
 			.rm {
 				position: absolute;
-				right: 0;
+				right: 12px;
+				top: 50%;
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				width: 22px;
+				height: 22px;
+				padding: 0;
+				border: 0;
+				border-radius: 5px;
+				background: transparent;
+				color: var(--dg-fg-soft);
+				cursor: pointer;
 				opacity: 0;
 				pointer-events: none;
-				transition: opacity 0.12s ease;
+				transform: translateY(-50%) translateX(7px);
+				transition:
+					opacity 0.17s ease,
+					transform 0.17s cubic-bezier(0.2, 0, 0.2, 1),
+					background 0.14s ease,
+					color 0.14s ease;
 			}
 
-			.row:hover .cell-status .status,
-			.row:focus-within .cell-status .status {
-				opacity: 0;
+			.rm svg {
+				width: 11px;
+				height: 11px;
+				display: block;
 			}
 
-			.row:hover .rm,
-			.row:focus-within .rm {
+			.rm:hover {
+				background: rgba(255, 255, 255, 0.1);
+				color: var(--dg-fg-strong);
+			}
+
+			.rm:focus-visible {
+				outline: 2px solid var(--dg-accent-ring);
+				outline-offset: 1px;
+			}
+
+			.row.removable .status {
+				transition: transform 0.17s cubic-bezier(0.2, 0, 0.2, 1);
+			}
+
+			.row.removable:hover .rm,
+			.row.removable:focus-within .rm {
 				opacity: 1;
 				pointer-events: auto;
+				transform: translateY(-50%) translateX(0);
+			}
+
+			/* Exactly the X's width plus its gutter, so the word lands clear
+			   of it rather than merely somewhere to the left. */
+			.row.removable:hover .status,
+			.row.removable:focus-within .status {
+				transform: translateX(-28px);
 			}
 
 			@media (prefers-reduced-motion: reduce) {
-				.cell-status .status,
-				.rm {
+				.rm,
+				.row.removable .status {
 					transition: none;
 				}
-			}
-
-			/* Holds the action column open on rows with no button, so the
-			   status words stay in one line down the list. */
-			.noact {
-				width: 0;
 			}
 
 			.why {
@@ -393,22 +420,21 @@ export class DgFileList extends LitElement {
 		const removable = store.mode === "settings";
 
 		return html`
-			<div class="row ${f.status}" role="listitem">
+			<div class="row ${f.status} ${removable ? "removable" : ""}" role="listitem">
 				<span class="light" aria-hidden="true"></span>
 				<span class="badge">${f.ext || "-"}</span>
 				<span class="name" title=${f.path}>${f.name}</span>
+				<span class="status ${f.status}">${icon}${label}</span>
 				${removable
-					? html`<span class="cell-status">
-							<span class="status ${f.status}">${icon}${label}</span>
-							<button
-								class="btn btn-quiet btn-sm rm"
-								title="Remove ${f.name} from the batch"
-								@click=${() => this._remove(f.path)}
-							>
-								Remove
-							</button>
-						</span>`
-					: html`<span class="status ${f.status}">${icon}${label}</span>`}
+					? html`<button
+							class="rm"
+							aria-label="Remove ${f.name} from the batch"
+							title="Remove ${f.name} from the batch"
+							@click=${() => this._remove(f.path)}
+						>
+							${EX}
+						</button>`
+					: nothing}
 				${isDone
 					? html`<button
 							class="btn btn-quiet btn-sm reveal"
