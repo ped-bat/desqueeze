@@ -21,6 +21,15 @@ export class DgCanvas extends LitElement {
 			position: absolute;
 			inset: 0;
 			background: var(--dg-bg-canvas);
+			/* Establishes a stacking context so .scanlines below stays inside
+			   this element. Without it the host is position:absolute with
+			   z-index:auto, which creates no context, and the overlay's
+			   z-index:10 competed in dg-app's stacking order — landing above
+			   the shell at z-index:6 and striping the whole UI. Invisible on
+			   dark chrome; on a light button it read as a rendering fault.
+			   The CRT belongs to the grid, which is the screen being imitated,
+			   not to the app's own controls. */
+			z-index: 0;
 		}
 
 		canvas {

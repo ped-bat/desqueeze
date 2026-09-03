@@ -29,8 +29,8 @@ export class DgTopBar extends LitElement {
 				padding: 0 var(--dg-bar-pad);
 				border-bottom: 1px solid var(--dg-chrome-border);
 				background: var(--dg-chrome);
-				backdrop-filter: var(--dg-blur-glass);
-				-webkit-backdrop-filter: var(--dg-blur-glass);
+				backdrop-filter: var(--dg-blur-chrome);
+				-webkit-backdrop-filter: var(--dg-blur-chrome);
 				/* Sits under the draggable titlebar strip, so the bar itself
 				   must opt its controls back in to pointer events. */
 				-webkit-app-region: drag;

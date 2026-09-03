@@ -268,8 +268,12 @@ class AppStore extends EventTarget {
 	/** Drop the batch entirely and return to the empty state. */
 	clearFiles() {
 		if (this.mode === "processing") return;
-		this.files = [];
-		this.result = null;
+		// The batch is deliberately NOT emptied here. Returning to ready starts
+		// a crossfade, and the list has to keep rendering its rows until that
+		// fade finishes — emptying the array now made the rows vanish on the
+		// first frame while the panel around them was still fading. Nothing
+		// reads files or result in ready mode, and queueFiles() replaces both
+		// outright, so they are left to be overwritten by the next batch.
 		this.settingsOpen = false;
 		if (this.mode !== "ready") this.setMode("ready");
 		else this._emit();

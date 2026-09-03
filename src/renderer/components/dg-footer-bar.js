@@ -11,6 +11,12 @@ import { store, StoreController } from "../state/app-state.js";
  * overall progress rule.
  */
 export class DgFooterBar extends LitElement {
+	static properties = {
+		/** Lagged display mode from dg-app: flips at the engine's transition
+		 *  midpoint, so the summary swaps while it is faded out. */
+		mode: { type: String },
+	};
+
 	static styles = [
 		typography,
 		css`
@@ -23,8 +29,15 @@ export class DgFooterBar extends LitElement {
 				padding: 0 var(--dg-bar-pad);
 				border-top: 1px solid var(--dg-chrome-border);
 				background: var(--dg-chrome);
-				backdrop-filter: var(--dg-blur-glass);
-				-webkit-backdrop-filter: var(--dg-blur-glass);
+				backdrop-filter: var(--dg-blur-chrome);
+				-webkit-backdrop-filter: var(--dg-blur-chrome);
+			}
+
+			/* Contents fade, the bar itself does not: the chrome is permanent,
+			   what it says is not. dg-app writes this per frame. */
+			.summary,
+			::slotted(*) {
+				opacity: var(--dg-content-opacity, 1);
 			}
 
 			.summary {
@@ -83,6 +96,7 @@ export class DgFooterBar extends LitElement {
 	constructor() {
 		super();
 		new StoreController(this);
+		this.mode = "ready";
 	}
 
 	render() {
@@ -96,7 +110,7 @@ export class DgFooterBar extends LitElement {
 		const r = store.result;
 		const { done, total } = store.progress;
 
-		switch (store.mode) {
+		switch (this.mode) {
 			case "processing":
 				return html`
 					<span class="bar"><i style="width:${total ? (done / total) * 100 : 0}%"></i></span>
@@ -137,7 +151,7 @@ export class DgFooterBar extends LitElement {
 			}
 
 			default:
-				return html`<span>Processed on this machine. Nothing is uploaded.</span>`;
+				return html`<span>Images processed on this machine, nothing is uploaded.</span>`;
 		}
 	}
 

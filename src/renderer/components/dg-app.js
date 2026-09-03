@@ -90,6 +90,15 @@ export class DgApp extends LitElement {
 			margin-top: 0.8rem;
 		}
 
+		/* Resting hidden. _applyFrame writes an opacity to each of these every
+		   frame; without a hidden resting state a screen mounted at the
+		   transition midpoint paints at full opacity for the one frame before
+		   its first value lands, which is the flash the hero used to have. */
+		dg-file-list,
+		.stage dg-actions {
+			opacity: 0;
+		}
+
 		/* Drop feedback in every state: a ring on the window edge. */
 		.dropring {
 			position: absolute;
@@ -198,7 +207,12 @@ export class DgApp extends LitElement {
 	}
 
 	render() {
-		const showList = store.files.length > 0 && store.mode !== "ready";
+		// Keyed off displayMode, not store.mode: displayMode flips at the
+		// engine's transition midpoint, so a screen is swapped while it is
+		// faded out instead of being replaced between two visible frames.
+		// dg-canvas below still takes the live store.mode — the engine has to
+		// start the transition that displayMode is waiting on.
+		const showList = this.displayMode !== "ready" && store.files.length > 0;
 
 		return html`
 			<dg-canvas
@@ -217,16 +231,17 @@ export class DgApp extends LitElement {
 				<div class="body">
 					${showList
 						? html`<dg-file-list
+								id="filelist"
 								@reveal=${(e) => store.revealFile(e.detail.path)}
 							></dg-file-list>`
 						: this._stage()}
 				</div>
 
-				<dg-footer-bar>
+				<dg-footer-bar id="footer" .mode=${this.displayMode}>
 					${showList
 						? html`<dg-actions
 						slot="actions"
-						.mode=${store.mode}
+						.mode=${this.displayMode}
 						.pendingCount=${store.actionable.length}
 						.failedCount=${store.failedFiles.length}
 						.successCount=${store.result?.successCount ?? 0}
@@ -289,8 +304,18 @@ export class DgApp extends LitElement {
 		$("title")?.applyFrame(f.title);
 		$("subtitle")?.applyFrame(f.subtitle);
 
+		// One crossfade envelope for everything that swaps on a mode change:
+		// the hero's own layers take theirs above, and the list and the
+		// footer's contents ride the same curve, so one screen fades out and
+		// the next fades in instead of toggling between frames.
+		const o = f.actions.opacity;
 		const actions = $("actions");
-		if (actions) actions.style.opacity = f.actions.opacity;
+		if (actions) actions.style.opacity = o;
+
+		const list = $("filelist");
+		if (list) list.style.opacity = o;
+
+		$("footer")?.style.setProperty("--dg-content-opacity", o);
 	}
 
 	// ── File intake ──
