@@ -15,8 +15,8 @@ import "./dg-footer-bar.js";
  * The window is a persistent working surface: a top bar carrying the
  * wordmark and live settings, a body, and a footer action bar. The body is
  * the ceremony while nothing is queued, and the file list from the moment
- * something is. The dot grid keeps running full-bleed behind both, dimmed
- * once there are filenames to read against it.
+ * something is. The dot grid keeps running full-bleed behind both, knocked
+ * back by a scrim over the body once there are filenames to read against it.
  */
 export class DgApp extends LitElement {
 	static properties = {
@@ -32,14 +32,6 @@ export class DgApp extends LitElement {
 			overflow: hidden;
 		}
 
-		dg-canvas {
-			transition: opacity 0.35s ease;
-		}
-
-		dg-canvas.dim {
-			opacity: var(--dg-canvas-dim);
-		}
-
 		.shell {
 			position: absolute;
 			inset: 0;
@@ -47,13 +39,6 @@ export class DgApp extends LitElement {
 			display: flex;
 			flex-direction: column;
 			min-height: 0;
-		}
-
-		/* Custom properties inherit, so overriding the token here retints both
-		   bars at once. It flips with the canvas dim, and the bars transition
-		   their own background-color so the two changes move together. */
-		.shell.on-backdrop {
-			--dg-chrome: var(--dg-chrome-soft);
 		}
 
 		.body {
@@ -64,6 +49,15 @@ export class DgApp extends LitElement {
 			/* Matches the bars' horizontal padding so the file rows line up
 			   with the wordmark above and the summary below. */
 			padding: 16px var(--dg-bar-pad);
+			background-color: transparent;
+			transition: background-color 0.35s ease;
+		}
+
+		/* The grid is knocked back behind filenames, and only there. The bars
+		   keep the full-strength grid behind them in every state, which is
+		   what lets them render identically on both screens. */
+		.body.on-backdrop {
+			background-color: var(--dg-body-scrim);
 		}
 
 		/* ── Empty state ───────────────────────────────────────
@@ -223,19 +217,18 @@ export class DgApp extends LitElement {
 
 		return html`
 			<dg-canvas
-				class=${showList ? "dim" : ""}
 				.mode=${store.mode}
 				.onFrame=${(f) => this._applyFrame(f)}
 				.onSwap=${(m) => (this.displayMode = m)}
 			></dg-canvas>
 
-			<div class="shell ${showList ? "on-backdrop" : ""}">
+			<div class="shell">
 				<dg-top-bar
 					.open=${store.settingsOpen}
 					@toggle-settings=${() => store.toggleSettings()}
 				></dg-top-bar>
 
-				<div class="body">
+				<div class="body ${showList ? "on-backdrop" : ""}">
 					${showList
 						? html`<dg-file-list
 								id="filelist"

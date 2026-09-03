@@ -16,9 +16,9 @@
 
 :root {
 	/* — Colors — */
-	/* The page ground shows through wherever the canvas is dimmed to a
-	   backdrop, so it has to be black rather than grey: at 0.42 opacity a
-	   #333 ground turned the whole file panel mid-grey. */
+	/* The page ground sits under the canvas and reads through the body
+	   scrim, so it has to be black rather than grey: a #333 ground turned
+	   the whole file panel mid-grey. */
 	--dg-bg-page: #08080a;
 	--dg-bg-canvas: #111111;
 
@@ -80,11 +80,6 @@
 	   rather than on the raw canvas, so filenames are read against a
 	   consistent ground instead of moving dots. */
 	--dg-chrome: rgba(6, 6, 7, 0.46);
-	/* Used once the canvas dims to a backdrop. The grid is already at
-	   --dg-canvas-dim there, so the full-strength chrome landed on top of an
-	   already faded grid and blacked the bars out entirely. Less ink is needed
-	   to hold the text when what is behind it is dimmer to begin with. */
-	--dg-chrome-soft: rgba(6, 6, 7, 0.18);
 	--dg-chrome-border: rgba(255, 255, 255, 0.17);
 	--dg-row: rgba(255, 255, 255, 0.04);
 	--dg-row-hover: rgba(255, 255, 255, 0.075);
@@ -94,8 +89,13 @@
 	--dg-bar-h: 58px;
 	--dg-bar-pad: 20px;
 
-	/* Canvas opacity once the grid is a backdrop rather than the subject */
-	--dg-canvas-dim: 0.42;
+	/* Knocks the grid back behind the file list. This is painted over the
+	   body region only, never the whole canvas: dimming the canvas dimmed
+	   what sits behind the bars too, so the same bar rendered darker on the
+	   list screen than on the empty one and the two chromes stopped
+	   matching. Scoped here, the bars always sit over the same
+	   full-strength grid and take one value in every state. */
+	--dg-body-scrim: rgba(8, 8, 10, 0.62);
 
 	/* — Typography — */
 	/* Fluid type: preferred values are calibrated to the 1120x720 design
