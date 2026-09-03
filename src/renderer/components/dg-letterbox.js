@@ -17,6 +17,10 @@ export class DgLetterbox extends LitElement {
 				position: absolute;
 				left: 0;
 				right: 0;
+				/* The global reset doesn't cross the shadow boundary, so without
+				   this the bottom bar's padding is added to its height and it
+				   creeps 30px up into the content. */
+				box-sizing: border-box;
 				height: 17%;
 				z-index: 5;
 				display: flex;
@@ -33,12 +37,22 @@ export class DgLetterbox extends LitElement {
 					0 0 8px rgba(255, 255, 255, 0.13), 0 0 20px rgba(255, 255, 255, 0.064);
 			}
 
+			/* The bar itself: a lightly blurred backdrop so the dot grid softens
+			   behind it, closed off by a hairline on the edge facing the canvas. */
+			:host {
+				background: var(--dg-bar-bg);
+				backdrop-filter: var(--dg-bar-blur);
+				-webkit-backdrop-filter: var(--dg-bar-blur);
+			}
+
 			:host([position="top"]) {
 				top: 0;
+				border-bottom: 1px solid var(--dg-bar-border);
 			}
 
 			:host([position="bottom"]) {
 				bottom: 0;
+				border-top: 1px solid var(--dg-bar-border);
 				align-items: flex-end;
 				padding-bottom: 2.6em;
 				/* matches the old settings-hint size (0.75x subtitle) */

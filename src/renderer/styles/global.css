@@ -62,6 +62,12 @@
 	--dg-pad-bar: clamp(24px, 4.64vw, 64px);
 	--dg-pad-bar-wide: clamp(30px, 5.54vw, 76px);
 
+	/* Letterbox bars: a hairline inner edge over a lightly blurred backdrop,
+	   so the dot grid reads as softened behind the top/bottom bars. */
+	--dg-bar-bg: rgba(255, 255, 255, 0.022);
+	--dg-bar-border: rgba(255, 255, 255, 0.22);
+	--dg-bar-blur: blur(5px);
+
 	/* — Effects — */
 	/* Dark drop shadow first for legibility over the glowing dots, then glow */
 	--dg-glow-white: 0 1px 3px rgba(0, 0, 0, 0.85), 0 0 10px rgba(0, 0, 0, 0.6),

@@ -105,6 +105,16 @@ export class DgChromaText extends LitElement {
 	 * @param {{opacity:number, wght:number, wdth:number, letterSpacing:number,
 	 *          chromaOffset:number, intensity?:number}} f
 	 */
+	/**
+	 * Start hidden. A mode swap mounts a fresh node that would otherwise
+	 * paint at full opacity for one frame before the engine's next frame
+	 * sets it — which reads as a flicker rather than a crossfade.
+	 */
+	hide() {
+		const stack = this.renderRoot?.querySelector(".stack");
+		if (stack) stack.style.opacity = "0";
+	}
+
 	applyFrame(f) {
 		if (!this.hasUpdated) return;
 		const { stack, r, g, b } = this._els;

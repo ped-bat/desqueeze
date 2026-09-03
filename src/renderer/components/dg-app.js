@@ -58,7 +58,9 @@ export class DgApp extends LitElement {
 			flex-direction: column;
 			align-items: center;
 			pointer-events: none;
-			z-index: 1;
+			/* Above the letterbox bars — their backdrop blur must soften the
+			   dot grid, never the title, subtitle or buttons in front of it. */
+			z-index: 6;
 		}
 
 		dg-chroma-text[variant="subtitle"] {
@@ -75,6 +77,9 @@ export class DgApp extends LitElement {
 			justify-content: center;
 			margin-top: 2.4em;
 			font-size: var(--dg-font-size-sub);
+			/* The offset differs per mode; without this the buttons jump to
+			   their new height while the rest of the screen is still fading. */
+			transition: margin-top 0.3s ease;
 		}
 
 		.actions-slot.ready {
@@ -111,7 +116,7 @@ export class DgApp extends LitElement {
 		super();
 		new StoreController(this);
 		this.displayMode = "ready";
-		this.captionText = "Images processed locally, no uploads";
+		this.captionText = "Images processed in this machine, nothing is uploaded";
 		this._prevent = this._prevent.bind(this);
 		this._onDropBound = (e) => this._onDrop(e);
 	}
@@ -142,6 +147,8 @@ export class DgApp extends LitElement {
 			></dg-canvas>
 
 			<div class="titlebar-drag"></div>
+
+			<dg-letterbox position="top"></dg-letterbox>
 
 			<dg-letterbox position="bottom">
 				<span>${this.captionText}</span>
@@ -242,11 +249,21 @@ export class DgApp extends LitElement {
 				return r && r.successCount > 0 ? `Processed in ${this._formatTime(r.elapsed)}` : "";
 			}
 			default:
-				return "Images processed locally, no uploads";
+				return "Images processed in this machine, nothing is uploaded";
 		}
 	}
 
-	updated() {
+	updated(changed) {
+		// A mode swap tears down the subtitle or the settings panel and mounts
+		// the other one. The new node paints at full opacity for a frame before
+		// the engine's next frame drives it, so hide it now and let the engine
+		// fade it in with everything else.
+		if (changed?.has("displayMode")) {
+			const settings = this.renderRoot.getElementById("settings");
+			if (settings) settings.style.opacity = "0";
+			this.renderRoot.getElementById("subtitle")?.hide();
+		}
+
 		// Keyed off store.mode (not displayMode) so the fade-out starts the
 		// moment a transition begins, in sync with the engine's content fades.
 		const target = this._captionFor(store.mode);
