@@ -46,8 +46,11 @@ export class DgSettingsPanel extends LitElement {
 				margin-top: 8px;
 			}
 
+			/* Explicit margin: the reset in global.css is light-DOM only, so a
+			   <p> in here still carries the UA's 1em top and bottom, which
+			   was padding the panel out below the last line. */
 			.hint {
-				margin-top: 12px;
+				margin: 12px 0 0;
 				padding-top: 12px;
 				border-top: 1px solid rgba(255, 255, 255, 0.1);
 				font-size: var(--dg-ui-sm);

@@ -16,7 +16,7 @@ const STATUS_LABEL = {
 
 /** Drawn rather than typed: Science Gothic has no check or cross glyph, so
  *  a text ✓ would silently fall back to another family mid-row. */
-const CHECK = html`<svg class="ico" viewBox="0 0 16 16" aria-hidden="true">
+const CHECK = html`<svg class="ico ico-check" viewBox="0 0 16 16" aria-hidden="true">
 	<path d="M3.2 8.6l3.1 3.1 6.5-7" fill="none" stroke="currentColor" stroke-width="2.1"
 		stroke-linecap="round" stroke-linejoin="round" />
 </svg>`;
@@ -46,18 +46,6 @@ export class DgFileList extends LitElement {
 				min-height: 0;
 				flex: 1;
 				gap: 10px;
-			}
-
-			.head {
-				display: flex;
-				align-items: baseline;
-				justify-content: space-between;
-				gap: 1rem;
-				font-family: var(--dg-font);
-				font-size: var(--dg-ui-sm);
-				font-variation-settings: var(--dg-var-ui);
-				color: var(--dg-fg-faint);
-				padding: 2px 4px 0;
 			}
 
 			.scroller {
@@ -94,7 +82,7 @@ export class DgFileList extends LitElement {
 				   row below instead of scrolling. */
 				flex: none;
 				display: grid;
-				grid-template-columns: 10px 3.6em minmax(0, 1fr) auto auto auto;
+				grid-template-columns: 10px 3.6em minmax(0, 1fr) auto auto;
 				align-items: center;
 				gap: 12px;
 				padding: 9px 14px;
@@ -177,19 +165,10 @@ export class DgFileList extends LitElement {
 				cursor: text;
 			}
 
-			.target {
-				font-family: var(--dg-font);
-				font-size: var(--dg-ui-xs);
-				font-variation-settings: var(--dg-var-ui);
-				color: var(--dg-fg-faint);
-				white-space: nowrap;
-			}
-
 			.status {
 				display: inline-flex;
 				align-items: center;
 				justify-content: flex-end;
-				gap: 0.4em;
 				font-family: var(--dg-font);
 				font-size: var(--dg-ui-sm);
 				font-variation-settings: var(--dg-var-ui);
@@ -262,12 +241,54 @@ export class DgFileList extends LitElement {
 				}
 			}
 
-			/* The check is the confirming half of "Done" */
+			/* The check is the confirming half of "Done".
+			   Spacing is the icon's own margin rather than the row's gap, so
+			   the check can collapse the space it occupies as it leaves and
+			   "Done" settles without a jump. */
 			.ico {
 				width: 13px;
 				height: 13px;
 				flex: none;
 				display: block;
+				margin-right: 0.4em;
+			}
+
+			/* The check draws itself on, holds, then retires: the light on the
+			   left is the lasting record of a finished row, so a permanent
+			   check beside it was saying the same thing twice. The cross does
+			   not retire — a failure has to stay stated. */
+			.ico-check path {
+				stroke-dasharray: 15;
+				stroke-dashoffset: 15;
+				animation: dg-draw 0.4s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+			}
+
+			.ico-check {
+				animation: dg-check-retire 0.3s ease 2s forwards;
+			}
+
+			@keyframes dg-draw {
+				to {
+					stroke-dashoffset: 0;
+				}
+			}
+
+			@keyframes dg-check-retire {
+				to {
+					opacity: 0;
+					width: 0;
+					margin-right: 0;
+				}
+			}
+
+			@media (prefers-reduced-motion: reduce) {
+				.ico-check path {
+					animation: none;
+					stroke-dashoffset: 0;
+				}
+				.ico-check {
+					animation: none;
+				}
 			}
 
 			.reveal {
@@ -306,10 +327,6 @@ export class DgFileList extends LitElement {
 		if (files.length === 0) return nothing;
 
 		return html`
-			<div class="head">
-				<span>${this._headline()}</span>
-				<span>${this._targetSummary()}</span>
-			</div>
 			<div class="scroller" role="list">
 				${repeat(
 					files,
@@ -330,7 +347,6 @@ export class DgFileList extends LitElement {
 				<span class="light" aria-hidden="true"></span>
 				<span class="badge">${f.ext || "-"}</span>
 				<span class="name" title=${f.path}>${f.name}</span>
-				<span class="target">${f.status === "skipped" ? "" : `→ ${store.formatLabel}`}</span>
 				<span class="status ${f.status}">${icon}${label}</span>
 				${isDone
 					? html`<button
@@ -346,36 +362,6 @@ export class DgFileList extends LitElement {
 					: nothing}
 			</div>
 		`;
-	}
-
-	_headline() {
-		const { done, total } = store.progress;
-		switch (store.mode) {
-			case "processing":
-				return `Desqueezing ${Math.min(done + 1, total)} of ${total}`;
-			case "success":
-				return `${store.result?.successCount ?? done} images desqueezed`;
-			case "error": {
-				const failed = store.failedFiles.length;
-				return `${(store.result?.successCount ?? 0)} desqueezed · ${failed} failed`;
-			}
-			default: {
-				const skipped = store.files.length - total;
-				const base = `${total} ${total === 1 ? "file" : "files"} queued`;
-				return skipped > 0 ? `${base} · ${skipped} already desqueezed` : base;
-			}
-		}
-	}
-
-	/** Elapsed time once a run has finished, and nothing before it. The
-	 *  factor and format used to be restated here, but the top bar chip
-	 *  carries them permanently — saying it twice on the same screen made
-	 *  neither copy authoritative. */
-	_targetSummary() {
-		if (store.mode !== "success" && store.mode !== "error") return "";
-		const s = store.result?.elapsed;
-		if (s === undefined) return "";
-		return s < 1 ? `${(s * 1000).toFixed(0)}ms` : `${s.toFixed(2)}s`;
 	}
 
 	_reveal(path) {

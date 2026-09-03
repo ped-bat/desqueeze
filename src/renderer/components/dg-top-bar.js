@@ -68,7 +68,9 @@ export class DgTopBar extends LitElement {
 				cursor: pointer;
 				transition:
 					background 0.16s ease,
-					border-color 0.16s ease;
+					border-color 0.16s ease,
+					opacity 0.3s ease,
+					visibility 0s;
 			}
 
 			.chip:hover,
@@ -80,6 +82,28 @@ export class DgTopBar extends LitElement {
 			.chip:focus-visible {
 				outline: 2px solid var(--dg-accent-ring);
 				outline-offset: 2px;
+			}
+
+			/* Once a run starts, these settings no longer describe anything
+			   the user can still change, so the chip withdraws rather than
+			   sitting there inviting a click that would do nothing. It comes
+			   back the moment there is a next batch to configure. */
+			.chip.stowed {
+				opacity: 0;
+				visibility: hidden;
+				pointer-events: none;
+				transition:
+					opacity 0.26s ease,
+					visibility 0s linear 0.26s;
+			}
+
+			@media (prefers-reduced-motion: reduce) {
+				.chip,
+				.chip.stowed {
+					transition:
+						opacity 0.01s linear,
+						visibility 0s;
+				}
 			}
 
 			.k {
@@ -110,10 +134,14 @@ export class DgTopBar extends LitElement {
 	}
 
 	render() {
+		// Settings apply to the next batch, not the one already running or done
+		const stowed = ["processing", "success", "error"].includes(store.mode);
+
 		return html`
 			<span class="mark">Desqueeze.io</span>
 			<button
-				class="chip"
+				class="chip ${stowed ? "stowed" : ""}"
+				?inert=${stowed}
 				aria-expanded=${this.open ? "true" : "false"}
 				aria-label="Output settings"
 				@click=${this._toggle}

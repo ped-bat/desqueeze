@@ -144,6 +144,9 @@ class AppStore extends EventTarget {
 	setMode(mode) {
 		if (!MODES.includes(mode) || mode === this.mode) return;
 		this.mode = mode;
+		// The settings chip stows in these modes; a popover left open would
+		// outlive the control that owns it.
+		if (["processing", "success", "error"].includes(mode)) this.settingsOpen = false;
 		this._emit();
 	}
 

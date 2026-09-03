@@ -27,6 +27,12 @@ export class DgChromaText extends LitElement {
 		.stack {
 			position: relative;
 			font-family: var(--dg-font);
+			/* The engine drives opacity every frame. Without a hidden resting
+			   state the element paints at full opacity for the frame between
+			   mounting and its first applyFrame — which is what made the hero
+			   flash when Clear dropped the list and remounted the stage
+			   mid-transition. */
+			opacity: 0;
 		}
 
 		/* Uppercase is display treatment, applied to the one short hero line.
@@ -123,7 +129,13 @@ export class DgChromaText extends LitElement {
 	 *          chromaOffset:number, intensity?:number}} f
 	 */
 	applyFrame(f) {
-		if (!this.hasUpdated) return;
+		if (!this.hasUpdated) {
+			// Hold it rather than drop it: the very first frame after the
+			// element mounts is the one that decides whether it appears at
+			// the engine's opacity or flashes at the CSS default.
+			this._pending = f;
+			return;
+		}
 		const { stack, r, g, b } = this._els;
 
 		stack.style.opacity = f.opacity;
@@ -162,6 +174,14 @@ export class DgChromaText extends LitElement {
 		const off = f.chromaOffset;
 		r.style.transform = off > 0.1 ? `translateX(${off}px)` : "";
 		b.style.transform = off > 0.1 ? `translateX(${-off}px)` : "";
+	}
+
+	firstUpdated() {
+		if (this._pending) {
+			const f = this._pending;
+			this._pending = null;
+			this.applyFrame(f);
+		}
 	}
 
 	updated() {

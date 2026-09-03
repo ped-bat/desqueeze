@@ -98,15 +98,50 @@ export class DgApp extends LitElement {
 			border: 2px solid var(--dg-accent-ring);
 			border-radius: 12px;
 			pointer-events: none;
-			background: rgba(76, 141, 255, 0.06);
+			background: var(--dg-accent-wash);
 		}
 
-		/* ── Settings popover ──────────────────────────────────── */
+		/* ── Settings popover ────────────────────────────────────
+		   Kept mounted and toggled by class rather than added and removed,
+		   so it has something to animate out from. It grows from the chip
+		   it belongs to, hence the top-right origin. Visibility is what
+		   takes it out of the tab order while closed; its transition is
+		   delayed by the fade so it doesn't vanish mid-animation. */
 		.popover {
 			position: absolute;
 			top: calc(var(--dg-bar-h) + 6px);
 			right: var(--dg-bar-pad);
 			z-index: 40;
+			transform-origin: top right;
+			opacity: 0;
+			visibility: hidden;
+			transform: translateY(-6px) scale(0.97);
+			pointer-events: none;
+			transition:
+				opacity 0.14s ease,
+				transform 0.14s ease,
+				visibility 0s linear 0.14s;
+		}
+
+		.popover.open {
+			opacity: 1;
+			visibility: visible;
+			transform: translateY(0) scale(1);
+			pointer-events: auto;
+			transition:
+				opacity 0.16s ease,
+				transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+				visibility 0s;
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			.popover,
+			.popover.open {
+				transform: none;
+				transition:
+					opacity 0.01s linear,
+					visibility 0s;
+			}
 		}
 	`;
 
@@ -211,11 +246,13 @@ export class DgApp extends LitElement {
 
 			${this.dragging ? html`<div class="dropring"></div>` : nothing}
 
-			${store.settingsOpen
-				? html`<div class="popover" @click=${(e) => e.stopPropagation()}>
-						<dg-settings-panel></dg-settings-panel>
-					</div>`
-				: nothing}
+			<div
+				class="popover ${store.settingsOpen ? "open" : ""}"
+				?inert=${!store.settingsOpen}
+				@click=${(e) => e.stopPropagation()}
+			>
+				<dg-settings-panel></dg-settings-panel>
+			</div>
 		`;
 	}
 

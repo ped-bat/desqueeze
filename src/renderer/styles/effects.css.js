@@ -74,7 +74,9 @@ export const effects = css`
 	.btn-primary {
 		background: var(--dg-accent);
 		color: var(--dg-accent-fg);
-		box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+		/* Seats the light button against the dark ground; the old inset was
+		   a white top highlight, which is invisible on a white face. */
+		box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.16);
 	}
 
 	.btn-primary:hover:not(:disabled) {
