@@ -112,16 +112,23 @@ export class DgApp extends LitElement {
 		}
 
 		/* ── Settings popover ────────────────────────────────────
-		   Kept mounted and toggled by class rather than added and removed,
-		   so it has something to animate out from. It grows from the chip
-		   it belongs to, hence the top-right origin. Visibility is what
-		   takes it out of the tab order while closed; its transition is
-		   delayed by the fade so it doesn't vanish mid-animation. */
+		   The wrapper only positions. The fade and the scale live on the
+		   panel itself, which is also the element carrying the
+		   backdrop-filter, and that pairing is deliberate: an ancestor with
+		   opacity below 1 forms a backdrop root, so a descendant's
+		   backdrop-filter has nothing behind it to sample. Animating the
+		   wrapper meant the panel stayed unblurred for the whole fade and
+		   the blur snapped in the instant opacity reached 1. Kept mounted
+		   and toggled by class, so there is something to animate out from. */
 		.popover {
 			position: absolute;
 			top: calc(var(--dg-bar-h) + 6px);
 			right: var(--dg-bar-pad);
 			z-index: 40;
+		}
+
+		.popover dg-settings-panel {
+			display: block;
 			transform-origin: top right;
 			opacity: 0;
 			visibility: hidden;
@@ -133,7 +140,7 @@ export class DgApp extends LitElement {
 				visibility 0s linear 0.14s;
 		}
 
-		.popover.open {
+		.popover.open dg-settings-panel {
 			opacity: 1;
 			visibility: visible;
 			transform: translateY(0) scale(1);
@@ -145,8 +152,8 @@ export class DgApp extends LitElement {
 		}
 
 		@media (prefers-reduced-motion: reduce) {
-			.popover,
-			.popover.open {
+			.popover dg-settings-panel,
+			.popover.open dg-settings-panel {
 				transform: none;
 				transition:
 					opacity 0.01s linear,

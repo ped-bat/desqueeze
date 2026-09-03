@@ -172,7 +172,8 @@ export class DgTopBar extends LitElement {
 				@click=${this._toggle}
 			>
 				<span class="k">Factor</span> ${store.factorLabel}
-				<span class="k">·</span> ${store.formatLabel}
+				<span class="k">·</span>
+				<span class="k">Format</span> ${store.formatLabel}
 				<span class="cv">&#9662;</span>
 			</button>
 		`;

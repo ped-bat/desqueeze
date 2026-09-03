@@ -34,6 +34,9 @@ export class DgDropdown extends LitElement {
 				gap: 0.4em;
 				font-family: var(--dg-font);
 				font-size: inherit;
+				/* Pinned, not inherited: the settings sentence runs at
+				   line-height 2 and the control must not inherit that. */
+				line-height: 1.15;
 				font-variation-settings: var(--dg-var-ui-strong);
 				letter-spacing: 0;
 				color: var(--dg-fg-strong);

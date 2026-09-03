@@ -62,25 +62,45 @@ export class DgSettingsPanel extends LitElement {
 				color: #e8c78b;
 			}
 
+			/* Mirrors dg-dropdown's .toggle exactly - same padding, border,
+			   radius, ground and weight - because the two sit side by side in
+			   the same sentence and any difference reads as a mistake. The
+			   input inside carries no box of its own; the wrapper is the
+			   control. */
 			.input-wrap {
 				display: inline-flex;
 				align-items: center;
-				position: relative;
-				border: 1px solid rgba(255, 255, 255, 0.2);
+				gap: 0.1em;
+				font-family: var(--dg-font);
+				font-size: inherit;
+				/* Matches dg-dropdown's .toggle; see the note there. */
+				line-height: 1.15;
+				font-variation-settings: var(--dg-var-ui-strong);
+				letter-spacing: 0;
+				color: var(--dg-fg-strong);
+				background: rgba(255, 255, 255, 0.07);
+				border: 1px solid rgba(255, 255, 255, 0.22);
 				border-radius: 6px;
-				background: rgba(255, 255, 255, 0.05);
+				padding: 0.28em 0.7em;
+				transition:
+					background 0.16s ease,
+					border-color 0.16s ease;
+			}
+
+			.input-wrap:hover {
+				background: rgba(255, 255, 255, 0.12);
+				border-color: rgba(255, 255, 255, 0.34);
 			}
 
 			.input-wrap:focus-within {
+				background: rgba(255, 255, 255, 0.12);
 				border-color: var(--dg-accent-ring);
-				background: var(--dg-surface-focus);
 			}
 
 			.input-wrap[data-suffix]::after {
 				content: attr(data-suffix);
 				font: inherit;
 				color: var(--dg-fg-faint);
-				padding-right: 0.7em;
 				pointer-events: none;
 			}
 
@@ -88,11 +108,16 @@ export class DgSettingsPanel extends LitElement {
 				border: none;
 				background: transparent;
 				outline: none;
-				padding: 0.3em 0.2em 0.3em 0.7em;
-				width: 3.6em;
-				text-align: center;
-				color: var(--dg-fg-strong);
+				padding: 0;
+				/* Sizes to what is typed, so a 2-digit quality and a 4-digit
+				   factor each get a control only as wide as they need. */
+				field-sizing: content;
+				min-width: 1.1em;
+				max-width: 4em;
+				text-align: right;
+				color: inherit;
 				font: inherit;
+				line-height: 1.15;
 				appearance: textfield;
 				-moz-appearance: textfield;
 				cursor: text;
