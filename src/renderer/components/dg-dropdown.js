@@ -76,7 +76,8 @@ export class DgDropdown extends LitElement {
 				text-transform: uppercase;
 				letter-spacing: var(--dg-tracking);
 				font-variation-settings: var(--dg-font-variation-rest);
-				transition: background var(--dg-ease-fast), color var(--dg-ease-fast);
+				transition: background var(--dg-spring-dur) var(--dg-spring),
+					color var(--dg-spring-dur) var(--dg-spring);
 				cursor: pointer;
 			}
 

@@ -63,10 +63,15 @@
 	--dg-pad-bar-wide: clamp(30px, 5.54vw, 76px);
 
 	/* Letterbox bars: a hairline inner edge over a lightly blurred backdrop,
-	   so the dot grid reads as softened behind the top/bottom bars. */
+	   so the dot grid reads as softened behind the top/bottom bars.
+	   Keep the blur small. The engine already blurs the canvas by up to 4px
+	   wherever the cursor spotlight isn't (DotGridEngine `blurAlpha`), so the
+	   bars stack on top of that — at 5px the dots inside them smeared into
+	   blobs in cursor modes while staying crisp in settings, which read as
+	   two different materials. */
 	--dg-bar-bg: rgba(255, 255, 255, 0.022);
 	--dg-bar-border: rgba(255, 255, 255, 0.22);
-	--dg-bar-blur: blur(5px);
+	--dg-bar-blur: blur(2px);
 
 	/* — Effects — */
 	/* Dark drop shadow first for legibility over the glowing dots, then glow */
@@ -78,6 +83,20 @@
 	/* — Animation — */
 	--dg-ease-fast: 0.15s ease;
 	--dg-ease: 0.2s ease;
+
+	/* Hover spring. Sampled from the same spring integrator the engine uses
+	   (core/easing.js stepSpring), stiffness 420 / damping 26 — ~7% overshoot
+	   then settle. One curve and one duration in BOTH directions: the old
+	   0.12s-in / 0.45s-out pair meant a fast in-and-out swapped easing
+	   mid-flight, which is what made rapid hovering stutter. */
+	--dg-spring: linear(
+		0 0%, 0.1252 4.5%, 0.3599 9.1%, 0.6037 13.6%, 0.804 18.2%, 0.9432 22.7%,
+		1.0143 27.3%, 1.0568 31.8%, 1.067 36.4%, 1.0589 40.9%, 1.0433 45.5%,
+		1.027 50%, 1.0134 54.5%, 1.004 59.1%, 0.9985 63.6%, 0.996 68.2%,
+		0.9955 72.7%, 0.996 77.3%, 0.9971 81.8%, 0.9982 86.4%, 0.9991 90.9%,
+		0.9997 95.5%, 1 100%
+	);
+	--dg-spring-dur: 0.4s;
 	--dg-radius: 4px;
 }
 

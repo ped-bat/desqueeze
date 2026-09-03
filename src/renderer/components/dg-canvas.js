@@ -2,7 +2,8 @@ import { LitElement, html, css } from "lit";
 import { DotGridEngine } from "../engine/DotGridEngine.js";
 
 /**
- * <dg-canvas> — hosts the dot-grid engine canvas + CRT scanline overlay.
+ * <dg-canvas> — hosts the dot-grid engine canvas. The CRT scanline overlay
+ * lives in <dg-app> so it covers the buttons and letterbox bars too.
  * Fills its container; forwards pointer position to the engine.
  *
  * Properties:
@@ -32,20 +33,6 @@ export class DgCanvas extends LitElement {
 			opacity: 0;
 			transition: opacity 0.12s ease;
 		}
-
-		.scanlines {
-			position: absolute;
-			inset: 0;
-			z-index: 10;
-			pointer-events: none;
-			background: repeating-linear-gradient(
-				to bottom,
-				transparent 0px,
-				transparent 1px,
-				rgba(0, 0, 0, 0.14) 1px,
-				rgba(0, 0, 0, 0.14) 2px
-			);
-		}
 	`;
 
 	constructor() {
@@ -58,10 +45,7 @@ export class DgCanvas extends LitElement {
 	}
 
 	render() {
-		return html`
-			<canvas></canvas>
-			<div class="scanlines"></div>
-		`;
+		return html`<canvas></canvas>`;
 	}
 
 	connectedCallback() {

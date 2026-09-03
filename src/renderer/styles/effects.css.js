@@ -13,10 +13,10 @@ export const effects = css`
 		-webkit-backdrop-filter: var(--dg-blur-glass);
 		box-shadow: var(--dg-glow-surface);
 		transition:
-			background var(--dg-ease),
-			color var(--dg-ease),
-			box-shadow var(--dg-ease),
-			border-color var(--dg-ease);
+			background var(--dg-spring-dur) var(--dg-spring),
+			color var(--dg-spring-dur) var(--dg-spring),
+			box-shadow var(--dg-spring-dur) var(--dg-spring),
+			border-color var(--dg-spring-dur) var(--dg-spring);
 	}
 
 	.glass:hover {
@@ -41,24 +41,16 @@ export const effects = css`
 		margin-right: 10px;
 		background: rgba(0, 0, 0, 0.3);
 		font-variation-settings: var(--dg-font-variation-rest);
-		/* mouse-out: slow ease-in-out (base transition applies when leaving) */
-		transition:
-			background 0.45s ease-in-out,
-			color 0.45s ease-in-out,
-			box-shadow 0.45s ease-in-out,
-			border-color 0.45s ease-in-out;
+		/* Transition comes from .glass — a single spring, same in both
+		   directions. Hover must never change geometry (padding, border
+		   width, transform, font metrics), only colour, so that flicking the
+		   pointer across a button can't nudge it. */
 	}
 
 	.btn:hover {
 		color: rgba(255, 255, 255, 0.8);
 		background: rgba(40, 40, 40, 0.4);
 		box-shadow: 0 0 12px rgba(255, 255, 255, 0.12), 0 0 28px rgba(255, 255, 255, 0.06);
-		/* mouse-in: quick decelerate */
-		transition:
-			background 0.12s cubic-bezier(0, 0, 0.2, 1),
-			color 0.12s cubic-bezier(0, 0, 0.2, 1),
-			box-shadow 0.12s cubic-bezier(0, 0, 0.2, 1),
-			border-color 0.12s cubic-bezier(0, 0, 0.2, 1);
 	}
 
 	.btn-sm {

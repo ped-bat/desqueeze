@@ -102,6 +102,20 @@ export class DgSettingsPanel extends LitElement {
 		new StoreController(this);
 	}
 
+	firstUpdated() {
+		// The panel is centre-aligned and sized by its widest line, so picking
+		// a shorter option (1.33X -> 2X, or dropping the custom-factor input)
+		// shrank it and slid both edges inward. Pin the width it opens at as a
+		// floor. Measured after fonts settle — Science Gothic loads async and
+		// a fallback-metrics measurement would lock in the wrong number.
+		const lock = () => {
+			const w = this.getBoundingClientRect().width;
+			if (w > 0) this.style.minWidth = `${Math.ceil(w)}px`;
+		};
+		if (document.fonts?.ready) document.fonts.ready.then(lock);
+		else requestAnimationFrame(lock);
+	}
+
 	render() {
 		if (!store.config) return nothing;
 

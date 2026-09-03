@@ -38,6 +38,23 @@ export class DgApp extends LitElement {
 			overflow: hidden;
 		}
 
+		/* The CRT scanlines are a screen-wide overlay: they have to fall across
+		   the buttons, letterbox bars and text, not just the dot grid. Living
+		   inside dg-canvas put them under every one of those layers. */
+		.scanlines {
+			position: absolute;
+			inset: 0;
+			z-index: 100;
+			pointer-events: none;
+			background: repeating-linear-gradient(
+				to bottom,
+				transparent 0px,
+				transparent 1px,
+				rgba(0, 0, 0, 0.14) 1px,
+				rgba(0, 0, 0, 0.14) 2px
+			);
+		}
+
 		.titlebar-drag {
 			-webkit-app-region: drag;
 			height: 48px;
@@ -145,6 +162,8 @@ export class DgApp extends LitElement {
 				.onFrame=${(f) => this._applyFrame(f)}
 				.onSwap=${(m) => (this.displayMode = m)}
 			></dg-canvas>
+
+			<div class="scanlines"></div>
 
 			<div class="titlebar-drag"></div>
 

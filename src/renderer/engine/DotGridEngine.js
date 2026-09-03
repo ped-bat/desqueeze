@@ -623,8 +623,8 @@ export class DotGridEngine {
 	_drawCRT(w, h) {
 		const C = this.C.crt;
 		const ctx = this.ctx;
-		// Scanlines are a DOM overlay (see dg-canvas) — canvas handles
-		// flicker, vignette, and edge-curvature shadows only.
+		// Scanlines are a DOM overlay (see dg-app, so they cover the UI too) —
+		// canvas handles flicker, vignette, and edge-curvature shadows only.
 
 		if (C.flickerAmount > 0) {
 			const flick = (Math.random() - 0.5) * C.flickerAmount;
