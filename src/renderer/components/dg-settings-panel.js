@@ -22,10 +22,10 @@ export class DgSettingsPanel extends LitElement {
 				min-width: 22rem;
 				padding: 16px 18px;
 				border-radius: 10px;
-				border: 1px solid rgba(255, 255, 255, 0.14);
-				background: var(--dg-surface-menu);
-				backdrop-filter: var(--dg-blur-glass);
-				-webkit-backdrop-filter: var(--dg-blur-glass);
+				border: 1px solid var(--dg-chrome-border);
+				background: var(--dg-chrome);
+				backdrop-filter: var(--dg-blur-chrome);
+				-webkit-backdrop-filter: var(--dg-blur-chrome);
 				box-shadow: 0 18px 44px -18px rgba(0, 0, 0, 0.9);
 				pointer-events: auto;
 				font-family: var(--dg-font);

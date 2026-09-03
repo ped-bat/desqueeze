@@ -31,6 +31,7 @@ export class DgFooterBar extends LitElement {
 				background: var(--dg-chrome);
 				backdrop-filter: var(--dg-blur-chrome);
 				-webkit-backdrop-filter: var(--dg-blur-chrome);
+				transition: background-color 0.35s ease;
 			}
 
 			/* Contents fade, the bar itself does not: the chrome is permanent,

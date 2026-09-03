@@ -265,6 +265,21 @@ class AppStore extends EventTarget {
 		else this._emit();
 	}
 
+	/**
+	 * Drop a single file from the batch before it runs.
+	 *
+	 * Only meaningful during the confirm step: once a run has started a row
+	 * is a record of what happened, not a queue entry. Removing the last one
+	 * is the same as clearing the batch, so it lands back on the empty state.
+	 * @param {string} path
+	 */
+	removeFile(path) {
+		if (this.mode !== "settings") return;
+		this.files = this.files.filter((f) => f.path !== path);
+		if (this.files.length === 0) this.setMode("ready");
+		else this._emit();
+	}
+
 	/** Drop the batch entirely and return to the empty state. */
 	clearFiles() {
 		if (this.mode === "processing") return;

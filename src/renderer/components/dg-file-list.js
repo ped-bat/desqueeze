@@ -34,6 +34,7 @@ const CROSS = html`<svg class="ico" viewBox="0 0 16 16" aria-hidden="true">
  * its error instead of being truncated into "Failed: a, b, c and 37 more".
  *
  * @fires reveal - CustomEvent<{path:string}> when a finished row is clicked
+ * @fires remove - CustomEvent<{path:string}> to drop one file before the run
  */
 export class DgFileList extends LitElement {
 	static styles = [
@@ -295,6 +296,52 @@ export class DgFileList extends LitElement {
 				justify-self: end;
 			}
 
+			/* ── Remove ──────────────────────────────────────────────
+			   Until now a file could only leave the batch by clearing the
+			   whole thing. The button sits in the status cell and takes the
+			   place of the word while the row is hovered: before a run,
+			   "Queued" is the least useful thing that cell could say, since
+			   every row says it. Absolutely positioned over the label so the
+			   swap shifts nothing, and revealed on focus-within too, so it is
+			   reachable by keyboard rather than hover alone. */
+			.cell-status {
+				position: relative;
+				display: inline-flex;
+				align-items: center;
+				justify-content: flex-end;
+				min-width: 7.5em;
+			}
+
+			.cell-status .status {
+				transition: opacity 0.12s ease;
+			}
+
+			.rm {
+				position: absolute;
+				right: 0;
+				opacity: 0;
+				pointer-events: none;
+				transition: opacity 0.12s ease;
+			}
+
+			.row:hover .cell-status .status,
+			.row:focus-within .cell-status .status {
+				opacity: 0;
+			}
+
+			.row:hover .rm,
+			.row:focus-within .rm {
+				opacity: 1;
+				pointer-events: auto;
+			}
+
+			@media (prefers-reduced-motion: reduce) {
+				.cell-status .status,
+				.rm {
+					transition: none;
+				}
+			}
+
 			/* Holds the action column open on rows with no button, so the
 			   status words stay in one line down the list. */
 			.noact {
@@ -341,13 +388,27 @@ export class DgFileList extends LitElement {
 		const label = STATUS_LABEL[f.status] || f.status;
 		const isDone = f.status === "done" && f.outputFile;
 		const icon = f.status === "done" ? CHECK : f.status === "failed" ? CROSS : nothing;
+		// Only before the run: once a file has a result, its row is a record
+		// of what happened rather than a queue entry.
+		const removable = store.mode === "settings";
 
 		return html`
 			<div class="row ${f.status}" role="listitem">
 				<span class="light" aria-hidden="true"></span>
 				<span class="badge">${f.ext || "-"}</span>
 				<span class="name" title=${f.path}>${f.name}</span>
-				<span class="status ${f.status}">${icon}${label}</span>
+				${removable
+					? html`<span class="cell-status">
+							<span class="status ${f.status}">${icon}${label}</span>
+							<button
+								class="btn btn-quiet btn-sm rm"
+								title="Remove ${f.name} from the batch"
+								@click=${() => this._remove(f.path)}
+							>
+								Remove
+							</button>
+						</span>`
+					: html`<span class="status ${f.status}">${icon}${label}</span>`}
 				${isDone
 					? html`<button
 							class="btn btn-quiet btn-sm reveal"
@@ -362,6 +423,12 @@ export class DgFileList extends LitElement {
 					: nothing}
 			</div>
 		`;
+	}
+
+	_remove(path) {
+		this.dispatchEvent(
+			new CustomEvent("remove", { detail: { path }, bubbles: true, composed: true })
+		);
 	}
 
 	_reveal(path) {

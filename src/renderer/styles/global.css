@@ -80,6 +80,11 @@
 	   rather than on the raw canvas, so filenames are read against a
 	   consistent ground instead of moving dots. */
 	--dg-chrome: rgba(6, 6, 7, 0.46);
+	/* Used once the canvas dims to a backdrop. The grid is already at
+	   --dg-canvas-dim there, so the full-strength chrome landed on top of an
+	   already faded grid and blacked the bars out entirely. Less ink is needed
+	   to hold the text when what is behind it is dimmer to begin with. */
+	--dg-chrome-soft: rgba(6, 6, 7, 0.18);
 	--dg-chrome-border: rgba(255, 255, 255, 0.17);
 	--dg-row: rgba(255, 255, 255, 0.04);
 	--dg-row-hover: rgba(255, 255, 255, 0.075);

@@ -49,6 +49,13 @@ export class DgApp extends LitElement {
 			min-height: 0;
 		}
 
+		/* Custom properties inherit, so overriding the token here retints both
+		   bars at once. It flips with the canvas dim, and the bars transition
+		   their own background-color so the two changes move together. */
+		.shell.on-backdrop {
+			--dg-chrome: var(--dg-chrome-soft);
+		}
+
 		.body {
 			flex: 1;
 			min-height: 0;
@@ -222,7 +229,7 @@ export class DgApp extends LitElement {
 				.onSwap=${(m) => (this.displayMode = m)}
 			></dg-canvas>
 
-			<div class="shell">
+			<div class="shell ${showList ? "on-backdrop" : ""}">
 				<dg-top-bar
 					.open=${store.settingsOpen}
 					@toggle-settings=${() => store.toggleSettings()}
@@ -233,6 +240,7 @@ export class DgApp extends LitElement {
 						? html`<dg-file-list
 								id="filelist"
 								@reveal=${(e) => store.revealFile(e.detail.path)}
+								@remove=${(e) => store.removeFile(e.detail.path)}
 							></dg-file-list>`
 						: this._stage()}
 				</div>
