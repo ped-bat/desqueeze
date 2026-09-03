@@ -91,18 +91,57 @@ disk. Skip the network requirement instead:
    use `start ms-cxh:localonly` at the same prompt instead. It jumps
    straight to local-account creation.
 
-Then fix networking once you're on the desktop, either by:
+Then fix networking once you're on the desktop by installing the **UTM
+Windows Guest Tools**, which is also what makes the shared folder work:
 
-- **Changing the adapter** (simplest): VM settings → **Network** →
-  *Emulated Network Card* → `e1000` or `rtl8139`, which Windows supports
-  in-box; or
-- **Installing virtio drivers**: mount the
-  [virtio-win ISO](https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso)
-  as a second CD drive and run `virtio-win-guest-tools.exe`.
+```bash
+curl -L -o ~/VMs/utm-guest-tools.iso \
+  https://getutm.app/downloads/utm-guest-tools-latest.iso
+```
+
+Attach it to the VM's CD drive, then in the guest run
+`utm-guest-tools-<version>.exe` and reboot. It installs:
+
+- **NetKVM** — the virtio network driver. This is precisely the file OOBE
+  asked for; the ARM64 build lives at `Drivers\NetKVM\w11\ARM64` on that
+  ISO. Windows 11 ARM has no in-box virtio driver, which is why there is no
+  internet until this is installed.
+- **spice-webdavd** — directory sharing. UTM's `DirectoryShareMode` is
+  WebDAV, and the guest needs this daemon before the shared folder appears.
+  If it still doesn't show up in *This PC*, run
+  `C:\Program Files\SPICE webdavd\map-drive.bat`.
+
+The guest tools installer is a 32-bit x86 binary — that's fine, Windows 11
+ARM runs it under emulation and it lays down the correct ARM64 drivers.
+
+> Swapping the adapter to `e1000`/`rtl8139` is often suggested as a
+> shortcut. Don't bother on ARM: those in-box drivers ship with x64
+> Windows, not the ARM64 build, and it leaves directory sharing broken
+> anyway. One guest-tools install fixes both.
 
 Creating the VM through UTM's **Virtualize → Windows** wizard with
 *"Install drivers and SPICE tools"* checked mounts that driver ISO for you
 and avoids the whole problem.
+
+### Getting files in when there is no network yet
+
+Chicken-and-egg: the installer you want to test can't be downloaded inside
+a VM with no networking. Build a CD image on the Mac and mount it:
+
+```bash
+mkdir -p /tmp/stage && cd /tmp/stage
+curl -L -O https://github.com/ped-bat/desqueeze/releases/latest/download/Desqueeze-Windows-x64.exe
+cp ~/some-photo.ARW demo.ARW
+hdiutil makehybrid -iso -joliet -default-volume-name DESQUEEZE \
+  -o ~/VMs/desqueeze-transfer.iso /tmp/stage
+```
+
+Attach it in UTM (CD icon in the toolbar → browse). Note that UTM remembers
+removable-drive contents in its own registry, *not* in the VM's
+`config.plist` — so once a drive has been pointed at a path, overwriting
+the file at that path is the way to refresh what the guest sees. Editing
+`config.plist` by hand gets silently overridden by that bookmark.
+
 
 What to check: installer completes, app launches, `dnglab.exe` and
 `dcraw_emu.exe` resolve (a conversion succeeding proves it), window controls
