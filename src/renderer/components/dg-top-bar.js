@@ -51,9 +51,9 @@ export class DgTopBar extends LitElement {
 				pointer-events: none;
 				background: linear-gradient(
 					to right,
-					transparent 0%,
+					var(--dg-chrome-border-end) 0%,
 					var(--dg-chrome-border) 50%,
-					transparent 100%
+					var(--dg-chrome-border-end) 100%
 				);
 			}
 

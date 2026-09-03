@@ -122,11 +122,12 @@ export const MODE_PARAMS = {
 		convergenceDuration: 6, // seconds per full pull-release cycle
 		convergenceAmount: 0.05, // fraction of distance pulled toward center
 		convergenceEasing: "sine", // 'sine' | 'ease-in-out'
-		spotlightGradientTarget: [
-			[40, 0],
-			[70, 100],
-			[100, 0],
-		],
+		// No spotlightGradientTarget: the base gradient applies. The override
+		// used to be [[40,0],[70,100],[100,0]] against the base
+		// [[10,0],[60,100],[100,0]], which opened a hole in the middle and
+		// pushed the peak outward. It left the grid behind the bars far
+		// fainter here than on the empty screen, so the same chrome read as
+		// blurrier the moment a batch was queued.
 	},
 };
 

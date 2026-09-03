@@ -81,12 +81,17 @@
 	   consistent ground instead of moving dots. */
 	--dg-chrome: rgba(6, 6, 7, 0.2);
 	--dg-chrome-border: rgba(255, 255, 255, 0.17);
+	/* The ends of the bars' gradient rule: a quarter of the border's strength
+	   rather than nothing, so the line still reads at the window edges
+	   instead of dissolving completely. Derived from the token above so the
+	   two cannot drift apart. */
+	--dg-chrome-border-end: color-mix(in srgb, var(--dg-chrome-border) 25%, transparent);
 	--dg-row: rgba(255, 255, 255, 0.04);
 	--dg-row-hover: rgba(255, 255, 255, 0.075);
 
 	/* Bar heights. The top bar has to clear the macOS traffic lights, which
 	   sit at y:16 with hiddenInset, so it cannot be shorter than this. */
-	--dg-bar-h: 58px;
+	--dg-bar-h: 66px;
 	--dg-bar-pad: 20px;
 
 	/* Knocks the grid back behind the file list. This is painted over the
