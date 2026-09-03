@@ -16,7 +16,7 @@ import { effects } from "../styles/effects.css.js";
  * @fires clear          - discard the queued batch
  * @fires cancel         - stop the run (in-flight files finish)
  * @fires retry-failed   - re-run only the files that failed
- * @fires copy-errors    - copy the failure list to the clipboard
+ * @fires save-log       - write a support log for the batch
  * @fires show-result    - reveal the first output in the file manager
  * @fires desqueeze-more - start a new batch
  */
@@ -95,7 +95,7 @@ export class DgActions extends LitElement {
 				// same thing. The slot goes to starting over instead, which the
 				// user otherwise had no route to from a partial failure.
 				return html`
-					${btn("copy-errors", "Copy errors", "quiet")}
+					${btn("save-log", "Save error log…", "quiet")}
 					${btn("desqueeze-more", "Desqueeze more", "quiet")}
 					${btn("retry-failed", `Retry the ${this.failedCount} that failed`, "primary")}
 				`;

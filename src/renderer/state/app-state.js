@@ -424,14 +424,32 @@ class AppStore extends EventTarget {
 	}
 
 	/** Copy every failure as "name: error" lines, for pasting into a bug report */
-	async copyErrors() {
-		const text = this.failedFiles.map((f) => `${f.name}: ${f.error || "Unknown error"}`).join("\n");
-		if (!text) return;
-		try {
-			await navigator.clipboard.writeText(text);
-		} catch {
-			// Clipboard permission can be refused; the errors stay visible in the list.
-		}
+	/**
+	 * Write a support log for this batch.
+	 *
+	 * This replaced a clipboard copy of one line per failure. That was enough
+	 * to see that something broke and never enough to work out why: the reply
+	 * was always a round trip asking for the version, the platform, the
+	 * format, the factor and what the tool actually printed. The main process
+	 * gathers all of that (see services/diagnostics.js) around the snapshot
+	 * sent from here, and hands back a file the user can attach to an email.
+	 */
+	async saveErrorLog() {
+		return ipc.saveErrorLog({
+			factor: this.factor,
+			factorLabel: this.factorLabel,
+			format: this.format,
+			formatOptions: this.formatOptions,
+			result: this.result,
+			files: this.files.map((f) => ({
+				name: f.name,
+				path: f.path,
+				ext: f.ext,
+				status: f.status,
+				error: f.error,
+				outputFile: f.outputFile,
+			})),
+		});
 	}
 
 	/**

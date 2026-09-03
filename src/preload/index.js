@@ -13,6 +13,7 @@ contextBridge.exposeInMainWorld("api", {
 	filterDesqueezed: (paths) => ipcRenderer.invoke("filter-desqueezed", paths),
 	showInFolder: (filePath) => ipcRenderer.invoke("show-in-folder", filePath),
 	cancelProcessing: () => ipcRenderer.invoke("cancel-processing"),
+	saveErrorLog: (batch) => ipcRenderer.invoke("save-error-log", batch),
 	onProcessingProgress: (callback) => {
 		const listener = (_event, payload) => callback(payload);
 		ipcRenderer.on("processing-progress", listener);

@@ -10,15 +10,18 @@ import path from "path";
 import { AppConfig } from "../config.js";
 import { FileHandler } from "./file-handler.js";
 import { ProcessHandler } from "./process-handler.js";
+import { Diagnostics } from "../services/diagnostics.js";
 
 class IpcRegistry {
 	/**
 	 * @param {import("electron").BrowserWindow} win
 	 * @param {import("../processors/desqueeze-processor.js").DesqueezeProcessor} processor
 	 */
-	constructor(win, processor) {
+	constructor(win, processor, binaryResolver = null) {
+		this._win = win;
 		this._fileHandler = new FileHandler(win);
 		this._processHandler = new ProcessHandler(win, processor);
+		this._diagnostics = new Diagnostics({ binaryResolver });
 	}
 
 	/**
@@ -56,6 +59,11 @@ class IpcRegistry {
 		// Filter out already-desqueezed files
 		ipcMain.handle("filter-desqueezed", (event, filePaths) => {
 			return this._fileHandler.filterDesqueezed(filePaths);
+		});
+
+		// Write a support log for a batch that did not fully succeed
+		ipcMain.handle("save-error-log", (event, batch) => {
+			return this._diagnostics.saveReport(batch, this._win);
 		});
 
 		// Open the output folder of a processed file in Finder/Explorer

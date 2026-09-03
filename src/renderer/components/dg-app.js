@@ -252,7 +252,7 @@ export class DgApp extends LitElement {
 						@clear=${() => store.clearFiles()}
 						@cancel=${() => store.cancelProcessing()}
 						@retry-failed=${() => store.retryFailed()}
-						@copy-errors=${() => store.copyErrors()}
+						@save-log=${() => store.saveErrorLog()}
 						@show-result=${() => store.revealResult()}
 						@desqueeze-more=${() => store.clearFiles()}
 					></dg-actions>`

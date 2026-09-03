@@ -49,6 +49,14 @@ class ExifToolService {
 	}
 
 	/**
+	 * Version of the bundled exiftool, for the diagnostic report.
+	 * @returns {Promise<string>}
+	 */
+	async version() {
+		return this._exiftool.version();
+	}
+
+	/**
 	 * Gracefully shut down the exiftool process.
 	 * Should only be called once during app quit.
 	 */

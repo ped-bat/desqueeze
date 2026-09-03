@@ -85,8 +85,9 @@ class AppManager {
 		const resolver = BinaryResolver.fromElectronApp(app);
 		this._processor.setBinaryResolver(resolver);
 
-		// Register IPC handlers
-		const ipc = new IpcRegistry(this._win, this._processor);
+		// Register IPC handlers. The resolver goes along so the diagnostic
+		// report can name the bundled binaries and say whether they are there.
+		const ipc = new IpcRegistry(this._win, this._processor, resolver);
 		ipc.register();
 	}
 
