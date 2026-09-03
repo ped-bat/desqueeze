@@ -91,17 +91,25 @@ export const effects = css`
 		border-color: rgba(255, 255, 255, 0.32);
 	}
 
+	/* Quiet still carries a border and a ground. Without them it read as a
+	   text link sitting next to two buttons, so "Desqueeze more" did not
+	   look pressable at all. The hierarchy is now carried by contrast
+	   between three button shapes rather than button-vs-text. */
 	.btn-quiet {
 		color: var(--dg-fg-soft);
+		background: rgba(255, 255, 255, 0.03);
+		border-color: rgba(255, 255, 255, 0.13);
 	}
 
 	.btn-quiet:hover:not(:disabled) {
 		color: var(--dg-fg-strong);
-		background: rgba(255, 255, 255, 0.07);
+		background: rgba(255, 255, 255, 0.08);
+		border-color: rgba(255, 255, 255, 0.24);
 	}
 
 	.btn-sm {
 		font-size: var(--dg-ui-sm);
-		padding: 0.55em 0.85em;
+		padding: 0.5em 0.8em;
+		border-radius: 5px;
 	}
 `;

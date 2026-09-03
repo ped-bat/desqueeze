@@ -71,7 +71,8 @@ class AppStore extends EventTarget {
 		// Live progress pushed from the main process (which file just started)
 		ipc.onProcessingProgress(({ state, file }) => {
 			if (state === "started") {
-				this._setStatus(file, "running");
+				// Only a queued row may start; see _setStatus for why.
+				this._setStatus(file, "running", "queued");
 				this._emit();
 			}
 		});
@@ -137,7 +138,7 @@ class AppStore extends EventTarget {
 	/** Factor rendered for the settings chip — "1.33x", not "1.3300000000000001x" */
 	get factorLabel() {
 		const f = this.factor;
-		return Number.isFinite(f) ? `${parseFloat(f.toFixed(2))}x` : "—";
+		return Number.isFinite(f) ? `${parseFloat(f.toFixed(2))}x` : "-";
 	}
 
 	setMode(mode) {
@@ -411,9 +412,25 @@ class AppStore extends EventTarget {
 		}
 	}
 
-	_setStatus(path, status) {
+	/**
+	 * Set a row's status.
+	 *
+	 * @param {string} path
+	 * @param {string} status
+	 * @param {string|null} only guard: apply only if the row is currently in
+	 *   this status. The "started" push from the main process and the result
+	 *   of the conversion itself arrive over two independent channels, so a
+	 *   file that fails immediately — a truncated JPG, say — can resolve
+	 *   before its own "started" ever lands. Without the guard that late push
+	 *   drags the row from failed back to running, where it sticks: the list
+	 *   reads "Converting" forever and the file drops out of the failed count
+	 *   while the batch still lands in error mode.
+	 */
+	_setStatus(path, status, only = null) {
 		const entry = this.files.find((f) => f.path === path);
-		if (entry) entry.status = status;
+		if (!entry) return;
+		if (only !== null && entry.status !== only) return;
+		entry.status = status;
 	}
 
 	/**

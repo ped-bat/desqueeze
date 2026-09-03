@@ -1,6 +1,7 @@
 import { LitElement, html, css, nothing } from "lit";
 import { repeat } from "lit/directives/repeat.js";
 import { typography } from "../styles/typography.css.js";
+import { effects } from "../styles/effects.css.js";
 import { store, StoreController } from "../state/app-state.js";
 
 /** Row status → visible label. "skipped" states why, rather than vanishing. */
@@ -12,6 +13,18 @@ const STATUS_LABEL = {
 	cancelled: "Cancelled",
 	skipped: "Already desqueezed",
 };
+
+/** Drawn rather than typed: Science Gothic has no check or cross glyph, so
+ *  a text ✓ would silently fall back to another family mid-row. */
+const CHECK = html`<svg class="ico" viewBox="0 0 16 16" aria-hidden="true">
+	<path d="M3.2 8.6l3.1 3.1 6.5-7" fill="none" stroke="currentColor" stroke-width="2.1"
+		stroke-linecap="round" stroke-linejoin="round" />
+</svg>`;
+
+const CROSS = html`<svg class="ico" viewBox="0 0 16 16" aria-hidden="true">
+	<path d="M4.2 4.2l7.6 7.6M11.8 4.2l-7.6 7.6" fill="none" stroke="currentColor" stroke-width="2.1"
+		stroke-linecap="round" />
+</svg>`;
 
 /**
  * <dg-file-list> — the batch, one row per file.
@@ -25,13 +38,14 @@ const STATUS_LABEL = {
 export class DgFileList extends LitElement {
 	static styles = [
 		typography,
+		effects,
 		css`
 			:host {
 				display: flex;
 				flex-direction: column;
 				min-height: 0;
 				flex: 1;
-				gap: 8px;
+				gap: 10px;
 			}
 
 			.head {
@@ -43,7 +57,7 @@ export class DgFileList extends LitElement {
 				font-size: var(--dg-ui-sm);
 				font-variation-settings: var(--dg-var-ui);
 				color: var(--dg-fg-faint);
-				padding: 0 2px;
+				padding: 2px 4px 0;
 			}
 
 			.scroller {
@@ -53,7 +67,7 @@ export class DgFileList extends LitElement {
 				overscroll-behavior: contain;
 				display: flex;
 				flex-direction: column;
-				gap: 2px;
+				gap: 3px;
 				padding-right: 2px;
 			}
 
@@ -71,13 +85,19 @@ export class DgFileList extends LitElement {
 				background-clip: content-box;
 			}
 
+			/* [light] [format] [name] [target] [status] [action] */
 			.row {
 				position: relative;
+				/* Rows keep their natural height. As flex children in a
+				   column they would otherwise shrink to fit once the batch
+				   outgrew the scroller, and the content would overlap the
+				   row below instead of scrolling. */
+				flex: none;
 				display: grid;
-				grid-template-columns: 3.6em minmax(0, 1fr) auto auto;
+				grid-template-columns: 10px 3.6em minmax(0, 1fr) auto auto auto;
 				align-items: center;
-				gap: 10px;
-				padding: 7px 10px;
+				gap: 12px;
+				padding: 9px 14px;
 				border-radius: 6px;
 				background: var(--dg-row);
 				overflow: hidden;
@@ -99,7 +119,7 @@ export class DgFileList extends LitElement {
 				background: linear-gradient(
 					90deg,
 					transparent,
-					var(--dg-accent-wash),
+					var(--dg-wait-wash),
 					transparent
 				);
 				background-size: 45% 100%;
@@ -119,14 +139,13 @@ export class DgFileList extends LitElement {
 			@media (prefers-reduced-motion: reduce) {
 				.row.running::before {
 					animation: none;
-					background: var(--dg-accent-wash);
+					background: var(--dg-wait-wash);
 					background-size: 100% 100%;
 				}
 			}
 
 			.row.failed {
 				background: var(--dg-bad-wash);
-				box-shadow: inset 2px 0 0 var(--dg-bad);
 			}
 
 			.row.skipped {
@@ -167,11 +186,14 @@ export class DgFileList extends LitElement {
 			}
 
 			.status {
+				display: inline-flex;
+				align-items: center;
+				justify-content: flex-end;
+				gap: 0.4em;
 				font-family: var(--dg-font);
 				font-size: var(--dg-ui-sm);
 				font-variation-settings: var(--dg-var-ui);
 				color: var(--dg-fg-soft);
-				text-align: right;
 				white-space: nowrap;
 				min-width: 7.5em;
 			}
@@ -183,31 +205,83 @@ export class DgFileList extends LitElement {
 				color: var(--dg-bad);
 			}
 			.status.running {
-				color: #9dc2ff;
+				color: var(--dg-wait-soft);
 			}
 
-			button.status {
+			/* ── The traffic light ──────────────────────────────────
+			   Leftmost column, same place on every row, so the state of a
+			   long batch reads as a vertical strip of colour before any
+			   word is read: grey waiting, amber working, green done, red
+			   failed. Shape carries it too — waiting is a hollow ring,
+			   settled states are filled — so it survives colour blindness
+			   and the status word beside it names it outright. */
+			.light {
+				width: 10px;
+				height: 10px;
+				border-radius: 50%;
+				box-sizing: border-box;
+				border: 1.5px solid var(--dg-pending);
 				background: transparent;
-				border: 0;
-				padding: 2px 4px;
-				border-radius: 4px;
-				cursor: pointer;
-				font: inherit;
-				font-size: var(--dg-ui-sm);
 			}
 
-			button.status:hover {
-				background: rgba(255, 255, 255, 0.1);
-				color: var(--dg-fg-strong);
+			.row.running .light {
+				border-color: var(--dg-wait);
+				background: var(--dg-wait);
+				animation: dg-pulse 1.15s ease-in-out infinite;
 			}
 
-			button.status:focus-visible {
-				outline: 2px solid var(--dg-accent-ring);
-				outline-offset: 1px;
+			.row.done .light {
+				border-color: var(--dg-ok);
+				background: var(--dg-ok);
+			}
+
+			.row.failed .light {
+				border-color: var(--dg-bad);
+				background: var(--dg-bad);
+			}
+
+			.row.cancelled .light,
+			.row.skipped .light {
+				border-color: var(--dg-pending);
+				background: var(--dg-pending);
+			}
+
+			@keyframes dg-pulse {
+				0%,
+				100% {
+					opacity: 1;
+				}
+				50% {
+					opacity: 0.35;
+				}
+			}
+
+			@media (prefers-reduced-motion: reduce) {
+				.row.running .light {
+					animation: none;
+				}
+			}
+
+			/* The check is the confirming half of "Done" */
+			.ico {
+				width: 13px;
+				height: 13px;
+				flex: none;
+				display: block;
+			}
+
+			.reveal {
+				justify-self: end;
+			}
+
+			/* Holds the action column open on rows with no button, so the
+			   status words stay in one line down the list. */
+			.noact {
+				width: 0;
 			}
 
 			.why {
-				grid-column: 2 / -1;
+				grid-column: 3 / -1;
 				font-family: var(--dg-mono);
 				font-size: var(--dg-ui-xs);
 				color: var(--dg-bad-soft);
@@ -249,21 +323,24 @@ export class DgFileList extends LitElement {
 	_row(f) {
 		const label = STATUS_LABEL[f.status] || f.status;
 		const isDone = f.status === "done" && f.outputFile;
+		const icon = f.status === "done" ? CHECK : f.status === "failed" ? CROSS : nothing;
 
 		return html`
 			<div class="row ${f.status}" role="listitem">
-				<span class="badge">${f.ext || "—"}</span>
+				<span class="light" aria-hidden="true"></span>
+				<span class="badge">${f.ext || "-"}</span>
 				<span class="name" title=${f.path}>${f.name}</span>
 				<span class="target">${f.status === "skipped" ? "" : `→ ${store.formatLabel}`}</span>
+				<span class="status ${f.status}">${icon}${label}</span>
 				${isDone
 					? html`<button
-							class="status done"
+							class="btn btn-quiet btn-sm reveal"
 							title="Show ${f.name} in the file manager"
 							@click=${() => this._reveal(f.path)}
 						>
 							Reveal
 						</button>`
-					: html`<span class="status ${f.status}">${label}</span>`}
+					: html`<span class="noact"></span>`}
 				${f.status === "failed" && f.error
 					? html`<span class="why" title=${f.error}>${f.error}</span>`
 					: nothing}
@@ -290,12 +367,15 @@ export class DgFileList extends LitElement {
 		}
 	}
 
+	/** Elapsed time once a run has finished, and nothing before it. The
+	 *  factor and format used to be restated here, but the top bar chip
+	 *  carries them permanently — saying it twice on the same screen made
+	 *  neither copy authoritative. */
 	_targetSummary() {
-		if (store.mode === "success" || store.mode === "error") {
-			const s = store.result?.elapsed;
-			return s === undefined ? "" : `${s < 1 ? `${(s * 1000).toFixed(0)}ms` : `${s.toFixed(2)}s`}`;
-		}
-		return `Output · ${store.formatLabel} at ${store.factorLabel}`;
+		if (store.mode !== "success" && store.mode !== "error") return "";
+		const s = store.result?.elapsed;
+		if (s === undefined) return "";
+		return s < 1 ? `${(s * 1000).toFixed(0)}ms` : `${s.toFixed(2)}s`;
 	}
 
 	_reveal(path) {

@@ -54,13 +54,16 @@ export class DgApp extends LitElement {
 			min-height: 0;
 			display: flex;
 			flex-direction: column;
-			padding: 14px;
+			/* Matches the bars' horizontal padding so the file rows line up
+			   with the wordmark above and the summary below. */
+			padding: 16px var(--dg-bar-pad);
 		}
 
 		/* ── Empty state ───────────────────────────────────────
-		   The drop target is a bounded rectangle rather than an
-		   invisible whole-window region, so there is somewhere to
-		   aim. Dropping anywhere still works. */
+		   No resting outline: the whole window is the drop target, and
+		   drawing a box around the hero only fenced it in. Drag feedback
+		   is the window-edge ring below, the same cue the file list gets,
+		   so both states answer a drag the same way. */
 		.stage {
 			flex: 1;
 			min-height: 0;
@@ -71,15 +74,11 @@ export class DgApp extends LitElement {
 			gap: 1.1rem;
 			text-align: center;
 			padding: 2rem;
-			border: 1px dashed rgba(255, 255, 255, 0.16);
 			border-radius: 10px;
-			transition:
-				border-color 0.18s ease,
-				background 0.18s ease;
+			transition: background 0.18s ease;
 		}
 
 		:host([dragging]) .stage {
-			border-color: var(--dg-accent-ring);
 			background: var(--dg-accent-wash);
 		}
 
@@ -91,8 +90,7 @@ export class DgApp extends LitElement {
 			margin-top: 0.8rem;
 		}
 
-		/* Drop feedback while the list is showing — the panel keeps its
-		   own ground, so the cue is a ring on the window instead. */
+		/* Drop feedback in every state: a ring on the window edge. */
 		.dropring {
 			position: absolute;
 			inset: 6px;
@@ -106,8 +104,8 @@ export class DgApp extends LitElement {
 		/* ── Settings popover ──────────────────────────────────── */
 		.popover {
 			position: absolute;
-			top: 52px;
-			right: 14px;
+			top: calc(var(--dg-bar-h) + 6px);
+			right: var(--dg-bar-pad);
 			z-index: 40;
 		}
 	`;
@@ -211,7 +209,7 @@ export class DgApp extends LitElement {
 				</dg-footer-bar>
 			</div>
 
-			${this.dragging && showList ? html`<div class="dropring"></div>` : nothing}
+			${this.dragging ? html`<div class="dropring"></div>` : nothing}
 
 			${store.settingsOpen
 				? html`<div class="popover" @click=${(e) => e.stopPropagation()}>
@@ -229,7 +227,7 @@ export class DgApp extends LitElement {
 				<dg-chroma-text
 					id="subtitle"
 					variant="subtitle"
-					text="RAW, JPG, PNG, TIFF or WebP — folders work too"
+					text="RAW, JPG, PNG, TIFF or WebP - folders work too"
 				></dg-chroma-text>
 				<dg-actions
 					id="actions"

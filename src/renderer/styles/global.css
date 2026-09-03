@@ -16,7 +16,10 @@
 
 :root {
 	/* — Colors — */
-	--dg-bg-page: #333333;
+	/* The page ground shows through wherever the canvas is dimmed to a
+	   backdrop, so it has to be black rather than grey: at 0.42 opacity a
+	   #333 ground turned the whole file panel mid-grey. */
+	--dg-bg-page: #08080a;
 	--dg-bg-canvas: #111111;
 
 	/* Chroma channel colors (RGB split layers) */
@@ -57,7 +60,15 @@
 	--dg-accent-wash: rgba(76, 141, 255, 0.16);
 
 	/* Semantic status, kept separate from the accent so a green row and a
-	   blue button never compete for the same meaning. */
+	   blue button never compete for the same meaning.
+	   These read as a traffic light down the left edge of the file list:
+	   grey waiting, amber working, green done, red failed. Amber rather
+	   than the accent blue for "working" keeps the accent meaning exactly
+	   one thing on screen — the primary button. */
+	--dg-pending: rgba(255, 255, 255, 0.34);
+	--dg-wait: #e0a63c;
+	--dg-wait-soft: #f0c880;
+	--dg-wait-wash: rgba(224, 166, 60, 0.13);
 	--dg-ok: #54c184;
 	--dg-bad: #ff5c52;
 	--dg-bad-soft: #ff9a93;
@@ -66,10 +77,15 @@
 	/* Chrome for the working surface: bars and the file panel sit on these
 	   rather than on the raw canvas, so filenames are read against a
 	   consistent ground instead of moving dots. */
-	--dg-chrome: rgba(12, 12, 13, 0.72);
+	--dg-chrome: rgba(6, 6, 7, 0.88);
 	--dg-chrome-border: rgba(255, 255, 255, 0.08);
-	--dg-row: rgba(255, 255, 255, 0.035);
-	--dg-row-hover: rgba(255, 255, 255, 0.07);
+	--dg-row: rgba(255, 255, 255, 0.04);
+	--dg-row-hover: rgba(255, 255, 255, 0.075);
+
+	/* Bar heights. The top bar has to clear the macOS traffic lights, which
+	   sit at y:16 with hiddenInset, so it cannot be shorter than this. */
+	--dg-bar-h: 58px;
+	--dg-bar-pad: 20px;
 
 	/* Canvas opacity once the grid is a backdrop rather than the subject */
 	--dg-canvas-dim: 0.42;

@@ -19,7 +19,8 @@ export class DgFooterBar extends LitElement {
 				align-items: center;
 				justify-content: space-between;
 				gap: 1rem;
-				padding: 10px 14px;
+				min-height: var(--dg-bar-h);
+				padding: 0 var(--dg-bar-pad);
 				border-top: 1px solid var(--dg-chrome-border);
 				background: var(--dg-chrome);
 				backdrop-filter: var(--dg-blur-glass);
@@ -101,7 +102,7 @@ export class DgFooterBar extends LitElement {
 					<span class="bar"><i style="width:${total ? (done / total) * 100 : 0}%"></i></span>
 					<span class="count">${done} / ${total}</span>
 					${store.cancelRequested
-						? html`<span>Cancelling — finishing the files already started</span>`
+						? html`<span>Cancelling - finishing the files already started</span>`
 						: nothing}
 				`;
 
@@ -109,10 +110,10 @@ export class DgFooterBar extends LitElement {
 				if (!r) return nothing;
 				if (r.successCount === 0 && r.skippedCount > 0)
 					return html`<span
-						>Nothing to do — <b>${r.skippedCount}</b> already desqueezed</span
+						>Nothing to do - <b>${r.skippedCount}</b> already desqueezed</span
 					>`;
 				if (r.successCount === 0 && r.cancelledCount > 0)
-					return html`<span>Cancelled — <b>${r.cancelledCount}</b> not processed</span>`;
+					return html`<span>Cancelled - <b>${r.cancelledCount}</b> not processed</span>`;
 				return html`<span
 					><b>${r.successCount} desqueezed</b> at ${store.factorLabel} in
 					${this._time(r.elapsed)}</span

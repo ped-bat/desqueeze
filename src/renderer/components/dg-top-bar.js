@@ -25,7 +25,8 @@ export class DgTopBar extends LitElement {
 				align-items: center;
 				justify-content: space-between;
 				gap: 1rem;
-				padding: 10px 14px;
+				min-height: var(--dg-bar-h);
+				padding: 0 var(--dg-bar-pad);
 				border-bottom: 1px solid var(--dg-chrome-border);
 				background: var(--dg-chrome);
 				backdrop-filter: var(--dg-blur-glass);
@@ -39,7 +40,7 @@ export class DgTopBar extends LitElement {
 			   at x:16 (see main/index.js), so the wordmark has to start
 			   clear of them. Other platforms keep a standard frame. */
 			:host(.mac) {
-				padding-left: 84px;
+				padding-left: 88px;
 			}
 
 			.mark {
@@ -63,7 +64,7 @@ export class DgTopBar extends LitElement {
 				background: rgba(255, 255, 255, 0.05);
 				border: 1px solid rgba(255, 255, 255, 0.16);
 				border-radius: 6px;
-				padding: 6px 10px;
+				padding: 8px 13px;
 				cursor: pointer;
 				transition:
 					background 0.16s ease,

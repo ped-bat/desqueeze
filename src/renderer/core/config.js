@@ -106,7 +106,7 @@ export const MODE_PARAMS = {
 		waveDelay: 0, // seconds after state change before wave starts
 		waveDarkColor: [80, 5, 5], // darker red to morph toward
 		waveDisplacement: 4, // px push outward from center by wave
-		maxDotRadius: 3.5, // larger dots in error state
+		maxDotRadius: 2.2, // larger than the 1.5 base, but 3.5 read as blobs
 	},
 	success: {
 		dotColor: [255, 255, 255],
@@ -115,7 +115,7 @@ export const MODE_PARAMS = {
 		waveDelay: 0,
 		waveDarkColor: [90, 90, 90],
 		waveDisplacement: 4,
-		maxDotRadius: 3.5,
+		maxDotRadius: 2.2,
 	},
 	settings: {
 		dotColor: [255, 255, 255],
