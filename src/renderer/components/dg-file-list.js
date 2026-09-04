@@ -190,14 +190,66 @@ export class DgFileList extends LitElement {
 				min-width: 7.5em;
 			}
 
-			.status.done {
+			/* ── Label crossfade ─────────────────────────────────────
+			   A status change keeps the old word on screen, fading out over
+			   the new one fading in, each in its own colour. The old word is
+			   taken out of flow and pinned to the right edge, so the two
+			   overlap on the edge they share; the cell takes the new word's
+			   width at once. */
+			.labels {
+				position: relative;
+				display: inline-flex;
+				align-items: center;
+			}
+
+			.label {
+				display: inline-flex;
+				align-items: center;
+				white-space: nowrap;
+			}
+
+			.label.leaving {
+				position: absolute;
+				top: 0;
+				right: 0;
+				pointer-events: none;
+				animation: dg-label-out 0.22s ease forwards;
+			}
+
+			.label.arriving {
+				animation: dg-label-in 0.3s ease both;
+			}
+
+			@keyframes dg-label-out {
+				to {
+					opacity: 0;
+				}
+			}
+
+			@keyframes dg-label-in {
+				from {
+					opacity: 0;
+				}
+			}
+
+			.label.done {
 				color: var(--dg-ok);
 			}
-			.status.failed {
+			.label.failed {
 				color: var(--dg-bad);
 			}
-			.status.running {
+			.label.running {
 				color: var(--dg-wait-soft);
+			}
+
+			@media (prefers-reduced-motion: reduce) {
+				.label.leaving {
+					display: none;
+				}
+				.label.arriving,
+				.reveal.arrive {
+					animation: none;
+				}
 			}
 
 			/* ── The traffic light ──────────────────────────────────
@@ -268,6 +320,34 @@ export class DgFileList extends LitElement {
 			.reveal {
 				flex: none;
 				margin-left: 12px;
+				overflow: hidden;
+			}
+
+			/* Reveal eases in the way the remove X does: it opens from nothing
+			   to its full width while fading up, so "Done" slides left with it
+			   instead of jumping the button's width. Only the button arriving
+			   on a row that just finished animates; the hidden twin does not. */
+			.reveal.arrive {
+				/* Paced to the remove X's spring: quick to start, settling over
+				   about a third of a second rather than snapping in. */
+				animation: dg-reveal-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+			}
+
+			@keyframes dg-reveal-in {
+				from {
+					max-width: 0;
+					margin-left: 0;
+					padding-left: 0;
+					padding-right: 0;
+					opacity: 0;
+					transform: translateX(6px);
+				}
+				to {
+					max-width: 8em;
+					margin-left: 12px;
+					opacity: 1;
+					transform: none;
+				}
 			}
 
 			/* Until a row has finished, a zero-width, invisible twin of the
@@ -386,6 +466,10 @@ export class DgFileList extends LitElement {
 		new StoreController(this);
 		/** path -> {value, vel}; one spring per row, kept across renders */
 		this._springs = new Map();
+		/** path -> status as of the last render, to notice a change */
+		this._lastStatus = new Map();
+		/** path -> {label, status, token}: the word a row is fading out */
+		this._leaving = new Map();
 		this._active = null; // path currently hovered or focused
 		this._raf = 0;
 		this._last = 0;
@@ -447,6 +531,26 @@ export class DgFileList extends LitElement {
 		this._raf = requestAnimationFrame(frame);
 	}
 
+	willUpdate() {
+		// Notice status changes so the outgoing word can crossfade with the
+		// incoming one. The old word stays for the length of the animations
+		// (the longest is Reveal's 0.36s); a token guards against a second
+		// change inside that window deleting the newer entry.
+		for (const f of store.files) {
+			const prev = this._lastStatus.get(f.path);
+			if (prev !== undefined && prev !== f.status) {
+				const token = Symbol("leaving");
+				this._leaving.set(f.path, { label: STATUS_LABEL[prev] || prev, status: prev, token });
+				setTimeout(() => {
+					if (this._leaving.get(f.path)?.token !== token) return;
+					this._leaving.delete(f.path);
+					this.requestUpdate();
+				}, 400);
+			}
+			this._lastStatus.set(f.path, f.status);
+		}
+	}
+
 	updated() {
 		// Drop springs for rows that no longer exist, so a long session of
 		// queue-and-clear does not accumulate them.
@@ -479,6 +583,7 @@ export class DgFileList extends LitElement {
 		// green "Done" beside it already say so, and the check was a third
 		// saying that had to animate itself away again.
 		const icon = f.status === "failed" ? CROSS : nothing;
+		const leaving = this._leaving.get(f.path);
 		// Only before the run: once a file has a result, its row is a record
 		// of what happened rather than a queue entry.
 		const removable = store.mode === "settings";
@@ -496,11 +601,18 @@ export class DgFileList extends LitElement {
 				<span class="light" aria-hidden="true"></span>
 				<span class="badge">${f.ext || "-"}</span>
 				<span class="name" title=${f.path}>${f.name}</span>
-				<span class="status ${f.status}">
-					${icon}${label}
+				<span class="status">
+					<span class="labels">
+						${leaving
+							? html`<span class="label leaving ${leaving.status}" aria-hidden="true"
+									>${leaving.status === "failed" ? CROSS : nothing}${leaving.label}</span
+								>`
+							: nothing}
+						<span class="label ${f.status} ${leaving ? "arriving" : ""}">${icon}${label}</span>
+					</span>
 					${isDone
 						? html`<button
-								class="btn btn-quiet btn-sm reveal"
+								class="btn btn-quiet btn-sm reveal ${leaving ? "arrive" : ""}"
 								title="Show ${f.name} in the file manager"
 								@click=${() => this._reveal(f.path)}
 							>
