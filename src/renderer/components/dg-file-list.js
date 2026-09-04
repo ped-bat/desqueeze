@@ -303,6 +303,20 @@ export class DgFileList extends LitElement {
 				justify-self: end;
 			}
 
+			/* Until a row has finished, an invisible twin of its Reveal button
+			   holds the button's exact box. The row is a grid whose last column
+			   sizes to its content, so a button appearing on "Done" used to
+			   widen that column by 68px — shoving the status word and the
+			   filename left — and, being taller than the text beside it, grow
+			   the row by 8px and shove every row below it down. Reserving the
+			   real thing, rather than a guessed height and width, keeps both
+			   dimensions the same in every state, and tracks any future change
+			   to the button's size for free. */
+			.reveal.ghost {
+				visibility: hidden;
+				pointer-events: none;
+			}
+
 			/* ── Remove ──────────────────────────────────────────────
 			   An X on the row's right edge, resting off-stage and sliding in
 			   under the cursor. The status word steps aside to make room
@@ -443,7 +457,7 @@ export class DgFileList extends LitElement {
 						>
 							Reveal
 						</button>`
-					: html`<span class="noact"></span>`}
+					: html`<span class="btn btn-quiet btn-sm reveal ghost" aria-hidden="true">Reveal</span>`}
 				${f.status === "failed" && f.error
 					? html`<span class="why" title=${f.error}>${f.error}</span>`
 					: nothing}
