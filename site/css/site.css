@@ -119,7 +119,10 @@
 	--site-gap-head: clamp(44px, 6vw, 64px);
 	--site-prose: 15px;
 	--site-type-title: clamp(30px, 5vw, 52px);
-	--site-type-display: clamp(2.2rem, 8.4vw, 6.25rem);
+	--site-type-display: clamp(1.9rem, 5.2vw, 3.7rem);
+	/* The canvas ground, a step darker than the app's #111111 so the grid
+	   reads as a backdrop behind a page of text */
+	--site-canvas: #0b0b0d;
 	--site-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 	--site-reveal: 600ms;
 }
@@ -136,8 +139,7 @@
 
 html {
 	scroll-behavior: smooth;
-	/* Anchor targets land below the fixed bar */
-	scroll-padding-top: calc(var(--dg-bar-h) + 16px);
+	scroll-padding-top: 24px;
 	background-color: var(--dg-bg-page);
 }
 
@@ -193,7 +195,7 @@ summary {
 	inset: 0;
 	z-index: 0;
 	display: block;
-	background: var(--dg-bg-canvas);
+	background: var(--site-canvas);
 	pointer-events: none;
 }
 
@@ -214,8 +216,7 @@ summary {
 }
 
 main,
-footer,
-.bar-top {
+footer {
 	position: relative;
 	z-index: 2;
 }
@@ -259,9 +260,18 @@ footer,
 	}
 }
 
+/* Icons: filled (brand) vs stroked (UI) */
 .icon-brand {
 	fill: currentColor;
 	stroke: none;
+}
+
+.icon-line {
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 2;
+	stroke-linecap: round;
+	stroke-linejoin: round;
 }
 
 /* ── 5. Type ────────────────────────────────────────────────── */
@@ -371,65 +381,8 @@ code {
 	border-radius: 7px;
 }
 
-/* ── 7. Bars ────────────────────────────────────────────────── */
+/* ── 7. The app's chrome (used by the rebuilt window) ────────── */
 
-.bar {
-	position: relative;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 1rem;
-	min-height: var(--dg-bar-h);
-	padding: 0 var(--dg-pad-bar);
-	background: var(--dg-chrome);
-	backdrop-filter: var(--dg-blur-chrome);
-	-webkit-backdrop-filter: var(--dg-blur-chrome);
-}
-
-/* The rule fades towards both ends: a horizon, not a box */
-.bar::after {
-	content: "";
-	position: absolute;
-	left: 0;
-	right: 0;
-	height: 1px;
-	pointer-events: none;
-	background: linear-gradient(
-		to right,
-		var(--dg-chrome-border-end) 0%,
-		var(--dg-chrome-border) 50%,
-		var(--dg-chrome-border-end) 100%
-	);
-}
-
-.bar-top {
-	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
-	z-index: 30;
-	transition:
-		background 0.3s ease,
-		backdrop-filter 0.3s ease;
-}
-
-.bar-top::after {
-	bottom: 0;
-}
-
-/* In the app the bar only ever sits over the grid. Here the page scrolls
-   under it, so once it is over prose it takes a firmer ground. */
-.bar-top.stuck {
-	background: rgba(8, 8, 10, 0.74);
-	backdrop-filter: var(--dg-blur-glass);
-	-webkit-backdrop-filter: var(--dg-blur-glass);
-}
-
-.bar-foot::after {
-	top: 0;
-}
-
-.mark,
 .app-mark {
 	font-family: var(--dg-font);
 	font-size: var(--dg-ui-lg);
@@ -440,25 +393,7 @@ code {
 	white-space: nowrap;
 }
 
-.bar-nav {
-	display: flex;
-	align-items: center;
-	gap: clamp(14px, 2.2vw, 24px);
-}
-
-.bar-nav a {
-	font-size: var(--dg-ui-sm);
-	color: var(--dg-fg-faint);
-	padding: 6px 0;
-	transition: color 0.16s ease;
-}
-
-.bar-nav a:hover {
-	color: var(--dg-fg-strong);
-}
-
 /* The top bar's chip */
-.chip,
 .app-chip {
 	display: inline-flex;
 	align-items: center;
@@ -474,22 +409,6 @@ code {
 	transition:
 		background 0.16s ease,
 		border-color 0.16s ease;
-}
-
-.bar-nav a.chip {
-	color: var(--dg-fg-strong);
-	padding: 8px 13px;
-}
-
-.bar-nav a.chip:hover {
-	background: rgba(255, 255, 255, 0.1);
-	border-color: rgba(255, 255, 255, 0.3);
-}
-
-@media (max-width: 720px) {
-	.bar-nav a:not(.chip) {
-		display: none;
-	}
 }
 
 /* ── 8. Section scaffolding ─────────────────────────────────── */
@@ -570,7 +489,7 @@ section > * {
 
 .hero {
 	text-align: center;
-	padding-block: calc(var(--dg-bar-h) + clamp(56px, 10vh, 104px)) var(--site-pad-section);
+	padding-block: clamp(80px, 14vh, 140px) var(--site-pad-section);
 }
 
 .hero > * {
@@ -578,26 +497,22 @@ section > * {
 	z-index: 1;
 }
 
-.hero-logo {
-	width: clamp(46px, 6vw, 62px);
-	margin: 0 auto 14px;
-	color: var(--dg-fg-soft);
-	filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.85));
-	transform-origin: center;
-}
-
-/* The app's display line: three stacked layers, screen-blended */
+/* The app's display treatment: three stacked layers, screen-blended.
+   Used for the hero wordmark and for the rebuilt window's own title. */
 .chroma {
 	position: relative;
 	isolation: isolate;
-	font-size: var(--site-type-display);
 	font-variation-settings: var(--dg-var-display);
 	text-transform: uppercase;
 	letter-spacing: 0.045em;
 	line-height: 1;
-	margin-bottom: clamp(18px, 3vh, 28px);
 	/* the trailing tracking would otherwise pull the line off centre */
 	padding-left: 0.045em;
+}
+
+.hero-title {
+	font-size: var(--site-type-display);
+	margin-bottom: clamp(16px, 2.6vh, 24px);
 }
 
 .chroma .layer {
@@ -704,12 +619,17 @@ section > * {
 	width: 100%;
 	max-width: 900px;
 	margin: clamp(44px, 7vh, 68px) auto 0;
+	/* The window's display type scales with the window, not the viewport,
+	   the way the app's fluid type scales with its own window */
+	container-type: inline-size;
 }
 
 /* ── 10. The app, rebuilt ───────────────────────────────────── */
 
 .app {
 	position: relative;
+	display: flex;
+	flex-direction: column;
 	text-align: left;
 	border: 1px solid var(--dg-chrome-border);
 	border-radius: 10px;
@@ -784,15 +704,93 @@ section > * {
 		visibility 0s linear 0.26s;
 }
 
+/* The app's design window is 1120x720. Held where it fits; on a phone the
+   window grows with its list instead of shrinking the list into it. */
+@media (min-width: 720px) {
+	.app {
+		aspect-ratio: 1120 / 720;
+	}
+}
+
 .app-body {
+	flex: 1;
+	min-height: 0;
+	display: flex;
+	flex-direction: column;
 	padding: 16px var(--dg-pad-bar);
-	background: var(--dg-body-scrim);
+	background-color: transparent;
+	transition: background-color 0.35s ease;
+}
+
+/* The grid is knocked back behind filenames, and only there */
+.app.on-list .app-body {
+	background-color: var(--dg-body-scrim);
+}
+
+/* The empty state */
+.app-stage {
+	flex: 1;
+	min-height: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 1.1rem;
+	text-align: center;
+	padding: 2rem 1rem;
+}
+
+.app.on-list .app-stage {
+	display: none;
+}
+
+/* The app's title and subtitle, at the app's fluid sizes relative to its
+   window (3.42vw and 1.78vw of a 1120px window) */
+.app-title {
+	font-size: clamp(1.1rem, 3.42cqw, 2.88rem);
+	letter-spacing: 0.043em;
+	padding-left: 0.043em;
+}
+
+.app-sub {
+	font-size: clamp(0.78rem, 1.78cqw, 1.5rem);
+	font-variation-settings: "wght" 400, "wdth" 96;
+	color: rgba(255, 255, 255, 0.55);
+	text-shadow: var(--dg-glow-white);
+	text-wrap: balance;
+	max-width: 32ch;
+	margin-top: 0.2rem;
+}
+
+.app-stage .btn {
+	margin-top: 0.8rem;
 }
 
 .app-list {
-	display: flex;
+	display: none;
 	flex-direction: column;
 	gap: 3px;
+}
+
+.app.on-list .app-list {
+	display: flex;
+}
+
+/* Drop feedback in every state: a ring on the window edge */
+.dropring {
+	position: absolute;
+	inset: 6px;
+	z-index: 20;
+	border: 2px solid var(--dg-accent-ring);
+	border-radius: 12px;
+	background: var(--dg-accent-wash);
+	pointer-events: none;
+	opacity: 0;
+	transition: opacity 0.18s ease;
+}
+
+.dropring.on {
+	opacity: 1;
 }
 
 /* One screen fades out and the next fades in. The list rides one opacity
@@ -1046,6 +1044,170 @@ section > * {
 	}
 }
 
+/* ── 10b. Before and after ──────────────────────────────────── */
+
+/* Registered so the split can ease back to centre when the pointer leaves */
+@property --split {
+	syntax: "<percentage>";
+	inherits: true;
+	initial-value: 50%;
+}
+
+.compare {
+	--split: 50%;
+	position: relative;
+	max-width: 1000px;
+	margin-inline: auto;
+	aspect-ratio: 1796 / 900;
+	border-radius: 10px;
+	overflow: hidden;
+	border: 1px solid var(--dg-chrome-border);
+	background: #050506;
+	box-shadow: 0 30px 70px -30px rgba(0, 0, 0, 0.9);
+	cursor: col-resize;
+	touch-action: none;
+	user-select: none;
+	-webkit-user-select: none;
+	transition: --split 0.6s var(--site-ease-out);
+}
+
+/* Following the pointer directly: no easing in the way */
+.compare.live {
+	transition: none;
+}
+
+.compare:focus-visible {
+	outline: 2px solid var(--dg-accent-ring);
+	outline-offset: 3px;
+}
+
+.compare img {
+	display: block;
+}
+
+.compare-after {
+	position: absolute;
+	inset: 0;
+}
+
+.compare-after img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+/* The squeezed frame is narrower: same height, centred, dark either side,
+   and cut off at the split */
+.compare-before {
+	position: absolute;
+	inset: 0;
+	background: #050506;
+	clip-path: inset(0 calc(100% - var(--split)) 0 0);
+}
+
+.compare-before img {
+	position: absolute;
+	top: 0;
+	left: 50%;
+	height: 100%;
+	width: auto;
+	transform: translateX(-50%);
+}
+
+.compare-line {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: var(--split);
+	width: 1px;
+	margin-left: -0.5px;
+	background: rgba(255, 255, 255, 0.7);
+	box-shadow: 0 0 8px rgba(255, 255, 255, 0.35);
+	pointer-events: none;
+}
+
+.compare-handle {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 24px;
+	height: 24px;
+	transform: translate(-50%, -50%);
+	border-radius: 50%;
+	background: rgba(6, 6, 7, 0.6);
+	border: 1px solid rgba(255, 255, 255, 0.45);
+	backdrop-filter: var(--dg-blur-glass);
+	-webkit-backdrop-filter: var(--dg-blur-glass);
+}
+
+/* Two small chevrons, drawn rather than typed */
+.compare-handle::before,
+.compare-handle::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	width: 5px;
+	height: 5px;
+	border-top: 1.5px solid rgba(255, 255, 255, 0.85);
+	border-left: 1.5px solid rgba(255, 255, 255, 0.85);
+}
+
+.compare-handle::before {
+	left: 6px;
+	transform: translateY(-50%) rotate(-45deg);
+}
+
+.compare-handle::after {
+	right: 6px;
+	transform: translateY(-50%) rotate(135deg);
+}
+
+.compare-tag {
+	position: absolute;
+	top: 12px;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 10px;
+	border-radius: 6px;
+	background: rgba(6, 6, 7, 0.55);
+	border: 1px solid var(--dg-chrome-border);
+	backdrop-filter: blur(4px);
+	-webkit-backdrop-filter: blur(4px);
+	font-size: var(--dg-ui-sm);
+	color: var(--dg-fg-strong);
+	pointer-events: none;
+}
+
+.compare-tag.left {
+	left: 12px;
+}
+
+.compare-tag.right {
+	right: 12px;
+}
+
+.compare-tag .badge {
+	padding: 2px 6px;
+}
+
+@media (max-width: 600px) {
+	.compare-tag {
+		top: 8px;
+		padding: 4px 7px;
+		gap: 6px;
+		font-size: var(--dg-ui-xs);
+	}
+
+	.compare-tag.left {
+		left: 8px;
+	}
+
+	.compare-tag.right {
+		right: 8px;
+	}
+}
+
 /* ── 11. Features ───────────────────────────────────────────── */
 
 .grid {
@@ -1071,6 +1233,23 @@ section > * {
 	padding: clamp(22px, 3.5vw, 30px) clamp(20px, 3vw, 28px);
 }
 
+.grid-features .panel {
+	text-align: center;
+	padding: clamp(26px, 4vw, 36px) clamp(20px, 3vw, 28px);
+}
+
+.icon-feature {
+	width: 28px;
+	height: 28px;
+	margin: 0 auto 18px;
+	color: var(--dg-fg-soft);
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 2;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
 .panel h3,
 .step h3 {
 	font-size: var(--dg-ui-lg);
@@ -1079,11 +1258,20 @@ section > * {
 	margin-bottom: 8px;
 }
 
+.grid-features .panel h3 {
+	font-size: 18px;
+}
+
 .panel p,
 .step p {
 	font-size: var(--site-prose);
 	line-height: 1.62;
 	max-width: 52ch;
+}
+
+.grid-features .panel p {
+	max-width: 36ch;
+	margin-inline: auto;
 }
 
 /* ── 12. How it works ───────────────────────────────────────── */
@@ -1341,24 +1529,6 @@ section > * {
 		visibility 0s;
 }
 
-.download-all {
-	margin-top: 56px;
-	text-align: center;
-	font-size: var(--dg-ui-sm);
-	color: var(--dg-fg-faint);
-}
-
-.download-all a {
-	color: var(--dg-fg-soft);
-	text-decoration: underline;
-	text-decoration-color: rgba(255, 255, 255, 0.3);
-	text-underline-offset: 3px;
-}
-
-.download-all a:hover {
-	color: var(--dg-fg-strong);
-}
-
 /* ── 15. Support strip ──────────────────────────────────────── */
 
 .strip-section {
@@ -1430,25 +1600,48 @@ section > * {
 
 /* ── 16. Footer ─────────────────────────────────────────────── */
 
-.bar-foot {
-	flex-wrap: wrap;
-	row-gap: 4px;
-	padding-block: 16px;
+/* The rule runs the full width; the content keeps to the page's measure */
+.site-footer {
+	position: relative;
+	padding: 40px var(--site-pad-x) 56px;
 	font-size: var(--dg-ui-sm);
+	color: var(--dg-fg-ghost);
 }
 
-.bar-foot .summary {
-	flex: 1 1 auto;
-	color: var(--dg-fg-soft);
+.site-footer::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 1px;
+	background: linear-gradient(
+		to right,
+		var(--dg-chrome-border-end) 0%,
+		var(--dg-chrome-border) 50%,
+		var(--dg-chrome-border-end) 100%
+	);
+}
+
+.footer-inner {
+	max-width: var(--site-max);
+	margin-inline: auto;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	align-items: center;
+	text-align: center;
 }
 
 .footer-links {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 4px 20px;
+	justify-content: center;
+	gap: 6px 20px;
 }
 
 .footer-links a {
+	/* 24px tall: the WCAG 2.5.8 minimum target */
 	padding: 6px 0;
 	color: var(--dg-fg-faint);
 	transition: color 0.16s ease;
@@ -1459,15 +1652,14 @@ section > * {
 }
 
 .colophon {
-	flex-basis: 100%;
 	color: var(--dg-fg-ghost);
 }
 
-@media (max-width: 720px) {
-	.bar-foot {
-		flex-direction: column;
-		align-items: flex-start;
-		row-gap: 8px;
+@media (min-width: 768px) {
+	.footer-inner {
+		flex-direction: row;
+		justify-content: space-between;
+		text-align: left;
 	}
 }
 
@@ -1496,11 +1688,13 @@ section > * {
 		stroke-dashoffset: 0;
 	}
 
-	.bar-top,
 	.faq details::details-content,
 	.faq details[open]::details-content,
 	.download-note,
 	.app-list,
+	.app-body,
+	.dropring,
+	.compare,
 	.app-foot .summary,
 	.app-foot .actions {
 		transition: none !important;

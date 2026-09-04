@@ -2,8 +2,9 @@
  * Desqueeze landing page - page wiring.
  *
  * Owns: the background dot grid, the hero's desqueeze intro, scroll
- * reveals, the platform-aware download button, the live version badge and
- * the batch that runs inside the rebuilt app window.
+ * reveals, the platform-aware download button, the live version badge,
+ * the batch that runs inside the rebuilt app window, and the before/after
+ * photo.
  */
 
 import { DotGrid } from "./dot-grid.js";
@@ -39,7 +40,18 @@ function initGrid(onFrame) {
 	const canvas = document.getElementById("grid-canvas");
 	if (!canvas || !canvas.getContext) return null;
 
-	const grid = new DotGrid(canvas, { onFrame });
+	// Knocked back from the app's tuning: behind a page of prose the grid
+	// is a backdrop, not the subject, so it never reaches full white.
+	const grid = new DotGrid(canvas, {
+		onFrame,
+		config: {
+			baseOpacity: 0.16,
+			maxOpacity: 0.5,
+			glowOpacity: 0.025,
+			chromaOpacity: 0.45,
+			grain: { intensity: 0.04 },
+		},
+	});
 	const fit = () => grid.resize(window.innerWidth, window.innerHeight);
 	fit();
 
@@ -94,11 +106,10 @@ function initGrid(onFrame) {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Hero: the display line arrives squeezed and desqueezes into its
-   resting axes on the app's own text spring, with the RGB split riding
-   the spring's velocity. Everything marked .reveal-load fades in on the
-   same beat, once the variable font is in so nothing draws in a
-   fallback face.
+   Hero: the wordmark arrives squeezed and desqueezes into its resting
+   axes on the app's own text spring, with the RGB split riding the
+   spring's velocity. Everything marked .reveal-load fades in on the same
+   beat, once the variable font is in so nothing draws in a fallback face.
    ───────────────────────────────────────────────────────────── */
 
 const TEXT_SPRING = { stiffness: 125, damping: 15 }; // config.js textSpring
@@ -107,7 +118,6 @@ const SQUEEZED = { wght: 380, wdth: 58, track: -0.012 };
 
 function initHero(grid) {
 	const title = document.getElementById("hero-heading");
-	const logo = document.querySelector(".hero-logo");
 	const layerR = title?.querySelector(".layer-r");
 	const layerB = title?.querySelector(".layer-b");
 	const state = { introDone: reduceMotion };
@@ -147,7 +157,6 @@ function initHero(grid) {
 		const settle = () => {
 			title.style.fontVariationSettings = "";
 			title.style.letterSpacing = "";
-			if (logo) logo.style.transform = "";
 			applyChroma(0);
 			state.introDone = true;
 		};
@@ -160,9 +169,8 @@ function initHero(grid) {
 
 			title.style.fontVariationSettings = `"wght" ${lerp(SQUEEZED.wght, REST.wght, v).toFixed(1)}, "wdth" ${lerp(SQUEEZED.wdth, REST.wdth, v).toFixed(1)}`;
 			title.style.letterSpacing = `${lerp(SQUEEZED.track, REST.track, v).toFixed(4)}em`;
-			if (logo) logo.style.transform = `scaleX(${lerp(0.55, 1, v).toFixed(4)})`;
 			// The split is strongest while the line is moving fastest
-			applyChroma(Math.min(1, Math.abs(spring.vel) * 0.45) * 6);
+			applyChroma(Math.min(1, Math.abs(spring.vel) * 0.45) * 4);
 
 			if (!settled && now - start < 3000) requestAnimationFrame(frame);
 			else settle();
@@ -178,18 +186,6 @@ function initHero(grid) {
 	}
 
 	return { state, applyChroma };
-}
-
-/* ─────────────────────────────────────────────────────────────
-   Top bar: a firmer ground once prose scrolls under it
-   ───────────────────────────────────────────────────────────── */
-
-function initBar() {
-	const bar = document.querySelector(".bar-top");
-	if (!bar) return;
-	const onScroll = () => bar.classList.toggle("stuck", window.scrollY > 40);
-	onScroll();
-	window.addEventListener("scroll", onScroll, { passive: true });
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -302,9 +298,10 @@ async function initVersion() {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   The app, running a batch. Follows dg-app's modes: settings (files
-   queued) → processing (three at a time, the chip stowed) → success
-   (the summary and actions swap) → back to settings and round again.
+   The app, running a batch. Follows dg-app's modes from the top:
+   ready (the empty window) → a drop → settings (files queued) →
+   processing (three at a time, the chip stowed) → success (the summary
+   and actions swap) → "Desqueeze more" clears the list → ready again.
    ───────────────────────────────────────────────────────────── */
 
 const STATUS_LABEL = { queued: "Queued", running: "Converting", done: "Done" };
@@ -313,6 +310,7 @@ const CHECK =
 const PARALLEL = 3;
 const FACTOR = "1.33x";
 const FORMAT = "DNG";
+const RESTING = "Images processed on this machine, nothing is uploaded.";
 
 function initDemo() {
 	const app = document.getElementById("app-demo");
@@ -321,6 +319,7 @@ function initDemo() {
 	const chip = document.getElementById("demo-chip");
 	const summary = document.getElementById("demo-summary");
 	const actions = document.getElementById("demo-actions");
+	const ring = document.getElementById("demo-ring");
 	if (!rows.length || !chip || !summary || !actions) return;
 	const total = rows.length;
 
@@ -345,10 +344,18 @@ function initDemo() {
 	};
 	const btn = (label, role) => `<span class="btn btn-${role}">${label}</span>`;
 	const time = (s) => (s < 1 ? `${(s * 1000).toFixed(0)}ms` : `${s.toFixed(2)}s`);
+	const showList = (on) => app.classList.toggle("on-list", on);
 
 	const screens = {
+		ready() {
+			chip.classList.remove("stowed");
+			showList(false);
+			summary.innerHTML = `<span>${RESTING}</span>`;
+			actions.innerHTML = "";
+		},
 		settings() {
 			chip.classList.remove("stowed");
+			showList(true);
 			rows.forEach((r) => setRow(r, "queued"));
 			summary.innerHTML = `<span><b>${total} files</b> · ${FACTOR} · ${FORMAT}</span>`;
 			actions.innerHTML = btn("Clear", "quiet") + btn("Desqueeze images", "primary");
@@ -367,17 +374,43 @@ function initDemo() {
 	if (reduceMotion) {
 		// A finished batch, held still
 		chip.classList.add("stowed");
+		showList(true);
 		rows.forEach((r) => setRow(r, "done"));
 		screens.success(4.21);
 		return;
 	}
 
-	// The footer's contents crossfade between modes; the bar itself does not
+	const fadeContent = (to) => app.style.setProperty("--app-content", to);
+	const fadeFoot = (to) => app.style.setProperty("--app-foot", to);
+
+	// One screen fades out and the next fades in; the bars stay put
+	const swapScreen = (fn, then) => {
+		fadeContent("0");
+		fadeFoot("0");
+		after(320, () => {
+			fn();
+			fadeContent("1");
+			fadeFoot("1");
+			if (then) then();
+		});
+	};
+
+	// Only the footer's contents change between two list modes
 	const swapFoot = (fn) => {
-		app.style.setProperty("--app-foot", "0");
+		fadeFoot("0");
 		after(300, () => {
 			fn();
-			app.style.setProperty("--app-foot", "1");
+			fadeFoot("1");
+		});
+	};
+
+	// The window-edge ring the app shows while files are dragged over it,
+	// then the list takes the stage's place
+	const drop = () => {
+		ring?.classList.add("on");
+		after(650, () => {
+			ring?.classList.remove("on");
+			swapScreen(screens.settings, () => after(1800, runBatch));
 		});
 	};
 
@@ -409,30 +442,22 @@ function initDemo() {
 
 	const finish = (elapsed) => {
 		swapFoot(() => screens.success(elapsed));
-		after(4600, () => {
-			// The whole screen swaps: list and footer fade together
-			app.style.setProperty("--app-content", "0");
-			app.style.setProperty("--app-foot", "0");
-			after(320, () => {
-				screens.settings();
-				app.style.setProperty("--app-content", "1");
-				app.style.setProperty("--app-foot", "1");
-				after(1800, runBatch);
-			});
-		});
+		// "Desqueeze more" clears the batch and hands the window back
+		after(4600, () => swapScreen(screens.ready, () => after(2600, drop)));
 	};
 
 	let running = false;
 	const begin = () => {
 		running = true;
-		screens.settings();
-		app.style.setProperty("--app-content", "1");
-		app.style.setProperty("--app-foot", "1");
-		after(1800, runBatch);
+		screens.ready();
+		fadeContent("1");
+		fadeFoot("1");
+		after(2200, drop);
 	};
 	const halt = () => {
 		running = false;
 		clearAll();
+		ring?.classList.remove("on");
 	};
 
 	// Only run while on screen, and start from the top each time it returns
@@ -458,6 +483,52 @@ function initDemo() {
 	});
 }
 
+/* ─────────────────────────────────────────────────────────────
+   Before and after: the split follows the pointer across the photo and
+   eases back to the middle when it leaves. Touch drags it and leaves it
+   where it was let go; the arrow keys move it for keyboard users.
+   ───────────────────────────────────────────────────────────── */
+
+function initCompare() {
+	const el = document.getElementById("compare-view");
+	if (!el) return;
+
+	const set = (pct) => el.style.setProperty("--split", `${Math.max(0, Math.min(100, pct)).toFixed(2)}%`);
+	const fromEvent = (e) => {
+		const r = el.getBoundingClientRect();
+		if (r.width > 0) set(((e.clientX - r.left) / r.width) * 100);
+	};
+	const current = () => parseFloat(getComputedStyle(el).getPropertyValue("--split")) || 50;
+
+	let liveTimer;
+	el.addEventListener("pointerenter", (e) => {
+		if (e.pointerType === "touch") return;
+		// Ease to the pointer first, then track it directly
+		fromEvent(e);
+		clearTimeout(liveTimer);
+		liveTimer = setTimeout(() => el.classList.add("live"), 200);
+	});
+	el.addEventListener("pointermove", (e) => {
+		if (e.pointerType === "touch" && e.buttons === 0) return;
+		fromEvent(e);
+	});
+	el.addEventListener("pointerdown", (e) => {
+		el.classList.add("live");
+		fromEvent(e);
+	});
+	el.addEventListener("pointerleave", (e) => {
+		clearTimeout(liveTimer);
+		el.classList.remove("live");
+		if (e.pointerType !== "touch") set(50);
+	});
+	el.addEventListener("keydown", (e) => {
+		if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+		e.preventDefault();
+		el.classList.remove("live");
+		set(current() + (e.key === "ArrowLeft" ? -5 : 5));
+	});
+}
+
 /* ───────────────────────────────────────────────────────────── */
 
 const hero = { state: { introDone: reduceMotion }, applyChroma: () => {} };
@@ -465,14 +536,14 @@ const grid = initGrid((f) => {
 	// The title's RGB split rides the grid's stretch spring, exactly as
 	// dg-app bridges onFrame into <dg-chroma-text>. The intro owns the
 	// layers until it has settled.
-	if (hero.state.introDone) hero.applyChroma(f.chromaOffset * 3);
+	if (hero.state.introDone) hero.applyChroma(f.chromaOffset * 2);
 });
 Object.assign(hero, initHero(grid));
-initBar();
 initReveals(grid);
 initDownloads();
 initVersion();
 initDemo();
+initCompare();
 
 const year = document.getElementById("year");
 if (year) year.textContent = String(new Date().getFullYear());

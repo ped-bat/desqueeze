@@ -46,22 +46,31 @@ borrows from the renderer rather than approximating it:
   chrome, blur and radii. The only hues on the page belong to status
   (amber working, green done) and to the hero title's RGB split, exactly as
   in the app; the primary action is near-white on near-black.
-- **The bars** top and bottom are `dg-top-bar` / `dg-footer-bar`: 66px of
-  chrome with a 2px blur and a rule that fades towards both ends. The
-  footer carries the app's resting summary line.
+- **The footer bar** is `dg-footer-bar`: 66px of chrome with a 2px blur and
+  a rule that fades towards both ends, carrying the app's resting summary
+  line. There is no top bar; the hero title is the wordmark.
 - **The dot grid** (`js/dot-grid.js`) is a real port of the app's engine,
   with film grain and dot glow baked into tiles because per-frame
-  generation is far too expensive across a full viewport.
-- **The hero window** is the app rebuilt in HTML (`.app` in the CSS): the
-  bars, the file list with its traffic lights and mono badges, the footer
-  progress and actions. `js/site.js` runs a batch through it, following
-  `dg-app`'s modes: settings → processing (three files at a time, the chip
-  stowed) → success → round again. It only runs while on screen.
+  generation is far too expensive across a full viewport. On the site it
+  is knocked back (`config` in `js/site.js`: lower base and ceiling
+  opacity, softer glow, a darker canvas ground) so it stays a backdrop
+  behind a page of text.
+- **The hero window** is the app rebuilt in HTML (`.app` in the CSS) at the
+  app's 1120x720 proportions: the bars, the empty stage with its display
+  line, the file list with its traffic lights and mono badges, the footer
+  progress and actions. `js/site.js` runs the whole flow through it,
+  following `dg-app`'s modes: ready → a drop (the window-edge ring) →
+  settings → processing (three files at a time, the chip stowed) → success
+  → "Desqueeze more" hands the window back. It only runs while on screen.
+- **Before and after** (`.compare`) is one photo rendered twice from the
+  same ARW decode, as shot and stretched 1.33x (`assets/photo/`), with the
+  split following the pointer. The squeezed frame is narrower, so it sits
+  centred with dark bands either side rather than being stretched to fit.
 - **Type** is Science Gothic throughout. Uppercase is reserved for the
   wordmark and the hero title, as in the app; everything else is sentence
-  case at the app's UI axes (`wght 450, wdth 92`). The hero title rests at
-  the app's display axes (`wght 520, wdth 125`) and desqueezes into them on
-  load, on the app's text spring.
+  case at the app's UI axes (`wght 450, wdth 92`). The hero title,
+  "Desqueeze.io", rests at the app's display axes (`wght 520, wdth 125`)
+  and desqueezes into them on load, on the app's text spring.
 - **Motion** is one orchestrated moment on load plus crossfades; nothing
   slides. `prefers-reduced-motion` holds the grid still, skips the intro
   and shows the demo as a finished batch.

@@ -64,6 +64,9 @@ export const CONFIG = {
 	maxDotRadius: 1.5,
 	minDotRadius: 0,
 	baseOpacity: 0.5,
+	// Ceiling for a dot inside the spotlight. The app runs to fully opaque;
+	// the site caps it so the grid stays a backdrop behind a page of text.
+	maxOpacity: 1,
 	glowRadiusMult: 6,
 	glowAspect: 1.5,
 	glowOpacity: 0.05,
@@ -428,7 +431,7 @@ export class DotGrid {
 			if (vis <= 0.01) continue;
 
 			const dotRadius = lerp(C.minDotRadius, C.maxDotRadius, vis);
-			const dotOpacity = lerp(C.baseOpacity, 1, vis);
+			const dotOpacity = lerp(C.baseOpacity, C.maxOpacity, vis);
 
 			// Chromatic aberration vector: repulsion direction blended with
 			// the radial stretch direction
