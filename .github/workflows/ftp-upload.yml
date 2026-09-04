@@ -14,7 +14,7 @@ jobs:
                   server: ${{ vars.FTP_SERVER }}
                   username: ${{ vars.FTP_USERNAME }}
                   password: ${{ secrets.FTP_PASSWORD }}
-                  port: ${{ vars.PORT }}
+                  port: ${{ vars.FTP_PORT }}
                   protocol: ftps
                   local-dir: ${{ vars.GIT_PRODUCTION_DIR }}
                   server-dir: ${{ vars.WEBSITE_URL }}${{ vars.FTP_REMOTE_DIR }}
