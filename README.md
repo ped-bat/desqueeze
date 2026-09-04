@@ -75,8 +75,12 @@ Open the DMG and drag Desqueeze to Applications (macOS), run the installer
 3. **Output** — Desqueezed files are saved in a `desqueezed/` subfolder next to the originals
 
 DNG output is lossless: the desqueeze is written as `DefaultScale` metadata
-and applied by DNG-aware software (Lightroom, Camera Raw, etc.). Other
-formats bake the stretch into the pixels.
+and applied by raw editors (Lightroom, Camera Raw, etc.). The DNG's embedded
+preview is re-rendered with the stretch applied, so Finder, Explorer and
+culling tools show the right shape too. Viewers that decode the raw data
+themselves but ignore `DefaultScale` (Apple's Preview and Photos, for
+instance) still show the squeezed pixels; export a JPEG or TIFF for those.
+Other formats bake the stretch into the pixels.
 
 ---
 
@@ -182,9 +186,9 @@ src/main/
 
 ### Processing Pipelines
 
-**RAW → DNG:** `RAW → DNGLab convert → Write DefaultScale tag → Done`
+**RAW → DNG:** `RAW → DNGLab convert → Desqueezed preview (Sharp) → DefaultScale + preview swap (ExifTool) → Done`
 
-**Bitmap → DNG:** `Bitmap → Analyze color profile → Flatten alpha → DNGLab makedng → Metadata + DefaultScale → Done`
+**Bitmap → DNG:** `Bitmap → Analyze color profile → Flatten alpha → Desqueezed preview (Sharp) → DNGLab makedng → Metadata + DefaultScale → Done`
 
 **Exports (JPEG/PNG/TIFF/WebP):** `RAW → dcraw_emu → TIFF` (bitmaps skip this) `→ Sharp pixel-stretch + encode → EXIF copy`
 

@@ -176,7 +176,10 @@ export class DgFooterBar extends LitElement {
 			}
 
 			default:
-				return html`<span>Images processed on this machine, nothing is uploaded.</span>`;
+				return html`<span
+					>Images processed locally, nothing is uploaded. Resulting DNG files only render desqueezed in
+					raw editors (ex: Lightroom)</span
+				>`;
 		}
 	}
 
