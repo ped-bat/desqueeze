@@ -280,7 +280,7 @@ export class DgApp extends LitElement {
 			<dg-canvas
 				.mode=${store.mode}
 				.onFrame=${(f) => this._applyFrame(f)}
-				.onSwap=${(m) => (this.displayMode = m)}
+				.onSwap=${(m) => this._swap(m)}
 			></dg-canvas>
 
 			<div class="scanlines"></div>
@@ -358,6 +358,23 @@ export class DgApp extends LitElement {
 
 	// ── Engine frame bridge ──
 
+	/** displayMode flips at the transition midpoint; remember where it came from. */
+	_swap(mode) {
+		this._lastMode = this.displayMode;
+		this.displayMode = mode;
+	}
+
+	/**
+	 * Is the running transition one that mounts or unmounts the list — i.e.
+	 * does it start or end on the empty stage? Before the midpoint the origin
+	 * is still displayMode; after it, the mode we just left.
+	 */
+	_listSwapping() {
+		const to = store.mode;
+		const from = this.displayMode === to ? this._lastMode : this.displayMode;
+		return to === "ready" || from === "ready";
+	}
+
 	/**
 	 * Only the display text takes per-frame typography from the engine.
 	 * The chrome does not: the engine emits stretch values for weight,
@@ -378,8 +395,14 @@ export class DgApp extends LitElement {
 		const actions = $("actions");
 		if (actions) actions.style.opacity = o;
 
+		// The list rides the envelope only when it is the thing being
+		// swapped — arriving from the empty stage or leaving for it. Between
+		// its own states (queued, converting, done) it persists, and fading it
+		// out and back in on every mode change read as the whole screen
+		// blinking. The rows hold still; the footer's summary and buttons are
+		// what changes, and they crossfade.
 		const list = $("filelist");
-		if (list) list.style.opacity = o;
+		if (list && this._listSwapping()) list.style.opacity = o;
 
 		$("footer")?.style.setProperty("--dg-content-opacity", o);
 
