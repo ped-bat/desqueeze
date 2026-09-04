@@ -24,11 +24,6 @@ const STATUS_LABEL = {
 
 /** Drawn rather than typed: Science Gothic has no check or cross glyph, so
  *  a text ✓ would silently fall back to another family mid-row. */
-const CHECK = html`<svg class="ico ico-check" viewBox="0 0 16 16" aria-hidden="true">
-	<path d="M3.2 8.6l3.1 3.1 6.5-7" fill="none" stroke="currentColor" stroke-width="2.1"
-		stroke-linecap="round" stroke-linejoin="round" />
-</svg>`;
-
 const CROSS = html`<svg class="ico" viewBox="0 0 16 16" aria-hidden="true">
 	<path d="M4.2 4.2l7.6 7.6M11.8 4.2l-7.6 7.6" fill="none" stroke="currentColor" stroke-width="2.1"
 		stroke-linecap="round" />
@@ -257,54 +252,15 @@ export class DgFileList extends LitElement {
 				}
 			}
 
-			/* The check is the confirming half of "Done".
-			   Spacing is the icon's own margin rather than the row's gap, so
-			   the check can collapse the space it occupies as it leaves and
-			   "Done" settles without a jump. */
+			/* The cross beside "Failed". Its spacing is the icon's own margin
+			   rather than the row's gap, so a status without an icon sits
+			   exactly where one with an icon does. */
 			.ico {
 				width: 13px;
 				height: 13px;
 				flex: none;
 				display: block;
 				margin-right: 0.4em;
-			}
-
-			/* The check draws itself on, holds, then retires: the light on the
-			   left is the lasting record of a finished row, so a permanent
-			   check beside it was saying the same thing twice. The cross does
-			   not retire — a failure has to stay stated. */
-			.ico-check path {
-				stroke-dasharray: 15;
-				stroke-dashoffset: 15;
-				animation: dg-draw 0.4s cubic-bezier(0.65, 0, 0.35, 1) forwards;
-			}
-
-			.ico-check {
-				animation: dg-check-retire 0.3s ease 2s forwards;
-			}
-
-			@keyframes dg-draw {
-				to {
-					stroke-dashoffset: 0;
-				}
-			}
-
-			@keyframes dg-check-retire {
-				to {
-					opacity: 0;
-					width: 0;
-					margin-right: 0;
-				}
-			}
-
-			@media (prefers-reduced-motion: reduce) {
-				.ico-check path {
-					animation: none;
-					stroke-dashoffset: 0;
-				}
-				.ico-check {
-					animation: none;
-				}
 			}
 
 			.reveal {
@@ -362,6 +318,20 @@ export class DgFileList extends LitElement {
 				width: 11px;
 				height: 11px;
 				display: block;
+			}
+
+			/* The tap target is far bigger than the 22px box that draws: it
+			   spans the row's full height and the whole slot the X sits in
+			   (the space held for Reveal), so the empty run to the right of
+			   the status word is all button. Only the box and its hover wash
+			   stay 22px. */
+			.rm::before {
+				content: "";
+				position: absolute;
+				top: -12px;
+				bottom: -12px;
+				left: -34px;
+				right: -12px;
 			}
 
 			.rm:hover {
@@ -497,7 +467,10 @@ export class DgFileList extends LitElement {
 	_row(f) {
 		const label = STATUS_LABEL[f.status] || f.status;
 		const isDone = f.status === "done" && f.outputFile;
-		const icon = f.status === "done" ? CHECK : f.status === "failed" ? CROSS : nothing;
+		// No check on a finished row: the green light on the left and the
+		// green "Done" beside it already say so, and the check was a third
+		// saying that had to animate itself away again.
+		const icon = f.status === "failed" ? CROSS : nothing;
 		// Only before the run: once a file has a result, its row is a record
 		// of what happened rather than a queue entry.
 		const removable = store.mode === "settings";
