@@ -20,7 +20,10 @@ export const ENGINE_CONFIG = {
 	rippleWidth: 0.5, // per-dot transition duration (wider = more dots in-flight)
 	rippleFalloff: 1, // bulge envelope exponent (lower = broader plateau)
 	rippleDelay: 0, // seconds before ripple starts after mode change
-	rippleMaxDotRadius: 5, // dot radius at peak of ripple wavefront
+	// Dot radius at the peak of the ripple wavefront. Was 5: with the grid lit
+	// only around the pointer, a 3.3x swell showed up as a bright band flashing
+	// through the bar under the button that was just pressed.
+	rippleMaxDotRadius: 3,
 
 	// Cursor (every state): dots push away from the pointer and the only
 	// spotlight is the one that follows it — the grid is dark until the

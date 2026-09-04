@@ -19,6 +19,13 @@ import { ENGINE_CONFIG, MODE_PARAMS, INITIAL_MODE, STRETCH_MODE } from "../core/
  * - onSwap(mode)         — at the transition midpoint, when displayed content
  *                          should switch to the new mode's text/actions
  */
+/**
+ * Fraction of transitionDuration at which the outgoing content has fully
+ * faded, the displayed content swaps, and the incoming content begins to
+ * fade in. All three coincide by design.
+ */
+const SWAP_AT = 0.35;
+
 export class DotGridEngine {
 	/**
 	 * @param {HTMLCanvasElement} canvas
@@ -163,8 +170,13 @@ export class DotGridEngine {
 		);
 		if (this.modeT < 1) {
 			this.modeT = Math.min(this.modeT + dt / totalTransition, 1);
-			// Swap displayed content early (at midpoint of the base transition)
-			const textMid = (C.transitionDuration * 0.5) / totalTransition;
+			// Swap the displayed content at the point where the fade-out ends
+			// and the fade-in begins — the same instant for every envelope
+			// below. Swapping later than the fade-in starts (it used to be
+			// 50% against a 35% fade-in) meant the incoming screen's first
+			// painted frame was already a quarter to a third opaque: a pop,
+			// not a crossfade.
+			const textMid = (C.transitionDuration * SWAP_AT) / totalTransition;
 			if (!this.swapped && this.modeT >= textMid) {
 				this.swapped = true;
 				if (this.onSwap) this.onSwap(this.mode);
@@ -192,15 +204,17 @@ export class DotGridEngine {
 			stretchW = lerp(isStretchMode(this.prevMode) ? 1 : 0, isStretchMode(this.mode) ? 1 : 0, eased);
 			convergenceW = lerp(hasConvergence(this.prevMode) ? 1 : 0, hasConvergence(this.mode) ? 1 : 0, eased);
 			waveW = lerp(hasWave(this.prevMode) ? 1 : 0, hasWave(this.mode) ? 1 : 0, eased);
-			// Title: fade out first half, fade in second half
-			titleOpacity = weightT < 0.5 ? 1 - weightT / 0.5 : (weightT - 0.5) / 0.5;
-			// Subtitle/actions: fast fade out (first 35%), smooth fade in (remaining 65%)
-			const subFadeOutEnd = 0.35;
-			if (weightT < subFadeOutEnd) {
-				subOpacity = 1 - weightT / subFadeOutEnd;
+			// One shape for every layer: a quick linear fade-out up to the swap,
+			// then a smooth fade-in over the rest. The title used to fade over
+			// halves while the rest used 35/65, which left the title of the
+			// incoming screen mounted mid-fade-out.
+			if (weightT < SWAP_AT) {
+				titleOpacity = 1 - weightT / SWAP_AT;
+				subOpacity = titleOpacity;
 			} else {
-				subOpacity = (weightT - subFadeOutEnd) / (1 - subFadeOutEnd);
-				subOpacity = sstep(subOpacity);
+				const t = (weightT - SWAP_AT) / (1 - SWAP_AT);
+				titleOpacity = t;
+				subOpacity = sstep(t);
 			}
 		} else {
 			this.prevMode = null;
