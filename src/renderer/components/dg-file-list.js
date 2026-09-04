@@ -3,6 +3,14 @@ import { repeat } from "lit/directives/repeat.js";
 import { typography } from "../styles/typography.css.js";
 import { effects } from "../styles/effects.css.js";
 import { store, StoreController } from "../state/app-state.js";
+import { stepSpringTo } from "../core/easing.js";
+
+/**
+ * Hover spring for the remove control. Stiff and close to critically damped
+ * (omega ~14.8 rad/s, zeta ~0.88): quick, with just enough give to feel
+ * physical and almost no overshoot.
+ */
+const HOVER_SPRING = { stiffness: 220, damping: 26 };
 
 /** Row status → visible label. "skipped" states why, rather than vanishing. */
 const STATUS_LABEL = {
@@ -338,12 +346,14 @@ export class DgFileList extends LitElement {
 				background: transparent;
 				color: var(--dg-fg-soft);
 				cursor: pointer;
-				opacity: 0;
 				pointer-events: none;
-				transform: translateY(-50%) translateX(7px);
+				/* Driven by the spring below, not by a transition: --rm-t runs
+				   0 (away) to 1 (revealed) and both properties read it, so an
+				   interrupted reveal keeps its velocity instead of restarting
+				   a fixed-duration curve. */
+				opacity: var(--rm-t, 0);
+				transform: translateY(-50%) translateX(calc((1 - var(--rm-t, 0)) * 7px));
 				transition:
-					opacity 0.17s ease,
-					transform 0.17s cubic-bezier(0.2, 0, 0.2, 1),
 					background 0.14s ease,
 					color 0.14s ease;
 			}
@@ -364,29 +374,17 @@ export class DgFileList extends LitElement {
 				outline-offset: 1px;
 			}
 
+			/* Steps aside by exactly the X's width plus its gutter, so the word
+			   lands clear of it rather than merely somewhere to the left. */
 			.row.removable .status {
-				transition: transform 0.17s cubic-bezier(0.2, 0, 0.2, 1);
+				transform: translateX(calc(var(--rm-t, 0) * -28px));
 			}
 
+			/* Hover still governs whether the control can be clicked; the
+			   spring only governs how it looks getting there. */
 			.row.removable:hover .rm,
 			.row.removable:focus-within .rm {
-				opacity: 1;
 				pointer-events: auto;
-				transform: translateY(-50%) translateX(0);
-			}
-
-			/* Exactly the X's width plus its gutter, so the word lands clear
-			   of it rather than merely somewhere to the left. */
-			.row.removable:hover .status,
-			.row.removable:focus-within .status {
-				transform: translateX(-28px);
-			}
-
-			@media (prefers-reduced-motion: reduce) {
-				.rm,
-				.row.removable .status {
-					transition: none;
-				}
 			}
 
 			.why {
@@ -408,6 +406,77 @@ export class DgFileList extends LitElement {
 	constructor() {
 		super();
 		new StoreController(this);
+		/** path -> {value, vel}; one spring per row, kept across renders */
+		this._springs = new Map();
+		this._active = null; // path currently hovered or focused
+		this._raf = 0;
+		this._last = 0;
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
+		if (this._raf) cancelAnimationFrame(this._raf);
+		this._raf = 0;
+	}
+
+	/** A row gained or lost the pointer (or focus). */
+	_point(path, on) {
+		if (on) this._active = path;
+		else if (this._active === path) this._active = null;
+		this._drive();
+	}
+
+	/**
+	 * Run the springs until every row has settled, then stop. Retargeting a
+	 * spring mid-flight is exactly the case this exists for, so there is no
+	 * state to reset when the pointer crosses a row twice in quick
+	 * succession — the same spring simply gets a new target.
+	 */
+	_drive() {
+		if (this._raf) return;
+
+		const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+		this._last = performance.now();
+
+		const frame = (now) => {
+			// Clamped: a backgrounded window can hand back a huge delta, and
+			// integrating that in one step throws the spring across the screen.
+			const dt = Math.min((now - this._last) / 1000, 0.05);
+			this._last = now;
+
+			let running = false;
+			for (const row of this.renderRoot.querySelectorAll(".row.removable")) {
+				const path = row.dataset.path;
+				let spring = this._springs.get(path);
+				if (!spring) {
+					spring = { value: 0, vel: 0 };
+					this._springs.set(path, spring);
+				}
+				const target = this._active === path ? 1 : 0;
+
+				if (reduced) {
+					spring.value = target;
+					spring.vel = 0;
+				} else if (!stepSpringTo(spring, target, HOVER_SPRING, dt)) {
+					running = true;
+				}
+				row.style.setProperty("--rm-t", spring.value.toFixed(4));
+			}
+
+			this._raf = running ? requestAnimationFrame(frame) : 0;
+		};
+
+		this._raf = requestAnimationFrame(frame);
+	}
+
+	updated() {
+		// Drop springs for rows that no longer exist, so a long session of
+		// queue-and-clear does not accumulate them.
+		if (this._springs.size === 0) return;
+		const live = new Set(store.files.map((f) => f.path));
+		for (const path of this._springs.keys()) {
+			if (!live.has(path)) this._springs.delete(path);
+		}
 	}
 
 	render() {
@@ -434,7 +503,15 @@ export class DgFileList extends LitElement {
 		const removable = store.mode === "settings";
 
 		return html`
-			<div class="row ${f.status} ${removable ? "removable" : ""}" role="listitem">
+			<div
+				class="row ${f.status} ${removable ? "removable" : ""}"
+				data-path=${f.path}
+				role="listitem"
+				@pointerenter=${() => this._point(f.path, true)}
+				@pointerleave=${() => this._point(f.path, false)}
+				@focusin=${() => this._point(f.path, true)}
+				@focusout=${() => this._point(f.path, false)}
+			>
 				<span class="light" aria-hidden="true"></span>
 				<span class="badge">${f.ext || "-"}</span>
 				<span class="name" title=${f.path}>${f.name}</span>
