@@ -152,16 +152,17 @@ export class DgFooterBar extends LitElement {
 				if (r.successCount === 0 && r.cancelledCount > 0)
 					return html`<span>Cancelled - <b>${r.cancelledCount}</b> not processed</span>`;
 				return html`<span
-					><b>${r.successCount} desqueezed</b> at ${store.factorLabel} in
-					${this._time(r.elapsed)}</span
+					><b>${r.successCount} ${this._images(r.successCount)} desqueezed</b> by
+					${store.factorLabel} in ${this._time(r.elapsed)}</span
 				>`;
 			}
 
 			case "error": {
 				const failed = store.failedFiles.length;
+				const ok = r?.successCount ?? 0;
 				return html`<span
 					><span class="bad">${failed} failed</span> ·
-					<b>${r?.successCount ?? 0} desqueezed</b> at ${store.factorLabel}</span
+					<b>${ok} ${this._images(ok)} desqueezed</b> by ${store.factorLabel}</span
 				>`;
 			}
 
@@ -176,6 +177,10 @@ export class DgFooterBar extends LitElement {
 			default:
 				return html`<span>Images processed on this machine, nothing is uploaded.</span>`;
 		}
+	}
+
+	_images(n) {
+		return n === 1 ? "image" : "images";
 	}
 
 	_time(seconds) {
