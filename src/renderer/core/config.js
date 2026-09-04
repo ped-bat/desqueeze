@@ -22,7 +22,10 @@ export const ENGINE_CONFIG = {
 	rippleDelay: 0, // seconds before ripple starts after mode change
 	rippleMaxDotRadius: 5, // dot radius at peak of ripple wavefront
 
-	// Cursor mode (ready state)
+	// Cursor (every state): dots push away from the pointer and the only
+	// spotlight is the one that follows it — the grid is dark until the
+	// pointer lights it, in settings and processing just as on the ready
+	// screen.
 	influenceRadius: 40,
 	falloffRadius: 600,
 	easeInSpeed: 8,
@@ -31,6 +34,11 @@ export const ENGINE_CONFIG = {
 	repulsionStrength: 50,
 	repulsionRadius: 500,
 	cursorSpotlight: { width: 0.2, height: 0.25, range: 5 },
+	spotlightGradient: [
+		[10, 0],
+		[60, 100],
+		[100, 0],
+	],
 
 	// Stretch loop (processing state)
 	loopDuration: 3,
@@ -40,16 +48,6 @@ export const ENGINE_CONFIG = {
 	textSpring: { stiffness: 125, damping: 15 },
 	rowStretch: { center: 1, edge: 0.5 },
 	colStretch: { center: 1, edge: 0 },
-
-	// Center spotlight
-	spotlightWidth: 0.25,
-	spotlightHeight: 0.2,
-	spotlightRange: 5,
-	spotlightGradient: [
-		[10, 0],
-		[60, 100],
-		[100, 0],
-	],
 
 	// Effects
 	barrelStrength: 0.25,
@@ -122,17 +120,11 @@ export const MODE_PARAMS = {
 		convergenceDuration: 6, // seconds per full pull-release cycle
 		convergenceAmount: 0.05, // fraction of distance pulled toward center
 		convergenceEasing: "sine", // 'sine' | 'ease-in-out'
-		// No spotlightGradientTarget: the base gradient applies. The override
-		// used to be [[40,0],[70,100],[100,0]] against the base
-		// [[10,0],[60,100],[100,0]], which opened a hole in the middle and
-		// pushed the peak outward. It left the grid behind the bars far
-		// fainter here than on the empty screen, so the same chrome read as
-		// blurrier the moment a batch was queued.
 	},
 };
 
-/** Mode that follows the cursor (repulsion + cursor spotlight) */
-export const CURSOR_MODE = "ready";
+/** Mode the engine starts in. (The cursor is followed in every mode.) */
+export const INITIAL_MODE = "ready";
 
 /** Mode that runs the stretch/spring loop */
 export const STRETCH_MODE = "processing";
