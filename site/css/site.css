@@ -1026,9 +1026,23 @@ section > * {
 		min-width: 0;
 	}
 
-	.app-chip .k:not(:first-child),
+	/* "1.33x · DNG": the key words go, the separator stays */
+	.app-chip .k:not(.sep),
 	.app-chip .cv {
 		display: none;
+	}
+
+	/* The summary and the actions no longer fit side by side: the summary
+	   takes the first line, the actions the second, right-aligned as in
+	   the app. */
+	.app-foot .summary {
+		flex-basis: 100%;
+		white-space: nowrap;
+	}
+
+	.app-foot .actions {
+		width: 100%;
+		justify-content: flex-end;
 	}
 }
 
