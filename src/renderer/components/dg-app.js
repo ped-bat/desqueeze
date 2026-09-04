@@ -33,7 +33,8 @@ const CRT_BACKGROUND = [
  * wordmark and live settings, a body, and a footer action bar. The body is
  * the ceremony while nothing is queued, and the file list from the moment
  * something is. The dot grid keeps running full-bleed behind both, knocked
- * back by a scrim over the body once there are filenames to read against it.
+ * back by a scrim over the body — in every state, so the bars sit over the
+ * same darker field on both screens and read identically.
  */
 export class DgApp extends LitElement {
 	static properties = {
@@ -103,14 +104,12 @@ export class DgApp extends LitElement {
 			/* Matches the bars' horizontal padding so the file rows line up
 			   with the wordmark above and the summary below. */
 			padding: 16px var(--dg-bar-pad);
-			background-color: transparent;
-			transition: background-color 0.35s ease;
-		}
-
-		/* The grid is knocked back behind filenames, and only there. The bars
-		   keep the full-strength grid behind them in every state, which is
-		   what lets them render identically on both screens. */
-		.body.on-backdrop {
+			/* The scrim is on in every state, not only behind filenames. The
+			   bars themselves render identically on both screens, but with the
+			   scrim only under the rows they read as lighter frosted strips on
+			   the list page and as dark bands on the empty one; the same
+			   darker field under both makes them read the same. The bars keep
+			   the full-strength grid behind them. */
 			background-color: var(--dg-body-scrim);
 		}
 
@@ -293,7 +292,7 @@ export class DgApp extends LitElement {
 					@toggle-settings=${() => store.toggleSettings()}
 				></dg-top-bar>
 
-				<div class="body ${showList ? "on-backdrop" : ""}">
+				<div class="body">
 					${showList
 						? html`<dg-file-list
 								id="filelist"
