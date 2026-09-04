@@ -292,7 +292,7 @@ export class DgFileList extends LitElement {
 			   on focus-within too, so it is reachable without a mouse. */
 			.rm {
 				position: absolute;
-				right: 12px;
+				right: 9px;
 				top: 50%;
 				display: inline-flex;
 				align-items: center;
@@ -326,7 +326,7 @@ export class DgFileList extends LitElement {
 			/* The tap target is bigger than the 22px box that draws: it spans
 			   the row's full height and runs to the row's edge. It stops short
 			   on the left so it never sits over the status word, which steps
-			   aside by 28px when the X is revealed. Only the box and its hover
+			   aside by 24px when the X is revealed. Only the box and its hover
 			   wash stay 22px. */
 			.rm::before {
 				content: "";
@@ -350,7 +350,7 @@ export class DgFileList extends LitElement {
 			/* Steps aside by exactly the X's width plus its gutter, so the word
 			   lands clear of it rather than merely somewhere to the left. */
 			.row.removable .status {
-				transform: translateX(calc(var(--rm-t, 0) * -28px));
+				transform: translateX(calc(var(--rm-t, 0) * -24px));
 			}
 
 			/* Hover still governs whether the control can be clicked; the
