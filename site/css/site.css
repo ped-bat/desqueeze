@@ -1,9 +1,10 @@
 /* ================================================================
    Desqueeze - landing page
 
-   The page is the app's working surface stretched into a document: the
-   same dot grid behind everything, the same bars top and bottom, the same
-   rows, chips and buttons in between. Tokens are copied verbatim from
+   The app's dot grid runs fixed behind a page of Bind it's shape, and the
+   page's controls are the app's: sentence-case Science Gothic at the UI
+   axes, the achromatic primary, rows and panels on the body scrim, hue
+   reserved for the wordmark's RGB split. Tokens are copied verbatim from
    src/renderer/styles/global.css; anything the site needs that the app
    does not have is namespaced --site-*.
 
@@ -13,17 +14,16 @@
    4. Utilities (skip-link, reveal, icons)
    5. Type
    6. Buttons (effects.css.js, verbatim)
-   7. Bars (dg-top-bar / dg-footer-bar)
-   8. Section scaffolding
-   9. Hero
-   10. The app, rebuilt (dg-app / dg-file-list / dg-footer-bar)
-   11. Features
-   12. How it works
-   13. FAQ
-   14. Download
-   15. Support strip
-   16. Footer
-   17. Reduced motion
+   7. Section scaffolding
+   8. Hero
+   9. Before and after
+   10. Features
+   11. How it works
+   12. FAQ
+   13. Download
+   14. Support strip
+   15. Footer
+   16. Reduced motion
    ================================================================ */
 
 /* ── 1. Tokens ──────────────────────────────────────────────── */
@@ -61,7 +61,6 @@
 
 	--dg-surface: rgba(255, 255, 255, 0.03);
 	--dg-surface-hover: rgba(255, 255, 255, 0.13);
-	--dg-surface-menu: rgba(20, 20, 20, 0.85);
 
 	/* Accent: light, not a hue. Used for exactly one control per screen. */
 	--dg-accent: #ededf0;
@@ -70,25 +69,13 @@
 	--dg-accent-ring: rgba(255, 255, 255, 0.65);
 	--dg-accent-wash: rgba(255, 255, 255, 0.1);
 
-	/* Status owns the only hues on the page */
-	--dg-pending: rgba(255, 255, 255, 0.34);
-	--dg-wait: #e0a63c;
-	--dg-wait-soft: #f0c880;
-	--dg-wait-wash: rgba(224, 166, 60, 0.13);
-	--dg-ok: #54c184;
-	--dg-bad: #ff5c52;
-	--dg-bad-soft: #ff9a93;
-
-	/* Chrome for bars and panels */
+	/* Chrome for panels and rows */
 	--dg-chrome: rgba(6, 6, 7, 0.2);
 	--dg-chrome-border: rgba(255, 255, 255, 0.17);
 	--dg-chrome-border-end: color-mix(in srgb, var(--dg-chrome-border) 25%, transparent);
 	--dg-row: rgba(255, 255, 255, 0.04);
 	--dg-row-hover: rgba(255, 255, 255, 0.075);
 	--dg-body-scrim: rgba(8, 8, 10, 0.62);
-
-	--dg-bar-h: 66px;
-	--dg-pad-bar: clamp(24px, 4.64vw, 64px);
 
 	/* — Typography — */
 	--dg-font: "Science Gothic", "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -100,7 +87,6 @@
 	--dg-ui-xl: 20px;
 	--dg-var-ui: "wght" 450, "wdth" 92;
 	--dg-var-ui-strong: "wght" 560, "wdth" 92;
-	--dg-var-mark: "wght" 600, "wdth" 88;
 	/* The display line's resting axes (core/config.js fontWeight/fontWidth) */
 	--dg-var-display: "wght" 520, "wdth" 125;
 
@@ -108,8 +94,6 @@
 	--dg-glow-white: 0 1px 3px rgba(0, 0, 0, 0.85), 0 0 10px rgba(0, 0, 0, 0.6), 0 0 8px rgba(255, 255, 255, 0.15),
 		0 0 20px rgba(255, 255, 255, 0.08);
 	--dg-blur-glass: blur(8px);
-	--dg-blur-chrome: blur(2px) saturate(1.04);
-	--dg-ease-fast: 0.15s ease;
 	--dg-ease: 0.2s ease;
 
 	/* — Site — */
@@ -190,6 +174,8 @@ summary {
 
 /* ── 3. Background ──────────────────────────────────────────── */
 
+/* Fixed: the grid does not travel with the page. Its focal point sits at
+   the top edge, horizontally centred, and the stretch runs around it. */
 #grid-canvas {
 	position: fixed;
 	inset: 0;
@@ -306,6 +292,17 @@ code {
 	white-space: nowrap;
 }
 
+/* The app's file-list badge, used by the before/after tags */
+.badge {
+	font-family: var(--dg-mono);
+	font-size: var(--dg-ui-xs);
+	color: var(--dg-fg-soft);
+	border: 1px solid rgba(255, 255, 255, 0.17);
+	border-radius: 4px;
+	padding: 2px 6px;
+	letter-spacing: 0;
+}
+
 /* ── 6. Buttons ─────────────────────────────────────────────── */
 
 .btn {
@@ -357,61 +354,13 @@ code {
 	border-color: rgba(255, 255, 255, 0.32);
 }
 
-.btn-quiet {
-	color: var(--dg-fg-soft);
-	background: rgba(255, 255, 255, 0.03);
-	border-color: rgba(255, 255, 255, 0.13);
-}
-
-.btn-quiet:hover {
-	color: var(--dg-fg-strong);
-	background: rgba(255, 255, 255, 0.08);
-	border-color: rgba(255, 255, 255, 0.24);
-}
-
-.btn-sm {
-	font-size: var(--dg-ui-sm);
-	padding: 0.5em 0.8em;
-	border-radius: 5px;
-}
-
 .btn-lg {
 	font-size: var(--dg-ui-lg);
 	padding: 0.85em 1.35em;
 	border-radius: 7px;
 }
 
-/* ── 7. The app's chrome (used by the rebuilt window) ────────── */
-
-.app-mark {
-	font-family: var(--dg-font);
-	font-size: var(--dg-ui-lg);
-	font-variation-settings: var(--dg-var-mark);
-	letter-spacing: 0.06em;
-	text-transform: uppercase;
-	color: var(--dg-fg-strong);
-	white-space: nowrap;
-}
-
-/* The top bar's chip */
-.app-chip {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.45em;
-	font-size: var(--dg-ui-sm);
-	font-variation-settings: var(--dg-var-ui);
-	color: var(--dg-fg-strong);
-	background: rgba(255, 255, 255, 0.05);
-	border: 1px solid rgba(255, 255, 255, 0.16);
-	border-radius: 6px;
-	padding: 8px 13px;
-	white-space: nowrap;
-	transition:
-		background 0.16s ease,
-		border-color 0.16s ease;
-}
-
-/* ── 8. Section scaffolding ─────────────────────────────────── */
+/* ── 7. Section scaffolding ─────────────────────────────────── */
 
 section {
 	position: relative;
@@ -472,11 +421,11 @@ section > * {
 	margin: 0 auto;
 }
 
-/* ── 9. Hero ────────────────────────────────────────────────── */
+/* ── 8. Hero ────────────────────────────────────────────────── */
 
 .hero {
 	text-align: center;
-	padding-block: clamp(80px, 14vh, 140px) var(--site-pad-section);
+	padding-block: clamp(120px, 22vh, 220px) var(--site-pad-section);
 }
 
 .hero > * {
@@ -484,8 +433,7 @@ section > * {
 	z-index: 1;
 }
 
-/* The app's display treatment: three stacked layers, screen-blended.
-   Used for the hero wordmark and for the rebuilt window's own title. */
+/* The app's display treatment: three stacked layers, screen-blended */
 .chroma {
 	position: relative;
 	isolation: isolate;
@@ -602,436 +550,14 @@ section > * {
 	display: none;
 }
 
+/* Spans the page's measure, the same width as the feature grid below */
 .hero-shot {
 	width: 100%;
-	max-width: 900px;
+	max-width: var(--site-max);
 	margin: clamp(44px, 7vh, 68px) auto 0;
-	/* The window's display type scales with the window, not the viewport,
-	   the way the app's fluid type scales with its own window */
-	container-type: inline-size;
 }
 
-/* ── 10. The app, rebuilt ───────────────────────────────────── */
-
-.app {
-	position: relative;
-	display: flex;
-	flex-direction: column;
-	text-align: left;
-	border: 1px solid var(--dg-chrome-border);
-	border-radius: 10px;
-	overflow: hidden;
-	box-shadow: 0 30px 70px -30px rgba(0, 0, 0, 0.9);
-	color: var(--dg-fg-strong);
-	font-size: var(--dg-ui);
-	font-variation-settings: var(--dg-var-ui);
-	line-height: 1.4;
-	pointer-events: none;
-	user-select: none;
-	-webkit-user-select: none;
-}
-
-.app-bar {
-	position: relative;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 1rem;
-	min-height: var(--dg-bar-h);
-	padding: 0 var(--dg-pad-bar);
-	background: var(--dg-chrome);
-	backdrop-filter: var(--dg-blur-chrome);
-	-webkit-backdrop-filter: var(--dg-blur-chrome);
-}
-
-.app-bar::after {
-	content: "";
-	position: absolute;
-	left: 0;
-	right: 0;
-	height: 1px;
-	background: linear-gradient(
-		to right,
-		var(--dg-chrome-border-end) 0%,
-		var(--dg-chrome-border) 50%,
-		var(--dg-chrome-border-end) 100%
-	);
-}
-
-.app-top::after {
-	bottom: 0;
-}
-
-.app-foot::after {
-	top: 0;
-}
-
-.app-chip {
-	transition:
-		opacity 0.3s ease,
-		visibility 0s;
-}
-
-.app-chip .k {
-	color: var(--dg-fg-faint);
-}
-
-.app-chip .cv {
-	font-size: 0.8em;
-	opacity: 0.6;
-}
-
-/* Once a run starts the settings no longer describe anything the user
-   can change, so the chip withdraws. */
-.app-chip.stowed {
-	opacity: 0;
-	visibility: hidden;
-	transition:
-		opacity 0.26s ease,
-		visibility 0s linear 0.26s;
-}
-
-/* The app's design window is 1120x720. Held where it fits; on a phone the
-   window grows with its list instead of shrinking the list into it. */
-@media (min-width: 720px) {
-	.app {
-		aspect-ratio: 1120 / 720;
-	}
-}
-
-.app-body {
-	flex: 1;
-	min-height: 0;
-	display: flex;
-	flex-direction: column;
-	padding: 16px var(--dg-pad-bar);
-	background-color: transparent;
-	transition: background-color 0.35s ease;
-}
-
-/* The grid is knocked back behind filenames, and only there */
-.app.on-list .app-body {
-	background-color: var(--dg-body-scrim);
-}
-
-/* The empty state */
-.app-stage {
-	flex: 1;
-	min-height: 0;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	gap: 1.1rem;
-	text-align: center;
-	padding: 2rem 1rem;
-}
-
-.app.on-list .app-stage {
-	display: none;
-}
-
-/* The app's title and subtitle, at the app's fluid sizes relative to its
-   window (3.42vw and 1.78vw of a 1120px window) */
-.app-title {
-	font-size: clamp(1.1rem, 3.42cqw, 2.88rem);
-	letter-spacing: 0.043em;
-	padding-left: 0.043em;
-}
-
-.app-sub {
-	font-size: clamp(0.78rem, 1.78cqw, 1.5rem);
-	font-variation-settings: "wght" 400, "wdth" 96;
-	color: rgba(255, 255, 255, 0.55);
-	text-shadow: var(--dg-glow-white);
-	text-wrap: balance;
-	max-width: 32ch;
-	margin-top: 0.2rem;
-}
-
-.app-stage .btn {
-	margin-top: 0.8rem;
-}
-
-.app-list {
-	display: none;
-	flex-direction: column;
-	gap: 3px;
-}
-
-.app.on-list .app-list {
-	display: flex;
-}
-
-/* Drop feedback in every state: a ring on the window edge */
-.dropring {
-	position: absolute;
-	inset: 6px;
-	z-index: 20;
-	border: 2px solid var(--dg-accent-ring);
-	border-radius: 12px;
-	background: var(--dg-accent-wash);
-	pointer-events: none;
-	opacity: 0;
-	transition: opacity 0.18s ease;
-}
-
-.dropring.on {
-	opacity: 1;
-}
-
-/* One screen fades out and the next fades in. The list rides one opacity
-   envelope and the footer's contents another, both written by the demo
-   script; the bars themselves never fade. */
-.app-list {
-	opacity: var(--app-content, 1);
-	transition: opacity 0.3s ease;
-}
-
-.app-foot .summary,
-.app-foot .actions {
-	opacity: var(--app-foot, 1);
-	transition: opacity 0.3s ease;
-}
-
-/* [light] [format] [name] [status] [action] */
-.row {
-	position: relative;
-	display: grid;
-	grid-template-columns: 10px 3.6em minmax(0, 1fr) auto auto;
-	align-items: center;
-	gap: 12px;
-	padding: 9px 14px;
-	border-radius: 6px;
-	background: var(--dg-row);
-	overflow: hidden;
-}
-
-.row > * {
-	position: relative;
-	z-index: 2;
-}
-
-/* dnglab reports start and finish, nothing between: an indeterminate sweep
-   rather than a fake percentage */
-.row.running::before {
-	content: "";
-	position: absolute;
-	inset: 0;
-	z-index: 1;
-	background: linear-gradient(90deg, transparent, var(--dg-wait-wash), transparent);
-	background-size: 45% 100%;
-	background-repeat: no-repeat;
-	animation: dg-sweep 1.15s ease-in-out infinite;
-}
-
-@keyframes dg-sweep {
-	from {
-		background-position: -45% 0;
-	}
-	to {
-		background-position: 145% 0;
-	}
-}
-
-.badge {
-	font-family: var(--dg-mono);
-	font-size: var(--dg-ui-xs);
-	color: var(--dg-fg-soft);
-	border: 1px solid rgba(255, 255, 255, 0.17);
-	border-radius: 4px;
-	padding: 2px 0;
-	text-align: center;
-	letter-spacing: 0;
-}
-
-.name {
-	font-family: var(--dg-mono);
-	font-size: var(--dg-ui-sm);
-	letter-spacing: -0.01em;
-	color: var(--dg-fg-strong);
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.status {
-	display: inline-flex;
-	align-items: center;
-	justify-content: flex-end;
-	font-size: var(--dg-ui-sm);
-	color: var(--dg-fg-soft);
-	white-space: nowrap;
-	min-width: 7.5em;
-}
-
-.row.done .status {
-	color: var(--dg-ok);
-}
-
-.row.running .status {
-	color: var(--dg-wait-soft);
-}
-
-/* The traffic light: hollow while waiting, filled once settled */
-.light {
-	width: 10px;
-	height: 10px;
-	border-radius: 50%;
-	border: 1.5px solid var(--dg-pending);
-	background: transparent;
-	flex: none;
-}
-
-.row.running .light,
-.is-running .light {
-	border-color: var(--dg-wait);
-	background: var(--dg-wait);
-	animation: dg-pulse 1.15s ease-in-out infinite;
-}
-
-.row.done .light,
-.is-done .light {
-	border-color: var(--dg-ok);
-	background: var(--dg-ok);
-}
-
-@keyframes dg-pulse {
-	0%,
-	100% {
-		opacity: 1;
-	}
-	50% {
-		opacity: 0.35;
-	}
-}
-
-/* The check draws itself on, holds, then retires: the light is the
-   lasting record, a permanent check beside it would say it twice. */
-.ico {
-	width: 13px;
-	height: 13px;
-	flex: none;
-	display: block;
-	margin-right: 0.4em;
-	animation: dg-check-retire 0.3s ease 2s forwards;
-}
-
-.ico path {
-	stroke-dasharray: 15;
-	stroke-dashoffset: 15;
-	animation: dg-draw 0.4s cubic-bezier(0.65, 0, 0.35, 1) forwards;
-}
-
-@keyframes dg-draw {
-	to {
-		stroke-dashoffset: 0;
-	}
-}
-
-@keyframes dg-check-retire {
-	to {
-		opacity: 0;
-		width: 0;
-		margin-right: 0;
-	}
-}
-
-.reveal-btn {
-	justify-self: end;
-	visibility: hidden;
-}
-
-.row.done .reveal-btn {
-	visibility: visible;
-}
-
-.app-foot {
-	flex-wrap: wrap;
-	row-gap: 8px;
-	padding-block: 12px;
-}
-
-.app-foot .summary {
-	display: flex;
-	align-items: center;
-	gap: 0.6em;
-	min-width: 0;
-	flex: 1;
-	font-size: var(--dg-ui-sm);
-	color: var(--dg-fg-soft);
-}
-
-.app-foot .summary b {
-	font-weight: normal;
-	font-variation-settings: var(--dg-var-ui-strong);
-	color: var(--dg-fg-strong);
-}
-
-.app-foot .summary .count {
-	font-variant-numeric: tabular-nums;
-	color: var(--dg-fg-strong);
-}
-
-.progress {
-	flex: 0 1 220px;
-	height: 3px;
-	border-radius: 3px;
-	background: rgba(255, 255, 255, 0.13);
-	overflow: hidden;
-}
-
-.progress > i {
-	display: block;
-	height: 100%;
-	border-radius: 3px;
-	background: var(--dg-accent);
-	transition: width 0.25s ease;
-}
-
-.app-foot .actions {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	flex: none;
-}
-
-@media (max-width: 600px) {
-	.row {
-		grid-template-columns: 10px 3.2em minmax(0, 1fr) auto;
-		gap: 10px;
-		padding: 8px 10px;
-	}
-
-	.reveal-btn {
-		display: none;
-	}
-
-	.status {
-		min-width: 0;
-	}
-
-	/* "1.33x · DNG": the key words go, the separator stays */
-	.app-chip .k:not(.sep),
-	.app-chip .cv {
-		display: none;
-	}
-
-	/* The summary and the actions no longer fit side by side: the summary
-	   takes the first line, the actions the second, right-aligned as in
-	   the app. */
-	.app-foot .summary {
-		flex-basis: 100%;
-		white-space: nowrap;
-	}
-
-	.app-foot .actions {
-		width: 100%;
-		justify-content: flex-end;
-	}
-}
-
-/* ── 10b. Before and after ──────────────────────────────────── */
+/* ── 9. Before and after ────────────────────────────────────── */
 
 /* Registered so the split can ease back to centre when the pointer leaves */
 @property --split {
@@ -1043,9 +569,6 @@ section > * {
 .compare {
 	--split: 50%;
 	position: relative;
-	max-width: 1000px;
-	/* Sits between the section title and the feature cards */
-	margin: 0 auto var(--site-gap-head);
 	aspect-ratio: 1796 / 900;
 	border-radius: 10px;
 	overflow: hidden;
@@ -1056,12 +579,8 @@ section > * {
 	touch-action: none;
 	user-select: none;
 	-webkit-user-select: none;
-	transition: --split 0.6s var(--site-ease-out);
-}
-
-/* Following the pointer directly: no easing in the way */
-.compare.live {
-	transition: none;
+	/* The split is driven by a spring in site.js: it eases towards the
+	   pointer when it enters, follows it, and stays put when it leaves. */
 }
 
 .compare:focus-visible {
@@ -1175,10 +694,6 @@ section > * {
 	right: 12px;
 }
 
-.compare-tag .badge {
-	padding: 2px 6px;
-}
-
 @media (max-width: 600px) {
 	.compare-tag {
 		top: 8px;
@@ -1196,7 +711,7 @@ section > * {
 	}
 }
 
-/* ── 11. Features ───────────────────────────────────────────── */
+/* ── 10. Features ───────────────────────────────────────────── */
 
 .grid {
 	display: grid;
@@ -1218,12 +733,8 @@ section > * {
 	background: var(--dg-body-scrim);
 	border: 1px solid var(--dg-chrome-border);
 	border-radius: 10px;
-	padding: clamp(22px, 3.5vw, 30px) clamp(20px, 3vw, 28px);
-}
-
-.grid-features .panel {
-	text-align: center;
 	padding: clamp(26px, 4vw, 36px) clamp(20px, 3vw, 28px);
+	text-align: center;
 }
 
 .icon-feature {
@@ -1240,75 +751,58 @@ section > * {
 
 .panel h3,
 .step h3 {
-	font-size: var(--dg-ui-lg);
+	font-size: 18px;
 	font-variation-settings: var(--dg-var-ui-strong);
 	line-height: 1.3;
 	margin-bottom: 8px;
-}
-
-.grid-features .panel h3 {
-	font-size: 18px;
 }
 
 .panel p,
 .step p {
 	font-size: var(--site-prose);
 	line-height: 1.62;
-	max-width: 52ch;
-}
-
-.grid-features .panel p {
 	max-width: 36ch;
 	margin-inline: auto;
 }
 
-/* ── 12. How it works ───────────────────────────────────────── */
+/* ── 11. How it works ───────────────────────────────────────── */
 
 .steps {
 	background: var(--dg-body-scrim);
 	border: 1px solid var(--dg-chrome-border);
 	border-radius: 10px;
-	padding: clamp(26px, 4.5vw, 44px) clamp(20px, 4vw, 40px);
+	padding: clamp(32px, 5vw, 56px) clamp(20px, 4vw, 40px);
 	display: grid;
-	gap: 28px;
+	gap: 36px;
+	text-align: center;
 }
 
-.step {
-	display: grid;
-	grid-template-columns: 10px minmax(0, 1fr);
-	column-gap: 14px;
-	align-items: start;
-	/* The three steps stretch to one height; without this the spare space
-	   is shared between a step's rows and its paragraph drifts down. */
-	align-content: start;
+/* The numeral in the display treatment: the one place a number is the
+   subject, so it takes the wordmark's axes */
+.step-number {
+	display: block;
+	font-size: 40px;
+	font-variation-settings: var(--dg-var-display);
+	line-height: 1;
+	color: var(--dg-fg-soft);
+	text-shadow: var(--dg-glow-white);
+	margin-bottom: 14px;
 }
 
-.step .light {
-	margin-top: 7px;
-}
-
-.step h3,
 .step p {
-	grid-column: 2;
+	max-width: 30ch;
 }
 
 @media (min-width: 768px) {
 	.steps {
 		grid-template-columns: repeat(3, 1fr);
 		gap: 0;
+		align-items: start;
 	}
 
 	.step {
 		position: relative;
 		padding-inline: clamp(16px, 3vw, 32px);
-	}
-
-	.step:first-child {
-		padding-left: 0;
-	}
-
-	.step:last-child {
-		padding-right: 0;
 	}
 
 	/* The bars' rule, turned on its side */
@@ -1328,16 +822,16 @@ section > * {
 	}
 }
 
-/* ── 13. FAQ ────────────────────────────────────────────────── */
+/* ── 12. FAQ ────────────────────────────────────────────────── */
 
 /* A list panel: the app's body scrim holding its rows */
 .faq {
-	max-width: 760px;
+	max-width: 880px;
 	margin-inline: auto;
 	display: flex;
 	flex-direction: column;
-	gap: 3px;
-	padding: 8px;
+	gap: 4px;
+	padding: 10px;
 	background: var(--dg-body-scrim);
 	border: 1px solid var(--dg-chrome-border);
 	border-radius: 10px;
@@ -1360,7 +854,8 @@ section > * {
 	align-items: center;
 	justify-content: space-between;
 	gap: 16px;
-	padding: 14px 16px;
+	padding: 19px 20px;
+	font-size: 15px;
 	font-variation-settings: var(--dg-var-ui-strong);
 	color: var(--dg-fg-strong);
 }
@@ -1382,10 +877,9 @@ section > * {
 }
 
 .faq p {
-	padding: 0 16px 16px;
+	padding: 0 20px 20px;
 	font-size: var(--site-prose);
 	line-height: 1.62;
-	max-width: none;
 }
 
 .faq p a {
@@ -1427,7 +921,7 @@ section > * {
 	}
 }
 
-/* ── 14. Download ───────────────────────────────────────────── */
+/* ── 13. Download ───────────────────────────────────────────── */
 
 #download .section-head {
 	margin-bottom: 32px;
@@ -1435,23 +929,25 @@ section > * {
 
 .dl-block {
 	position: relative;
-	max-width: 820px;
+	max-width: 900px;
 	margin-inline: auto;
+	/* Room for the platform note that sits out of flow beneath the row */
+	padding-bottom: 24px;
 }
 
 .grid-download {
-	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-	gap: 10px;
+	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	gap: 14px;
 }
 
 /* A file row, pointing at a file */
 .dl {
 	display: grid;
-	grid-template-columns: 22px minmax(0, 1fr);
+	grid-template-columns: 28px minmax(0, 1fr);
 	align-items: center;
-	gap: 14px;
-	padding: 14px 16px;
-	border-radius: 6px;
+	gap: 16px;
+	padding: 22px 24px;
+	border-radius: 8px;
 	background: var(--dg-row);
 	border: 1px solid transparent;
 	color: var(--dg-fg-strong);
@@ -1466,30 +962,33 @@ section > * {
 }
 
 .dl svg {
-	width: 22px;
-	height: 22px;
+	width: 28px;
+	height: 28px;
 	color: var(--dg-fg-soft);
 }
 
 .dl-title {
 	display: block;
+	font-size: var(--dg-ui-lg);
 	font-variation-settings: var(--dg-var-ui-strong);
 }
 
 .dl-sub {
 	display: block;
-	font-size: var(--dg-ui-sm);
+	font-size: 13px;
 	color: var(--dg-fg-faint);
 	font-variant-numeric: tabular-nums;
 }
 
-/* Platform notes sit out of flow under the grid and show on hover or
-   focus of the card they concern, so the section's height never jumps. */
+/* Platform notes sit out of flow under the row and show on hover or focus
+   of the button they concern, so the section's height never jumps. One
+   line wherever the width allows. */
 .download-note {
 	position: absolute;
-	top: calc(100% + 16px);
+	top: calc(100% + 8px);
 	left: 50%;
-	width: min(560px, 100%);
+	width: max-content;
+	max-width: 100%;
 	text-align: center;
 	font-size: var(--dg-ui-sm);
 	line-height: 1.55;
@@ -1517,7 +1016,7 @@ section > * {
 		visibility 0s;
 }
 
-/* ── 15. Support strip ──────────────────────────────────────── */
+/* ── 14. Support strip ──────────────────────────────────────── */
 
 .strip-section {
 	padding-block: clamp(40px, 6vw, 64px);
@@ -1586,7 +1085,7 @@ section > * {
 	}
 }
 
-/* ── 16. Footer ─────────────────────────────────────────────── */
+/* ── 15. Footer ─────────────────────────────────────────────── */
 
 /* The rule runs the full width; the content keeps to the page's measure */
 .site-footer {
@@ -1628,19 +1127,27 @@ section > * {
 	gap: 6px 20px;
 }
 
-.footer-links a {
+.footer-links a,
+.colophon a {
 	/* 24px tall: the WCAG 2.5.8 minimum target */
 	padding: 6px 0;
 	color: var(--dg-fg-faint);
 	transition: color 0.16s ease;
 }
 
-.footer-links a:hover {
+.footer-links a:hover,
+.colophon a:hover {
 	color: var(--dg-fg-strong);
 }
 
 .colophon {
 	color: var(--dg-fg-ghost);
+}
+
+.colophon a {
+	text-decoration: underline;
+	text-decoration-color: rgba(255, 255, 255, 0.25);
+	text-underline-offset: 3px;
 }
 
 @media (min-width: 768px) {
@@ -1651,7 +1158,7 @@ section > * {
 	}
 }
 
-/* ── 17. Reduced motion ─────────────────────────────────────── */
+/* ── 16. Reduced motion ─────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
 	html {
@@ -1663,28 +1170,14 @@ section > * {
 		opacity: 1 !important;
 	}
 
-	.is-revealed,
-	.row.running::before,
-	.row.running .light,
-	.is-running .light,
-	.ico,
-	.ico path {
+	.is-revealed {
 		animation: none !important;
-	}
-
-	.ico path {
-		stroke-dashoffset: 0;
 	}
 
 	.faq details::details-content,
 	.faq details[open]::details-content,
 	.download-note,
-	.app-list,
-	.app-body,
-	.dropring,
-	.compare,
-	.app-foot .summary,
-	.app-foot .actions {
+	.compare {
 		transition: none !important;
 	}
 }

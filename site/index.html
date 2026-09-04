@@ -81,7 +81,7 @@
 						"offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
 						"license": "https://github.com/ped-bat/desqueeze/blob/main/LICENSE",
 						"downloadUrl": "https://github.com/ped-bat/desqueeze/releases/latest",
-						"author": { "@type": "Person", "name": "Pedro Batista" }
+						"author": { "@type": "Person", "name": "Pedro", "url": "https://pedrobatista.pt" }
 					},
 					{
 						"@type": "FAQPage",
@@ -143,8 +143,9 @@
 	<body>
 		<a class="skip-link" href="#main">Skip to content</a>
 
-		<!-- The app's dot grid, running behind the whole page, with its CRT
-		     scanlines over the grid but under the page's own controls. -->
+		<!-- The app's dot grid, fixed behind the whole page and running the
+		     processing-stage stretch, with its CRT scanlines over the grid
+		     but under the page's own controls. -->
 		<canvas id="grid-canvas" aria-hidden="true"></canvas>
 		<div class="scanlines" aria-hidden="true"></div>
 
@@ -161,7 +162,7 @@
 				</h1>
 
 				<p class="hero-lede reveal-load" data-reveal-delay="120">
-					<span><strong>Desqueeze anamorphic RAW photos losslessly.</strong></span>
+					<span><strong>Desqueeze anamorphic RAW photos losslessly</strong></span>
 					<span>Offline, free and open source</span>
 				</p>
 
@@ -192,82 +193,38 @@
 					</div>
 				</div>
 
-				<!-- The app itself, rebuilt in HTML and running a batch: the
-				     working surface with its bars, the file list and the
-				     footer actions. Decorative; the caption carries the text. -->
-				<figure class="hero-shot reveal-load" data-reveal-delay="240">
+				<!-- Before and after: one photo, as shot and desqueezed, with
+				     the split following the pointer -->
+				<div class="hero-shot reveal-load" data-reveal-delay="240">
 					<div
-						class="app"
-						id="app-demo"
-						role="img"
-						aria-label="The Desqueeze window running through a batch: the empty window inviting a drop, seven RAW files queued, three converting at a time, and the finished result with its summary and actions."
+						class="compare"
+						id="compare-view"
+						tabindex="0"
+						role="group"
+						aria-label="Before and after. The squeezed ARW on the left, the desqueezed DNG on the right. Move the pointer, or use the left and right arrow keys, to change where the two meet."
 					>
-						<div class="app-bar app-top" aria-hidden="true">
-							<span class="app-mark">Desqueeze.io</span>
-							<span class="app-chip" id="demo-chip">
-								<span class="k">Factor</span> 1.33x <span class="k sep">·</span> <span class="k">Format</span> DNG
-								<span class="cv">&#9662;</span>
-							</span>
+						<picture class="compare-after">
+							<source type="image/webp" srcset="assets/photo/arcade-dng.webp" />
+							<img
+								src="assets/photo/arcade-dng.jpg"
+								width="1796"
+								height="900"
+								alt="A covered shopping arcade shot through an anamorphic lens, desqueezed to its true proportions"
+							/>
+						</picture>
+						<div class="compare-before">
+							<picture>
+								<source type="image/webp" srcset="assets/photo/arcade-arw.webp" />
+								<img src="assets/photo/arcade-arw.jpg" width="1350" height="900" alt="" />
+							</picture>
 						</div>
-						<div class="app-body" aria-hidden="true">
-							<!-- The empty state: the ceremony, before anything is dropped -->
-							<div class="app-stage" id="demo-stage">
-								<div class="chroma app-title">
-									<span class="layer layer-r">Drop images here</span>
-									<span class="layer layer-g">Drop images here</span>
-									<span class="layer layer-b">Drop images here</span>
-								</div>
-								<p class="app-sub">RAW, JPG, PNG, TIFF or WebP - folders work too</p>
-								<span class="btn btn-primary">Choose files…</span>
-							</div>
-							<div class="app-list" id="demo-list">
-								<div class="row queued">
-									<span class="light"></span><span class="badge">nef</span
-									><span class="name">DSC_4821.NEF</span><span class="status">Queued</span
-									><span class="btn btn-quiet btn-sm reveal-btn">Reveal</span>
-								</div>
-								<div class="row queued">
-									<span class="light"></span><span class="badge">cr3</span
-									><span class="name">_MG_0932.CR3</span><span class="status">Queued</span
-									><span class="btn btn-quiet btn-sm reveal-btn">Reveal</span>
-								</div>
-								<div class="row queued">
-									<span class="light"></span><span class="badge">arw</span
-									><span class="name">A7R05531.ARW</span><span class="status">Queued</span
-									><span class="btn btn-quiet btn-sm reveal-btn">Reveal</span>
-								</div>
-								<div class="row queued">
-									<span class="light"></span><span class="badge">raf</span
-									><span class="name">DSCF2210.RAF</span><span class="status">Queued</span
-									><span class="btn btn-quiet btn-sm reveal-btn">Reveal</span>
-								</div>
-								<div class="row queued">
-									<span class="light"></span><span class="badge">rw2</span
-									><span class="name">P1040311.RW2</span><span class="status">Queued</span
-									><span class="btn btn-quiet btn-sm reveal-btn">Reveal</span>
-								</div>
-								<div class="row queued">
-									<span class="light"></span><span class="badge">dng</span
-									><span class="name">L1004512.DNG</span><span class="status">Queued</span
-									><span class="btn btn-quiet btn-sm reveal-btn">Reveal</span>
-								</div>
-								<div class="row queued">
-									<span class="light"></span><span class="badge">cr2</span
-									><span class="name">IMG_7743.CR2</span><span class="status">Queued</span
-									><span class="btn btn-quiet btn-sm reveal-btn">Reveal</span>
-								</div>
-							</div>
-						</div>
-						<div class="app-bar app-foot" aria-hidden="true">
-							<div class="summary" id="demo-summary">
-								<span>Images processed on this machine, nothing is uploaded.</span>
-							</div>
-							<div class="actions" id="demo-actions"></div>
-						</div>
-						<!-- Drop feedback: the ring on the window edge -->
-						<div class="dropring" id="demo-ring" aria-hidden="true"></div>
+						<div class="compare-line" aria-hidden="true"><span class="compare-handle"></span></div>
+						<span class="compare-tag left" aria-hidden="true"><span class="badge">arw</span>As shot</span>
+						<span class="compare-tag right" aria-hidden="true"
+							><span class="badge">dng</span>Desqueezed 1.33x</span
+						>
 					</div>
-				</figure>
+				</div>
 			</section>
 
 			<!-- Features -->
@@ -276,55 +233,26 @@
 					<h2 class="section-title reveal" id="features-heading">Built for anamorphic photography</h2>
 				</header>
 
-				<!-- Before and after: the split follows the pointer -->
-				<div
-					class="compare reveal"
-					id="compare-view"
-					tabindex="0"
-					role="group"
-					aria-label="Before and after. The squeezed ARW on the left, the desqueezed DNG on the right. Move the pointer, or use the left and right arrow keys, to change where the two meet."
-				>
-					<picture class="compare-after">
-						<source type="image/webp" srcset="assets/photo/arcade-dng.webp" />
-						<img
-							src="assets/photo/arcade-dng.jpg"
-							width="1796"
-							height="900"
-							alt="A covered shopping arcade shot through an anamorphic lens, desqueezed to its true proportions."
-							loading="lazy"
-						/>
-					</picture>
-					<div class="compare-before">
-						<picture>
-							<source type="image/webp" srcset="assets/photo/arcade-arw.webp" />
-							<img src="assets/photo/arcade-arw.jpg" width="1350" height="900" alt="" loading="lazy" />
-						</picture>
-					</div>
-					<div class="compare-line" aria-hidden="true"><span class="compare-handle"></span></div>
-					<span class="compare-tag left" aria-hidden="true"><span class="badge">arw</span>As shot</span>
-					<span class="compare-tag right" aria-hidden="true"><span class="badge">dng</span>Desqueezed 1.33x</span>
-				</div>
-
 				<ul class="grid grid-features">
 					<li class="panel reveal">
 						<svg class="icon-feature" aria-hidden="true"><use href="assets/icons.svg#i-zap" /></svg>
 						<h3>Lossless by default</h3>
-						<p>The squeeze factor is written as DNG metadata. No pixel is resampled, and it can be undone.</p>
+						<p>The squeeze factor is written as DNG metadata. No pixel is resampled, and it can be undone</p>
 					</li>
 					<li class="panel reveal">
 						<svg class="icon-feature" aria-hidden="true"><use href="assets/icons.svg#i-shield" /></svg>
 						<h3>Offline and private</h3>
-						<p>No account, no uploads, no telemetry. Everything runs on your machine, converters included.</p>
+						<p>No account, no uploads, no telemetry. Everything runs on your machine, converters included</p>
 					</li>
 					<li class="panel reveal">
 						<svg class="icon-feature" aria-hidden="true"><use href="assets/icons.svg#i-package" /></svg>
 						<h3>RAW in, DNG out</h3>
-						<p>25 RAW formats from 825 cameras, plus JPEG, PNG, TIFF and WebP. Export a flat file when you need one.</p>
+						<p>25 RAW formats from 825 cameras, plus JPEG, PNG, TIFF and WebP. Export a flat file when you need one</p>
 					</li>
 					<li class="panel reveal">
 						<svg class="icon-feature" aria-hidden="true"><use href="assets/icons.svg#i-code" /></svg>
 						<h3>Free and open source</h3>
-						<p>MIT licensed, with every line on GitHub. It was useful for me; it may be useful for you too.</p>
+						<p>MIT licensed, with every line on GitHub. It was useful for me; it may be useful for you too</p>
 					</li>
 				</ul>
 			</section>
@@ -335,23 +263,21 @@
 					<h2 class="section-title reveal" id="how-heading">Drop, set, desqueeze</h2>
 				</header>
 
-				<!-- The three states of a file in the app, read left to right:
-				     waiting, working, done. -->
 				<ol class="steps reveal">
-					<li class="step is-queued">
-						<span class="light" aria-hidden="true"></span>
+					<li class="step">
+						<span class="step-number" aria-hidden="true">1</span>
 						<h3>Drop files</h3>
 						<p>Drag photos or folders anywhere onto the window, or pick them</p>
 					</li>
-					<li class="step is-running">
-						<span class="light" aria-hidden="true"></span>
-						<h3>Set the factor</h3>
-						<p>1.33x, 1.5x, 2x or custom, as DNG or a flat file</p>
+					<li class="step">
+						<span class="step-number" aria-hidden="true">2</span>
+						<h3>Settings</h3>
+						<p>Determine the anamorphic factor (ex: 1.5x) and output format</p>
 					</li>
-					<li class="step is-done">
-						<span class="light" aria-hidden="true"></span>
+					<li class="step">
+						<span class="step-number" aria-hidden="true">3</span>
 						<h3>Desqueeze</h3>
-						<p>One click, and the files land in a <code>desqueezed</code> folder beside the originals</p>
+						<p>The files land in a <code>desqueezed</code> folder beside the originals</p>
 					</li>
 				</ol>
 			</section>
@@ -368,7 +294,7 @@
 						<p>
 							In DNG mode nothing is resampled. The squeeze factor goes into the file's
 							<code>DefaultScale</code> tag; Lightroom, Camera Raw and other DNG-aware apps apply it on open, and
-							it can be changed or removed later. The other output formats bake the stretch into the pixels.
+							it can be changed or removed later. The other output formats bake the stretch into the pixels
 						</p>
 					</details>
 					<details class="reveal">
@@ -379,7 +305,7 @@
 							<code>kdc</code> <code>mef</code> <code>mos</code> <code>mrw</code> <code>nef</code> <code>nrw</code>
 							<code>orf</code> <code>pef</code> <code>raf</code> <code>raw</code> <code>rw2</code> <code>sr2</code>
 							<code>srf</code> <code>srw</code>. Bitmaps: <code>jpg</code> <code>jpeg</code> <code>png</code>
-							<code>tif</code> <code>tiff</code> <code>webp</code>. Output is DNG, JPEG, PNG, TIFF or WebP.
+							<code>tif</code> <code>tiff</code> <code>webp</code>. Output is DNG, JPEG, PNG, TIFF or WebP
 						</p>
 					</details>
 					<details class="reveal">
@@ -388,26 +314,26 @@
 							RAW decoding comes from DNGLab: 825 cameras from 32 manufacturers, listed in the
 							<a href="https://github.com/ped-bat/desqueeze/blob/main/resources/cameras.json" rel="noopener"
 								>repository</a
-							>. Bitmaps work regardless of camera.
+							>. Bitmaps work regardless of camera
 						</p>
 					</details>
 					<details class="reveal">
 						<summary>Does it work offline?</summary>
 						<p>
 							Yes. DNGLab, <code>dcraw_emu</code> and ExifTool ship inside the app. Nothing else to install, no
-							network access while processing.
+							network access while processing
 						</p>
 					</details>
 					<details class="reveal">
 						<summary>Where do the files go?</summary>
 						<p>
 							Into a <code>desqueezed</code> folder next to the originals, which are never modified. Files already
-							desqueezed are skipped.
+							desqueezed are skipped
 						</p>
 					</details>
 					<details class="reveal">
 						<summary>Are Intel Macs supported?</summary>
-						<p>Not yet. The macOS build is for Apple Silicon; Windows x64 and Linux x86_64 builds are available.</p>
+						<p>Not yet. The macOS build is for Apple Silicon; Windows x64 and Linux x86_64 builds are available</p>
 					</details>
 				</div>
 			</section>
@@ -415,7 +341,7 @@
 			<!-- Download -->
 			<section id="download" class="ruled section-alt" aria-labelledby="download-heading">
 				<header class="section-head">
-					<h2 class="section-title reveal" id="download-heading">Download Desqueeze</h2>
+					<h2 class="section-title reveal" id="download-heading">Download it</h2>
 					<p class="section-lede reveal">Free and open source</p>
 				</header>
 
@@ -466,7 +392,7 @@
 					</ul>
 					<p class="download-note" data-for="windows">
 						Windows may show a SmartScreen warning on first install. Click <strong>More info</strong>, then
-						<strong>Run anyway</strong>.
+						<strong>Run anyway</strong>
 					</p>
 					<p class="download-note" data-for="linux">
 						Make the AppImage executable first: <code>chmod +x Desqueeze-Linux-x86_64.AppImage</code>
@@ -505,7 +431,7 @@
 						>Third-party licenses</a
 					>
 				</nav>
-				<p class="colophon">© Desqueeze · Created by Pedro</p>
+				<p class="colophon">© Desqueeze · Created by <a href="https://pedrobatista.pt" rel="noopener">Pedro</a></p>
 			</div>
 		</footer>
 	</body>

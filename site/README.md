@@ -52,21 +52,17 @@ borrows from the renderer rather than approximating it:
 - **The dot grid** (`js/dot-grid.js`) is a real port of the app's engine,
   with film grain and dot glow baked into tiles because per-frame
   generation is far too expensive across a full viewport. On the site it
-  is knocked back (`config` in `js/site.js`: lower base and ceiling
-  opacity, softer glow, a darker canvas ground) so it stays a backdrop
-  behind a page of text.
-- **The hero window** is the app rebuilt in HTML (`.app` in the CSS) at the
-  app's 1120x720 proportions: the bars, the empty stage with its display
-  line, the file list with its traffic lights and mono badges, the footer
-  progress and actions. `js/site.js` runs the whole flow through it,
-  following `dg-app`'s modes: ready → a drop (the window-edge ring) →
-  settings → processing (three files at a time, the chip stowed) → success
-  → "Desqueeze more" hands the window back. It only runs while on screen.
-- **Before and after** (`.compare`, under the features title) is one photo
-  rendered twice from the same ARW decode, as shot and stretched 1.33x
-  (`assets/photo/`), with the split following the pointer. The squeezed
-  frame is narrower, so it sits centred with dark bands either side rather
-  than being stretched to fit.
+  is fixed, focused on the top edge (`focusY: 0`) and runs the app's
+  processing-stage stretch on its 3s loop (`loop: true`); it does not
+  travel with the page. It is also knocked back (`config` in
+  `js/site.js`: lower base and ceiling opacity, softer glow, a darker
+  canvas ground) so it stays a backdrop behind a page of text.
+- **Before and after** (`.compare`, in the hero) is one photo rendered
+  twice from the same ARW decode, as shot and stretched 1.33x
+  (`assets/photo/`). The split rides a spring towards the pointer, so it
+  eases in on entry, follows the pointer, and stays where it was left.
+  The squeezed frame is narrower, so it sits centred with dark bands
+  either side rather than being stretched to fit.
 - **Type** is Science Gothic throughout. Uppercase is reserved for the
   wordmark and the hero title, as in the app; everything else is sentence
   case at the app's UI axes (`wght 450, wdth 92`). The hero title,

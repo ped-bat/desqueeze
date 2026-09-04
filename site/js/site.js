@@ -2,8 +2,7 @@
  * Desqueeze landing page - page wiring.
  *
  * Owns: the background dot grid, the hero's desqueeze intro, scroll
- * reveals, the platform-aware download button, the batch that runs inside
- * the rebuilt app window, and the before/after photo.
+ * reveals, the platform-aware download button, and the before/after photo.
  */
 
 import { DotGrid } from "./dot-grid.js";
@@ -32,7 +31,9 @@ function stepSpringTo(s, target, cfg, dt) {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Background dot grid
+   Background dot grid: fixed, focused on the top edge, running the
+   app's processing-stage stretch on its 3s loop. It does not travel
+   with the page.
    ───────────────────────────────────────────────────────────── */
 
 function initGrid(onFrame) {
@@ -44,6 +45,11 @@ function initGrid(onFrame) {
 	const grid = new DotGrid(canvas, {
 		onFrame,
 		config: {
+			focusY: 0,
+			loop: !reduceMotion,
+			// A taller spotlight than the app's, so the band reaches further
+			// down from the top edge it is anchored to
+			spotlightHeight: 0.3,
 			baseOpacity: 0.16,
 			maxOpacity: 0.5,
 			glowOpacity: 0.025,
@@ -55,7 +61,7 @@ function initGrid(onFrame) {
 	fit();
 
 	// Reduced motion still gets the grid, held still: no cursor magnetism,
-	// no scroll drift, no grain churn.
+	// no stretch loop, no grain churn.
 	if (reduceMotion) {
 		grid.renderOnce();
 		let staticTimer;
@@ -78,7 +84,7 @@ function initGrid(onFrame) {
 	});
 
 	// Pointer drives the magnetic spotlight. Coarse pointers never fire
-	// mousemove, so those visitors keep the ambient centre spotlight.
+	// mousemove, so those visitors keep the ambient spotlight.
 	window.addEventListener("mousemove", (e) => grid.setPointer(e.clientX, e.clientY), { passive: true });
 	document.addEventListener("mouseleave", () => grid.clearPointer());
 
@@ -86,20 +92,6 @@ function initGrid(onFrame) {
 		if (document.hidden) grid.stop();
 		else grid.start();
 	});
-
-	let ticking = false;
-	window.addEventListener(
-		"scroll",
-		() => {
-			if (ticking) return;
-			ticking = true;
-			requestAnimationFrame(() => {
-				grid.setScrollOffset(window.scrollY);
-				ticking = false;
-			});
-		},
-		{ passive: true }
-	);
 
 	return grid;
 }
@@ -150,7 +142,7 @@ function initHero(grid) {
 		const start = performance.now();
 		let last = start;
 
-		// The grid pulses on the same beat, as it does when the app changes state
+		// The grid stretches on the same beat, as it does when the app changes state
 		if (grid) setTimeout(() => grid.pulse(), 180);
 
 		const settle = () => {
@@ -192,7 +184,7 @@ function initHero(grid) {
    a little, top to bottom.
    ───────────────────────────────────────────────────────────── */
 
-function initReveals(grid) {
+function initReveals() {
 	const targets = document.querySelectorAll(".reveal:not(.reveal-load)");
 	const reveal = (el) => el.classList.add("is-revealed");
 
@@ -218,9 +210,6 @@ function initReveals(grid) {
 				b.entry.target.style.animationDelay = `${order * STEP_MS}ms`;
 				reveal(b.entry.target);
 				io.unobserve(b.entry.target);
-				// A section title arriving pulses the grid, tying the background
-				// to the reading position the way the app ties it to state.
-				if (grid && b.entry.target.classList.contains("section-title")) grid.pulse();
 			}
 		},
 		{ threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
@@ -276,234 +265,70 @@ function initDownloads() {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   The app, running a batch. Follows dg-app's modes from the top:
-   ready (the empty window) → a drop → settings (files queued) →
-   processing (three at a time, the chip stowed) → success (the summary
-   and actions swap) → "Desqueeze more" clears the list → ready again.
+   Before and after: the split rides a spring towards the pointer, so it
+   eases in when the pointer enters, follows it while it is over the
+   photo, and stays wherever it was left. Touch drags it; the arrow keys
+   move it for keyboard users.
    ───────────────────────────────────────────────────────────── */
 
-const STATUS_LABEL = { queued: "Queued", running: "Converting", done: "Done" };
-const CHECK =
-	'<svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.2 8.6l3.1 3.1 6.5-7" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-const PARALLEL = 3;
-const FACTOR = "1.33x";
-const FORMAT = "DNG";
-const RESTING = "Images processed on this machine, nothing is uploaded.";
-
-function initDemo() {
-	const app = document.getElementById("app-demo");
-	if (!app) return;
-	const rows = Array.from(app.querySelectorAll(".row"));
-	const chip = document.getElementById("demo-chip");
-	const summary = document.getElementById("demo-summary");
-	const actions = document.getElementById("demo-actions");
-	const ring = document.getElementById("demo-ring");
-	if (!rows.length || !chip || !summary || !actions) return;
-	const total = rows.length;
-
-	const timers = new Set();
-	const after = (ms, fn) => {
-		const t = setTimeout(() => {
-			timers.delete(t);
-			fn();
-		}, ms);
-		timers.add(t);
-	};
-	const clearAll = () => {
-		timers.forEach(clearTimeout);
-		timers.clear();
-	};
-
-	const setRow = (row, status) => {
-		row.className = `row ${status}`;
-		const st = row.querySelector(".status");
-		st.textContent = STATUS_LABEL[status];
-		if (status === "done") st.insertAdjacentHTML("afterbegin", CHECK);
-	};
-	const btn = (label, role) => `<span class="btn btn-${role}">${label}</span>`;
-	const time = (s) => (s < 1 ? `${(s * 1000).toFixed(0)}ms` : `${s.toFixed(2)}s`);
-	const showList = (on) => app.classList.toggle("on-list", on);
-
-	const screens = {
-		ready() {
-			chip.classList.remove("stowed");
-			showList(false);
-			summary.innerHTML = `<span>${RESTING}</span>`;
-			actions.innerHTML = "";
-		},
-		settings() {
-			chip.classList.remove("stowed");
-			showList(true);
-			rows.forEach((r) => setRow(r, "queued"));
-			summary.innerHTML = `<span><b>${total} files</b> · ${FACTOR} · ${FORMAT}</span>`;
-			actions.innerHTML = btn("Clear", "quiet") + btn("Desqueeze images", "primary");
-		},
-		processing() {
-			chip.classList.add("stowed");
-			summary.innerHTML = `<span class="progress"><i style="width:0%"></i></span><span class="count">0 / ${total}</span>`;
-			actions.innerHTML = btn("Cancel", "ghost");
-		},
-		success(elapsed) {
-			summary.innerHTML = `<span><b>${total} desqueezed</b> at ${FACTOR} in ${time(elapsed)}</span>`;
-			actions.innerHTML = btn("Desqueeze more", "quiet") + btn("Reveal in Finder", "primary");
-		},
-	};
-
-	if (reduceMotion) {
-		// A finished batch, held still
-		chip.classList.add("stowed");
-		showList(true);
-		rows.forEach((r) => setRow(r, "done"));
-		screens.success(4.21);
-		return;
-	}
-
-	const fadeContent = (to) => app.style.setProperty("--app-content", to);
-	const fadeFoot = (to) => app.style.setProperty("--app-foot", to);
-
-	// One screen fades out and the next fades in; the bars stay put
-	const swapScreen = (fn, then) => {
-		fadeContent("0");
-		fadeFoot("0");
-		after(320, () => {
-			fn();
-			fadeContent("1");
-			fadeFoot("1");
-			if (then) then();
-		});
-	};
-
-	// Only the footer's contents change between two list modes
-	const swapFoot = (fn) => {
-		fadeFoot("0");
-		after(300, () => {
-			fn();
-			fadeFoot("1");
-		});
-	};
-
-	// The window-edge ring the app shows while files are dragged over it,
-	// then the list takes the stage's place
-	const drop = () => {
-		ring?.classList.add("on");
-		after(650, () => {
-			ring?.classList.remove("on");
-			swapScreen(screens.settings, () => after(1800, runBatch));
-		});
-	};
-
-	const runBatch = () => {
-		swapFoot(() => {
-			screens.processing();
-			const fill = summary.querySelector(".progress > i");
-			const count = summary.querySelector(".count");
-			const started = performance.now();
-			let next = 0;
-			let done = 0;
-
-			const startNext = () => {
-				if (next >= total) return;
-				const row = rows[next++];
-				setRow(row, "running");
-				after(850 + Math.random() * 750, () => {
-					setRow(row, "done");
-					done++;
-					fill.style.width = `${(done / total) * 100}%`;
-					count.textContent = `${done} / ${total}`;
-					if (done === total) after(600, () => finish((performance.now() - started) / 1000));
-					else startNext();
-				});
-			};
-			for (let i = 0; i < PARALLEL; i++) startNext();
-		});
-	};
-
-	const finish = (elapsed) => {
-		swapFoot(() => screens.success(elapsed));
-		// "Desqueeze more" clears the batch and hands the window back
-		after(4600, () => swapScreen(screens.ready, () => after(2600, drop)));
-	};
-
-	let running = false;
-	const begin = () => {
-		running = true;
-		screens.ready();
-		fadeContent("1");
-		fadeFoot("1");
-		after(2200, drop);
-	};
-	const halt = () => {
-		running = false;
-		clearAll();
-		ring?.classList.remove("on");
-	};
-
-	// Only run while on screen, and start from the top each time it returns
-	const inView = () => {
-		const r = app.getBoundingClientRect();
-		return r.bottom > 0 && r.top < window.innerHeight;
-	};
-	if ("IntersectionObserver" in window) {
-		new IntersectionObserver(
-			(entries) => {
-				const on = entries.some((e) => e.isIntersecting);
-				if (on && !running && !document.hidden) begin();
-				else if (!on && running) halt();
-			},
-			{ threshold: 0.15 }
-		).observe(app);
-	} else {
-		begin();
-	}
-	document.addEventListener("visibilitychange", () => {
-		if (document.hidden) halt();
-		else if (!running && inView()) begin();
-	});
-}
-
-/* ─────────────────────────────────────────────────────────────
-   Before and after: the split follows the pointer across the photo and
-   eases back to the middle when it leaves. Touch drags it and leaves it
-   where it was let go; the arrow keys move it for keyboard users.
-   ───────────────────────────────────────────────────────────── */
+// Stiff and close to critically damped, like the app's hover spring:
+// quick, with just enough give to feel physical and almost no overshoot.
+const SPLIT_SPRING = { stiffness: 170, damping: 24 };
 
 function initCompare() {
 	const el = document.getElementById("compare-view");
 	if (!el) return;
 
-	const set = (pct) => el.style.setProperty("--split", `${Math.max(0, Math.min(100, pct)).toFixed(2)}%`);
+	const spring = { value: 50, vel: 0 };
+	let target = 50;
+	let raf = 0;
+	let last = 0;
+
+	const paint = (v) => el.style.setProperty("--split", `${Math.max(0, Math.min(100, v)).toFixed(2)}%`);
+
+	const frame = (now) => {
+		// Clamped: a backgrounded tab can hand back a huge delta, and
+		// integrating that in one step throws the spring across the photo.
+		const dt = Math.min((now - last) / 1000, 0.05);
+		last = now;
+		const settled = stepSpringTo(spring, target, SPLIT_SPRING, dt);
+		paint(spring.value);
+		raf = settled ? 0 : requestAnimationFrame(frame);
+	};
+
+	// Retargeting mid-flight keeps the spring's velocity, so a pointer that
+	// changes direction never restarts a curve.
+	const moveTo = (pct) => {
+		target = Math.max(0, Math.min(100, pct));
+		if (reduceMotion) {
+			spring.value = target;
+			spring.vel = 0;
+			paint(target);
+			return;
+		}
+		if (!raf) {
+			last = performance.now();
+			raf = requestAnimationFrame(frame);
+		}
+	};
+
 	const fromEvent = (e) => {
 		const r = el.getBoundingClientRect();
-		if (r.width > 0) set(((e.clientX - r.left) / r.width) * 100);
+		if (r.width > 0) moveTo(((e.clientX - r.left) / r.width) * 100);
 	};
-	const current = () => parseFloat(getComputedStyle(el).getPropertyValue("--split")) || 50;
 
-	let liveTimer;
 	el.addEventListener("pointerenter", (e) => {
-		if (e.pointerType === "touch") return;
-		// Ease to the pointer first, then track it directly
-		fromEvent(e);
-		clearTimeout(liveTimer);
-		liveTimer = setTimeout(() => el.classList.add("live"), 200);
+		if (e.pointerType !== "touch") fromEvent(e);
 	});
 	el.addEventListener("pointermove", (e) => {
 		if (e.pointerType === "touch" && e.buttons === 0) return;
 		fromEvent(e);
 	});
-	el.addEventListener("pointerdown", (e) => {
-		el.classList.add("live");
-		fromEvent(e);
-	});
-	el.addEventListener("pointerleave", (e) => {
-		clearTimeout(liveTimer);
-		el.classList.remove("live");
-		if (e.pointerType !== "touch") set(50);
-	});
+	el.addEventListener("pointerdown", fromEvent);
 	el.addEventListener("keydown", (e) => {
 		if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
 		e.preventDefault();
-		el.classList.remove("live");
-		set(current() + (e.key === "ArrowLeft" ? -5 : 5));
+		moveTo(target + (e.key === "ArrowLeft" ? -5 : 5));
 	});
 }
 
@@ -517,7 +342,6 @@ const grid = initGrid((f) => {
 	if (hero.state.introDone) hero.applyChroma(f.chromaOffset * 2);
 });
 Object.assign(hero, initHero(grid));
-initReveals(grid);
+initReveals();
 initDownloads();
-initDemo();
 initCompare();

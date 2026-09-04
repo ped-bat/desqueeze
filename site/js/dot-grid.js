@@ -79,10 +79,17 @@ export const CONFIG = {
 	repulsionRadius: 500,
 	cursorSpotlight: { width: 0.2, height: 0.25, range: 5 },
 
-	// Stretch pulse — the app runs this on a 3s loop while processing.
-	// Here it fires on demand (hero intro, and when a section scrolls in).
+	// Stretch pulse — the app runs this on a 3s loop while processing. With
+	// `loop` on the port does the same; off, it fires on demand via pulse().
+	loop: false,
+	loopDuration: 3,
 	stretchAmount: 0.6,
 	stretchDuration: 1.5,
+
+	// Where the grid's focal point sits, as a fraction of the height: the
+	// centre spotlight, the stretch and the barrel all work around it. The
+	// app centres it (0.5); the site anchors it to the top edge (0).
+	focusY: 0.5,
 	gridSpring: { stiffness: 125, damping: 15 },
 	rowStretch: { center: 1, edge: 0.5 },
 	colStretch: { center: 1, edge: 0 },
@@ -161,6 +168,7 @@ export class DotGrid {
 		// Stretch pulse state
 		this.phase = "idle"; // 'stretch' | 'spring' | 'idle'
 		this.stretchTimer = 0;
+		this.loopTimer = 0;
 		this.gridSpring = { pos: 0, vel: 0 };
 
 		// Parallax: the grid drifts slightly as the page scrolls, so the
@@ -317,7 +325,7 @@ export class DotGrid {
 		const w = this.w;
 		const h = this.h;
 		const cx = w / 2;
-		const cy = h / 2;
+		const cy = h * C.focusY;
 		const offCtx = this.offCtx;
 
 		// Cursor tracking (exponential smoothing, frame-rate independent)
@@ -337,6 +345,15 @@ export class DotGrid {
 		// Cursor spotlight takes over from the centre one as the pointer warms up
 		const cursorW = this.cursorIntensity;
 		const centerW = 1 - cursorW;
+
+		// The processing loop: a stretch every loopDuration seconds
+		if (C.loop) {
+			this.loopTimer += dt;
+			if (this.loopTimer >= C.loopDuration) {
+				this.loopTimer = 0;
+				this.pulse();
+			}
+		}
 
 		// Stretch pulse phase machine
 		if (this.phase === "stretch") {
@@ -361,7 +378,10 @@ export class DotGrid {
 		const spotRyB = h * C.spotlightHeight * 0.5;
 		const spotRangeB = C.spotlightRange;
 		const centerCol = (this.cols - 1) / 2;
-		const centerRow = (this.rows - 1) / 2;
+		// The stretch is strongest on the focal row and decays towards the
+		// rows furthest from it
+		const focusRow = (this.rows - 1) * C.focusY;
+		const rowSpan = Math.max(focusRow, this.rows - 1 - focusRow) || 1;
 		const oLerp = 1 - Math.exp(-C.easeInSpeed * dt);
 
 		// Grid drifts vertically with scroll, wrapping on dotSpacing so the
@@ -390,8 +410,8 @@ export class DotGrid {
 			dot.ox += (tox - dot.ox) * oLerp;
 			dot.oy += (toy - dot.oy) * oLerp;
 
-			// Horizontal stretch, strongest at the centre row, decaying outward
-			const rowNorm = centerRow > 0 ? Math.abs(dot.row - centerRow) / centerRow : 0;
+			// Horizontal stretch, strongest at the focal row, decaying outward
+			const rowNorm = Math.min(Math.abs(dot.row - focusRow) / rowSpan, 1);
 			const rowDecay = lerp(C.rowStretch.center, C.rowStretch.edge, decayEasing(rowNorm));
 			const colNorm = centerCol > 0 ? Math.abs(dot.col - centerCol) / centerCol : 0;
 			const colDecay = lerp(C.colStretch.center, C.colStretch.edge, decayEasing(colNorm));
