@@ -31,9 +31,9 @@ function stepSpringTo(s, target, cfg, dt) {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Background dot grid: fixed, focused on the top edge, running the
+   Background dot grid: fixed and centred in the viewport, running the
    app's processing-stage stretch on its 3s loop. It does not travel
-   with the page.
+   with the page or follow the pointer.
    ───────────────────────────────────────────────────────────── */
 
 function initGrid(onFrame) {
@@ -45,11 +45,7 @@ function initGrid(onFrame) {
 	const grid = new DotGrid(canvas, {
 		onFrame,
 		config: {
-			focusY: 0,
 			loop: !reduceMotion,
-			// A taller spotlight than the app's, so the band reaches further
-			// down from the top edge it is anchored to
-			spotlightHeight: 0.3,
 			baseOpacity: 0.16,
 			maxOpacity: 0.5,
 			glowOpacity: 0.025,
@@ -263,10 +259,10 @@ function initDownloads() {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Before and after: the split rides a spring towards the pointer, so it
-   eases in when the pointer enters, follows it while it is over the
-   photo, and stays wherever it was left. Touch drags it; the arrow keys
-   move it for keyboard users.
+   Before and after: the split runs top to bottom and rides a spring
+   towards the pointer, so it eases in when the pointer enters, follows
+   it while it is over the photo, and stays wherever it was left. Touch
+   drags it; the up and down arrow keys move it for keyboard users.
    ───────────────────────────────────────────────────────────── */
 
 // Stiff and close to critically damped, like the app's hover spring:
@@ -312,7 +308,7 @@ function initCompare() {
 
 	const fromEvent = (e) => {
 		const r = el.getBoundingClientRect();
-		if (r.width > 0) moveTo(((e.clientX - r.left) / r.width) * 100);
+		if (r.height > 0) moveTo(((e.clientY - r.top) / r.height) * 100);
 	};
 
 	el.addEventListener("pointerenter", (e) => {
@@ -324,9 +320,9 @@ function initCompare() {
 	});
 	el.addEventListener("pointerdown", fromEvent);
 	el.addEventListener("keydown", (e) => {
-		if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+		if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
 		e.preventDefault();
-		moveTo(target + (e.key === "ArrowLeft" ? -5 : 5));
+		moveTo(target + (e.key === "ArrowUp" ? -5 : 5));
 	});
 }
 

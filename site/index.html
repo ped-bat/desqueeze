@@ -91,7 +91,7 @@
 								"name": "What does lossless mean here?",
 								"acceptedAnswer": {
 									"@type": "Answer",
-									"text": "In DNG mode nothing is resampled. The squeeze factor goes into the file's DefaultScale tag; Lightroom, Camera Raw and other DNG-aware apps apply it on open, and it can be changed or removed later. The other output formats bake the stretch into the pixels."
+									"text": "In DNG mode nothing is resampled. The squeeze factor goes into the file's DefaultScale tag; Lightroom, Camera Raw and other DNG-aware apps apply it on open, and it can be changed or removed later. Other output formats (for example JPEG) bake the stretch into the pixels irreversibly."
 								}
 							},
 							{
@@ -115,7 +115,7 @@
 								"name": "Does it work offline?",
 								"acceptedAnswer": {
 									"@type": "Answer",
-									"text": "Yes. DNGLab, dcraw_emu and ExifTool ship inside the app. Nothing else to install, no network access while processing."
+									"text": "Yes, all dependencies ship in the app, nothing else to install, no network access while processing."
 								}
 							},
 							{
@@ -194,14 +194,14 @@
 				</div>
 
 				<!-- Before and after: one photo, as shot and desqueezed, with
-				     the split following the pointer -->
+				     the split following the pointer up and down -->
 				<div class="hero-shot reveal-load" data-reveal-delay="240">
 					<div
 						class="compare"
 						id="compare-view"
 						tabindex="0"
 						role="group"
-						aria-label="Before and after. The squeezed ARW on the left, the desqueezed DNG on the right. Move the pointer, or use the left and right arrow keys, to change where the two meet."
+						aria-label="Before and after. The RAW as shot on top, the same RAW desqueezed at 1.33x below. Move the pointer up and down, or use the up and down arrow keys, to change where the two meet."
 					>
 						<picture class="compare-after">
 							<source type="image/webp" srcset="assets/photo/arcade-dng.webp" />
@@ -219,10 +219,8 @@
 							</picture>
 						</div>
 						<div class="compare-line" aria-hidden="true"><span class="compare-handle"></span></div>
-						<span class="compare-tag left" aria-hidden="true"><span class="badge">arw</span>As shot</span>
-						<span class="compare-tag right" aria-hidden="true"
-							><span class="badge">dng</span>Desqueezed 1.33x</span
-						>
+						<span class="compare-tag top" aria-hidden="true">Raw as shot</span>
+						<span class="compare-tag bottom" aria-hidden="true">Raw desqueezed at 1.33x</span>
 					</div>
 				</div>
 			</section>
@@ -294,18 +292,26 @@
 						<p>
 							In DNG mode nothing is resampled. The squeeze factor goes into the file's
 							<code>DefaultScale</code> tag; Lightroom, Camera Raw and other DNG-aware apps apply it on open, and
-							it can be changed or removed later. The other output formats bake the stretch into the pixels
+							it can be changed or removed later. Other output formats (ex: <code>jpeg</code>) bake the stretch
+							into the pixels irreversibly
 						</p>
 					</details>
 					<details class="reveal">
 						<summary>Which files does Desqueeze accept?</summary>
-						<p>
-							RAW: <code>3fr</code> <code>ari</code> <code>arw</code> <code>cr2</code> <code>cr3</code>
-							<code>crw</code> <code>dcr</code> <code>dcs</code> <code>dng</code> <code>erf</code> <code>iiq</code>
-							<code>kdc</code> <code>mef</code> <code>mos</code> <code>mrw</code> <code>nef</code> <code>nrw</code>
-							<code>orf</code> <code>pef</code> <code>raf</code> <code>raw</code> <code>rw2</code> <code>sr2</code>
-							<code>srf</code> <code>srw</code>. Bitmaps: <code>jpg</code> <code>jpeg</code> <code>png</code>
-							<code>tif</code> <code>tiff</code> <code>webp</code>. Output is DNG, JPEG, PNG, TIFF or WebP
+						<p class="formats">
+							<strong>RAW</strong> <code>3fr</code> <code>ari</code> <code>arw</code> <code>cr2</code>
+							<code>cr3</code> <code>crw</code> <code>dcr</code> <code>dcs</code> <code>dng</code> <code>erf</code>
+							<code>iiq</code> <code>kdc</code> <code>mef</code> <code>mos</code> <code>mrw</code> <code>nef</code>
+							<code>nrw</code> <code>orf</code> <code>pef</code> <code>raf</code> <code>raw</code> <code>rw2</code>
+							<code>sr2</code> <code>srf</code> <code>srw</code>
+						</p>
+						<p class="formats">
+							<strong>Bitmaps</strong> <code>jpg</code> <code>jpeg</code> <code>png</code> <code>tif</code>
+							<code>tiff</code> <code>webp</code>
+						</p>
+						<p class="formats">
+							<strong>Output</strong> <code>dng</code> <code>jpeg</code> <code>png</code> <code>tiff</code>
+							<code>webp</code>
 						</p>
 					</details>
 					<details class="reveal">
@@ -319,10 +325,7 @@
 					</details>
 					<details class="reveal">
 						<summary>Does it work offline?</summary>
-						<p>
-							Yes. DNGLab, <code>dcraw_emu</code> and ExifTool ship inside the app. Nothing else to install, no
-							network access while processing
-						</p>
+						<p>Yes, all dependencies ship in the app, nothing else to install, no network access while processing</p>
 					</details>
 					<details class="reveal">
 						<summary>Where do the files go?</summary>

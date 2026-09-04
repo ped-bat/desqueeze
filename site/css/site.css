@@ -182,8 +182,8 @@ summary {
 /* ── 3. Background ──────────────────────────────────────────── */
 
 /* Fixed: the grid does not travel with the page or follow the pointer.
-   Its focal point sits at the top edge, horizontally centred, and the
-   stretch runs around it. Softened a touch so it reads as a backdrop. */
+   Its focal point sits at the centre of the viewport, and the stretch runs
+   around it. Softened a touch so it reads as a backdrop. */
 #grid-canvas {
 	position: fixed;
 	inset: 0;
@@ -382,13 +382,19 @@ section > * {
 	margin-inline: auto;
 }
 
-/* Sections part on the bars' rule rather than a full-strength border */
+/* Sections part on the bars' rule rather than a full-strength border. The
+   rule keeps to the content's measure, not the viewport's. */
+.ruled::before,
+.strip-section::before,
+.site-footer::before {
+	left: max(var(--site-pad-x), calc((100% - var(--site-max)) / 2));
+	right: max(var(--site-pad-x), calc((100% - var(--site-max)) / 2));
+}
+
 .ruled::before {
 	content: "";
 	position: absolute;
 	top: 0;
-	left: 0;
-	right: 0;
 	height: 1px;
 	pointer-events: none;
 	background: linear-gradient(
@@ -563,7 +569,7 @@ section > * {
 .hero-shot {
 	width: 100%;
 	max-width: var(--site-max);
-	margin: clamp(64px, 9vh, 96px) auto 0;
+	margin: clamp(96px, 13vh, 144px) auto 0;
 }
 
 /* ── 9. Before and after ────────────────────────────────────── */
@@ -584,7 +590,7 @@ section > * {
 	border: 1px solid var(--dg-chrome-border);
 	background: #050506;
 	box-shadow: 0 30px 70px -30px rgba(0, 0, 0, 0.9);
-	cursor: col-resize;
+	cursor: row-resize;
 	touch-action: none;
 	user-select: none;
 	-webkit-user-select: none;
@@ -612,13 +618,13 @@ section > * {
 	object-fit: cover;
 }
 
-/* The squeezed frame is narrower: same height, centred, dark either side,
-   and cut off at the split */
+/* The squeezed frame is narrower: same height, centred, dark either side.
+   It shows above the split; the desqueezed frame shows below it. */
 .compare-before {
 	position: absolute;
 	inset: 0;
 	background: #050506;
-	clip-path: inset(0 calc(100% - var(--split)) 0 0);
+	clip-path: inset(0 0 calc(100% - var(--split)) 0);
 }
 
 .compare-before img {
@@ -632,11 +638,11 @@ section > * {
 
 .compare-line {
 	position: absolute;
-	top: 0;
-	bottom: 0;
-	left: var(--split);
-	width: 1px;
-	margin-left: -0.5px;
+	left: 0;
+	right: 0;
+	top: var(--split);
+	height: 1px;
+	margin-top: -0.5px;
 	background: rgba(255, 255, 255, 0.7);
 	box-shadow: 0 0 8px rgba(255, 255, 255, 0.35);
 	pointer-events: none;
@@ -656,12 +662,12 @@ section > * {
 	-webkit-backdrop-filter: var(--dg-blur-glass);
 }
 
-/* Two small chevrons, drawn rather than typed */
+/* Two small chevrons, up and down, drawn rather than typed */
 .compare-handle::before,
 .compare-handle::after {
 	content: "";
 	position: absolute;
-	top: 50%;
+	left: 50%;
 	width: 5px;
 	height: 5px;
 	border-top: 1.5px solid rgba(255, 255, 255, 0.85);
@@ -669,54 +675,52 @@ section > * {
 }
 
 .compare-handle::before {
-	left: 6px;
-	transform: translateY(-50%) rotate(-45deg);
+	top: 6px;
+	transform: translateX(-50%) rotate(45deg);
 }
 
 .compare-handle::after {
-	right: 6px;
-	transform: translateY(-50%) rotate(135deg);
+	bottom: 6px;
+	transform: translateX(-50%) rotate(225deg);
 }
 
 .compare-tag {
 	position: absolute;
-	top: 12px;
-	display: inline-flex;
-	align-items: center;
-	gap: 8px;
-	padding: 6px 10px;
+	left: 16px;
+	padding: 9px 14px;
 	border-radius: var(--site-r);
-	background: rgba(6, 6, 7, 0.55);
-	border: 1px solid var(--dg-chrome-border);
-	backdrop-filter: blur(4px);
-	-webkit-backdrop-filter: blur(4px);
-	font-size: var(--dg-ui-sm);
+	background: rgba(6, 6, 7, 0.72);
+	border: 1px solid rgba(255, 255, 255, 0.22);
+	backdrop-filter: blur(6px);
+	-webkit-backdrop-filter: blur(6px);
+	font-size: var(--dg-ui);
+	font-variation-settings: var(--dg-var-ui-strong);
 	color: var(--dg-fg-strong);
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 	pointer-events: none;
 }
 
-.compare-tag.left {
-	left: 12px;
+.compare-tag.top {
+	top: 16px;
 }
 
-.compare-tag.right {
-	right: 12px;
+.compare-tag.bottom {
+	bottom: 16px;
 }
 
 @media (max-width: 600px) {
 	.compare-tag {
-		top: 8px;
-		padding: 4px 7px;
-		gap: 6px;
-		font-size: var(--dg-ui-xs);
+		left: 10px;
+		padding: 6px 10px;
+		font-size: var(--dg-ui-sm);
 	}
 
-	.compare-tag.left {
-		left: 8px;
+	.compare-tag.top {
+		top: 10px;
 	}
 
-	.compare-tag.right {
-		right: 8px;
+	.compare-tag.bottom {
+		bottom: 10px;
 	}
 }
 
@@ -891,6 +895,19 @@ section > * {
 	line-height: 1.62;
 }
 
+/* Format lists: one line per kind, the kind in strong, the formats as chips */
+.faq p.formats {
+	line-height: 2;
+}
+
+.faq p.formats:not(:last-child) {
+	padding-bottom: 6px;
+}
+
+.faq p.formats strong {
+	margin-right: 0.35em;
+}
+
 .faq p a {
 	text-decoration: underline;
 	text-decoration-color: rgba(255, 255, 255, 0.3);
@@ -949,7 +966,7 @@ section > * {
 	gap: 14px;
 }
 
-/* A file row, pointing at a file */
+/* The ghost button's ground, border and hover, at a larger size */
 .dl {
 	display: grid;
 	grid-template-columns: 28px minmax(0, 1fr);
@@ -957,8 +974,8 @@ section > * {
 	gap: 16px;
 	padding: 22px 24px;
 	border-radius: var(--site-r-md);
-	background: var(--dg-row);
-	border: 1px solid transparent;
+	background: rgba(255, 255, 255, 0.05);
+	border: 1px solid rgba(255, 255, 255, 0.2);
 	color: var(--dg-fg-strong);
 	transition:
 		background 0.16s ease,
@@ -966,8 +983,8 @@ section > * {
 }
 
 .dl:hover {
-	background: var(--dg-row-hover);
-	border-color: var(--dg-chrome-border);
+	background: rgba(255, 255, 255, 0.1);
+	border-color: rgba(255, 255, 255, 0.32);
 }
 
 .dl svg {
@@ -1035,8 +1052,6 @@ section > * {
 	content: "";
 	position: absolute;
 	top: 0;
-	left: 0;
-	right: 0;
 	height: 1px;
 	background: linear-gradient(
 		to right,
@@ -1108,8 +1123,6 @@ section > * {
 	content: "";
 	position: absolute;
 	top: 0;
-	left: 0;
-	right: 0;
 	height: 1px;
 	background: linear-gradient(
 		to right,

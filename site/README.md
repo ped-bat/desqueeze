@@ -52,17 +52,19 @@ borrows from the renderer rather than approximating it:
 - **The dot grid** (`js/dot-grid.js`) is a real port of the app's engine,
   with film grain and dot glow baked into tiles because per-frame
   generation is far too expensive across a full viewport. On the site it
-  is fixed, focused on the top edge (`focusY: 0`) and runs the app's
+  is fixed and centred, ignores the pointer, and runs the app's
   processing-stage stretch on its 3s loop (`loop: true`); it does not
   travel with the page. It is also knocked back (`config` in
   `js/site.js`: lower base and ceiling opacity, softer glow, a darker
-  canvas ground) so it stays a backdrop behind a page of text.
+  canvas ground, a slight CSS blur) so it stays a backdrop behind a page
+  of text.
 - **Before and after** (`.compare`, in the hero) is one photo rendered
   twice from the same ARW decode, as shot and stretched 1.33x
-  (`assets/photo/`). The split rides a spring towards the pointer, so it
-  eases in on entry, follows the pointer, and stays where it was left.
-  The squeezed frame is narrower, so it sits centred with dark bands
-  either side rather than being stretched to fit.
+  (`assets/photo/`), split top over bottom. The split rides a spring
+  towards the pointer, so it eases in on entry, follows the pointer up and
+  down, and stays where it was left. The squeezed frame is narrower, so it
+  sits centred with dark bands either side rather than being stretched to
+  fit.
 - **Type** is Science Gothic throughout. Uppercase is reserved for the
   wordmark and the hero title, as in the app; everything else is sentence
   case at the app's UI axes (`wght 450, wdth 92`). The hero title,
