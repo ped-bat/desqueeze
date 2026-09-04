@@ -1,6 +1,7 @@
-import { LitElement, html, css, nothing } from "lit";
+import { LitElement, html, css, nothing, unsafeCSS } from "lit";
 import { store, StoreController } from "../state/app-state.js";
 import { ipc } from "../services/ipc.js";
+import { ENGINE_CONFIG } from "../core/config.js";
 import "./dg-canvas.js";
 import "./dg-chroma-text.js";
 import "./dg-settings-panel.js";
@@ -8,6 +9,22 @@ import "./dg-actions.js";
 import "./dg-top-bar.js";
 import "./dg-file-list.js";
 import "./dg-footer-bar.js";
+
+/**
+ * The CRT tube, built from the same numbers the engine used to paint onto
+ * the canvas: a vignette from 40% of the half-diagonal out to the corners,
+ * plus a curvature shadow banding each edge.
+ */
+const CRT = ENGINE_CONFIG.crt;
+const crtEdge = (dir) =>
+	`linear-gradient(to ${dir}, rgba(0, 0, 0, ${CRT.curvature * 8}) 0%, rgba(0, 0, 0, 0) ${CRT.curvature * 400}%)`;
+const CRT_BACKGROUND = [
+	`radial-gradient(circle farthest-corner at 50% 50%, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, ${CRT.vignetteStrength}) 100%)`,
+	crtEdge("bottom"),
+	crtEdge("top"),
+	crtEdge("right"),
+	crtEdge("left"),
+].join(", ");
 
 /**
  * <dg-app> — root component.
@@ -39,6 +56,43 @@ export class DgApp extends LitElement {
 			display: flex;
 			flex-direction: column;
 			min-height: 0;
+		}
+
+		/* ── The CRT ──────────────────────────────────────────────
+		   Three screen-wide layers above everything — the shell, the drop
+		   ring, the settings popover. The tube encloses the whole picture,
+		   so its scanlines, vignette and edge curvature fall across the bars,
+		   the file rows and the buttons, not just the dot grid behind them.
+		   (The scanlines used to live inside dg-canvas, under the chrome;
+		   that put the controls outside the screen being imitated.) */
+		.scanlines,
+		.crt,
+		.flicker {
+			position: absolute;
+			inset: 0;
+			pointer-events: none;
+		}
+
+		.scanlines {
+			z-index: 100;
+			background: repeating-linear-gradient(
+				to bottom,
+				transparent 0px,
+				transparent 1px,
+				rgba(0, 0, 0, 0.14) 1px,
+				rgba(0, 0, 0, 0.14) 2px
+			);
+		}
+
+		.crt {
+			z-index: 101;
+			background: ${unsafeCSS(CRT_BACKGROUND)};
+		}
+
+		/* Tube flicker, driven per frame from the engine. */
+		.flicker {
+			z-index: 102;
+			opacity: 0;
 		}
 
 		.body {
@@ -229,6 +283,10 @@ export class DgApp extends LitElement {
 				.onSwap=${(m) => (this.displayMode = m)}
 			></dg-canvas>
 
+			<div class="scanlines"></div>
+			<div class="crt"></div>
+			<div class="flicker" id="flicker"></div>
+
 			<div class="shell">
 				<dg-top-bar
 					.open=${store.settingsOpen}
@@ -324,6 +382,13 @@ export class DgApp extends LitElement {
 		if (list) list.style.opacity = o;
 
 		$("footer")?.style.setProperty("--dg-content-opacity", o);
+
+		const flicker = $("flicker");
+		if (flicker) {
+			const amount = f.crt?.flicker || 0;
+			flicker.style.opacity = Math.abs(amount);
+			flicker.style.background = amount > 0 ? "#ffffff" : "#000000";
+		}
 	}
 
 	// ── File intake ──

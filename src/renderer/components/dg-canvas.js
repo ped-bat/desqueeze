@@ -2,8 +2,10 @@ import { LitElement, html, css } from "lit";
 import { DotGridEngine } from "../engine/DotGridEngine.js";
 
 /**
- * <dg-canvas> — hosts the dot-grid engine canvas + CRT scanline overlay.
- * Fills its container; forwards pointer position to the engine.
+ * <dg-canvas> — hosts the dot-grid engine canvas. The CRT (scanlines,
+ * vignette, curvature, flicker) is a DOM overlay in <dg-app>, above the
+ * chrome as well as the grid. Fills its container; forwards pointer
+ * position to the engine.
  *
  * Properties:
  * - mode: engine mode key (ready|settings|processing|error|success)
@@ -21,15 +23,6 @@ export class DgCanvas extends LitElement {
 			position: absolute;
 			inset: 0;
 			background: var(--dg-bg-canvas);
-			/* Establishes a stacking context so .scanlines below stays inside
-			   this element. Without it the host is position:absolute with
-			   z-index:auto, which creates no context, and the overlay's
-			   z-index:10 competed in dg-app's stacking order — landing above
-			   the shell at z-index:6 and striping the whole UI. Invisible on
-			   dark chrome; on a light button it read as a rendering fault.
-			   The CRT belongs to the grid, which is the screen being imitated,
-			   not to the app's own controls. */
-			z-index: 0;
 		}
 
 		canvas {
@@ -40,20 +33,6 @@ export class DgCanvas extends LitElement {
 		canvas.resizing {
 			opacity: 0;
 			transition: opacity 0.12s ease;
-		}
-
-		.scanlines {
-			position: absolute;
-			inset: 0;
-			z-index: 10;
-			pointer-events: none;
-			background: repeating-linear-gradient(
-				to bottom,
-				transparent 0px,
-				transparent 1px,
-				rgba(0, 0, 0, 0.14) 1px,
-				rgba(0, 0, 0, 0.14) 2px
-			);
 		}
 	`;
 
@@ -67,10 +46,7 @@ export class DgCanvas extends LitElement {
 	}
 
 	render() {
-		return html`
-			<canvas></canvas>
-			<div class="scanlines"></div>
-		`;
+		return html`<canvas></canvas>`;
 	}
 
 	connectedCallback() {

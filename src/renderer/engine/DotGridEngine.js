@@ -12,6 +12,7 @@ import { ENGINE_CONFIG, MODE_PARAMS, INITIAL_MODE, STRETCH_MODE } from "../core/
  * @property {{opacity:number, wght:number, wdth:number, letterSpacing:number, chromaOffset:number}} title
  * @property {{opacity:number, wght:number, wdth:number, letterSpacing:number, chromaOffset:number, intensity:number}} subtitle
  * @property {{opacity:number, wght:number, wdth:number, letterSpacing:number, scaleX:number}} actions
+ * @property {{flicker:number}} crt  signed tube flicker for the DOM overlay
  *
  * Callbacks:
  * - onFrame(frameState)  — every frame
@@ -212,11 +213,16 @@ export class DotGridEngine {
 
 		const frame = this._drawGrid(dt, stretchW, convergenceW, waveW);
 		this._drawGrain(w, h);
-		this._drawCRT(w, h);
 
 		frame.title.opacity = titleOpacity;
 		frame.subtitle.opacity = subOpacity;
 		frame.actions.opacity = subOpacity;
+		// The CRT itself is a DOM overlay (see dg-app) so the tube encloses the
+		// whole UI and not just the canvas; only its per-frame flicker needs a
+		// value from here.
+		frame.crt = {
+			flicker: C.crt.flickerAmount > 0 ? (Math.random() - 0.5) * C.crt.flickerAmount : 0,
+		};
 		if (this.onFrame) this.onFrame(frame);
 
 		this._raf = requestAnimationFrame(this._boundDraw);
@@ -610,52 +616,6 @@ export class DotGridEngine {
 		ctx.imageSmoothingEnabled = false;
 		ctx.drawImage(this.grainCanvas, 0, 0, w, h);
 		ctx.restore();
-	}
-
-	_drawCRT(w, h) {
-		const C = this.C.crt;
-		const ctx = this.ctx;
-		// Scanlines are a DOM overlay (see dg-canvas) — canvas handles
-		// flicker, vignette, and edge-curvature shadows only.
-
-		if (C.flickerAmount > 0) {
-			const flick = (Math.random() - 0.5) * C.flickerAmount;
-			ctx.save();
-			ctx.globalCompositeOperation = flick > 0 ? "lighter" : "multiply";
-			ctx.globalAlpha = Math.abs(flick);
-			ctx.fillStyle = flick > 0 ? "#ffffff" : "#000000";
-			ctx.fillRect(0, 0, w, h);
-			ctx.restore();
-		}
-
-		if (C.vignetteStrength > 0) {
-			const cx = w / 2;
-			const cy = h / 2;
-			const r = Math.sqrt(cx * cx + cy * cy);
-			const vig = ctx.createRadialGradient(cx, cy, r * 0.4, cx, cy, r);
-			vig.addColorStop(0, "rgba(0,0,0,0)");
-			vig.addColorStop(1, `rgba(0,0,0,${C.vignetteStrength})`);
-			ctx.fillStyle = vig;
-			ctx.fillRect(0, 0, w, h);
-		}
-
-		if (C.curvature > 0) {
-			const c = C.curvature;
-			const edges = [
-				// [x, y, w, h, gx0, gy0, gx1, gy1]
-				[0, 0, w, h * c * 4, 0, 0, 0, h * c * 4],
-				[0, h - h * c * 4, w, h * c * 4, 0, h, 0, h - h * c * 4],
-				[0, 0, w * c * 4, h, 0, 0, w * c * 4, 0],
-				[w - w * c * 4, 0, w * c * 4, h, w, 0, w - w * c * 4, 0],
-			];
-			for (const [x, y, ew, eh, gx0, gy0, gx1, gy1] of edges) {
-				const grad = ctx.createLinearGradient(gx0, gy0, gx1, gy1);
-				grad.addColorStop(0, `rgba(0,0,0,${c * 8})`);
-				grad.addColorStop(1, "rgba(0,0,0,0)");
-				ctx.fillStyle = grad;
-				ctx.fillRect(x, y, ew, eh);
-			}
-		}
 	}
 
 	_compositeWithBlur(blurCX, blurCY, w, h, blurAlpha, spotRx, spotRy, spotRange) {
