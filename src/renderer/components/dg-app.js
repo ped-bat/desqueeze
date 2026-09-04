@@ -166,13 +166,11 @@ export class DgApp extends LitElement {
 
 		/* ── Settings popover ────────────────────────────────────
 		   The wrapper only positions. The fade and the scale live on the
-		   panel itself, which is also the element carrying the
-		   backdrop-filter, and that pairing is deliberate: an ancestor with
-		   opacity below 1 forms a backdrop root, so a descendant's
-		   backdrop-filter has nothing behind it to sample. Animating the
-		   wrapper meant the panel stayed unblurred for the whole fade and
-		   the blur snapped in the instant opacity reached 1. Kept mounted
-		   and toggled by class, so there is something to animate out from. */
+		   panel itself. (That split was originally forced by the panel's
+		   backdrop blur — an ancestor with opacity below 1 forms a backdrop
+		   root — and stays now the blur is gone because it costs nothing.)
+		   Kept mounted and toggled by class, so there is something to
+		   animate out from. */
 		.popover {
 			position: absolute;
 			top: calc(var(--dg-bar-h) + 6px);

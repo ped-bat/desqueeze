@@ -23,9 +23,10 @@ export class DgSettingsPanel extends LitElement {
 				padding: 16px 18px;
 				border-radius: 10px;
 				border: 1px solid var(--dg-chrome-border);
-				background: var(--dg-chrome);
-				backdrop-filter: var(--dg-blur-chrome);
-				-webkit-backdrop-filter: var(--dg-blur-chrome);
+				/* Near-solid rather than the bars' 50%: this floats over the file
+				   rows, and without a backdrop blur to soften them a translucent
+				   ground would show filenames through the controls. */
+				background: rgba(10, 10, 12, 0.94);
 				box-shadow: 0 18px 44px -18px rgba(0, 0, 0, 0.9);
 				pointer-events: auto;
 				font-family: var(--dg-font);

@@ -79,7 +79,7 @@
 	/* Chrome for the working surface: bars and the file panel sit on these
 	   rather than on the raw canvas, so filenames are read against a
 	   consistent ground instead of moving dots. */
-	--dg-chrome: rgba(6, 6, 7, 0.2);
+	--dg-chrome: rgba(6, 6, 7, 0.5);
 	--dg-chrome-border: rgba(255, 255, 255, 0.17);
 	/* The ends of the bars' gradient rule: a quarter of the border's strength
 	   rather than nothing, so the line still reads at the window edges
@@ -146,13 +146,6 @@
 	--dg-glow-white: 0 1px 3px rgba(0, 0, 0, 0.85), 0 0 10px rgba(0, 0, 0, 0.6),
 		0 0 8px rgba(255, 255, 255, 0.15), 0 0 20px rgba(255, 255, 255, 0.08);
 	--dg-glow-surface: 0 0 8px rgba(255, 255, 255, 0.08), 0 0 20px rgba(255, 255, 255, 0.04);
-	--dg-blur-glass: blur(8px);
-	/* Only a touch. The dots are ~3px across, so blur and grid continuity pull
-	   against each other directly: measured on the running window, the grid
-	   reads sigma 3.3 through clear chrome, 1.8 at 2px of blur and 0.5 at
-	   18px, where the bars went flat black and the grid looked cut off at
-	   them. 2px keeps the softening without erasing the dots. */
-	--dg-blur-chrome: blur(2px) saturate(1.04);
 
 	/* — Animation — */
 	--dg-ease-fast: 0.15s ease;

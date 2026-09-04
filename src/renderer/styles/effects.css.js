@@ -14,8 +14,6 @@ export const effects = css`
 		border: 1.5px solid var(--dg-border);
 		border-radius: var(--dg-radius);
 		background: var(--dg-surface);
-		backdrop-filter: var(--dg-blur-glass);
-		-webkit-backdrop-filter: var(--dg-blur-glass);
 		box-shadow: var(--dg-glow-surface);
 		transition:
 			background var(--dg-ease),

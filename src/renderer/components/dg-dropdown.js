@@ -73,8 +73,6 @@ export class DgDropdown extends LitElement {
 				left: 50%;
 				transform: translateX(-50%);
 				background: var(--dg-surface-menu);
-				backdrop-filter: var(--dg-blur-glass);
-				-webkit-backdrop-filter: var(--dg-blur-glass);
 				border: 1px solid rgba(255, 255, 255, 0.15);
 				border-radius: 8px;
 				padding: 4px;

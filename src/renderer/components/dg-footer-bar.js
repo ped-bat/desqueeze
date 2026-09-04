@@ -29,8 +29,6 @@ export class DgFooterBar extends LitElement {
 				min-height: var(--dg-bar-h);
 				padding: 0 var(--dg-bar-pad);
 				background: var(--dg-chrome);
-				backdrop-filter: var(--dg-blur-chrome);
-				-webkit-backdrop-filter: var(--dg-blur-chrome);
 			}
 
 
