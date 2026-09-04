@@ -60,12 +60,13 @@ export class DgApp extends LitElement {
 		}
 
 		/* ── The CRT ──────────────────────────────────────────────
-		   Three screen-wide layers above everything — the shell, the drop
-		   ring, the settings popover. The tube encloses the whole picture,
-		   so its scanlines, vignette and edge curvature fall across the bars,
-		   the file rows and the buttons, not just the dot grid behind them.
-		   (The scanlines used to live inside dg-canvas, under the chrome;
-		   that put the controls outside the screen being imitated.) */
+		   Three screen-wide layers. The scanlines and the flicker sit above
+		   everything — the shell, the drop ring, the settings popover — so
+		   the beam falls across the bars, the rows and the buttons, not just
+		   the dot grid. The vignette and edge curvature sit BELOW the shell:
+		   they darken the grid and the scrim towards the corners, but a
+		   button in a corner ("Desqueeze more") must stay as bright as one in
+		   the middle, so text and controls are never under them. */
 		.scanlines,
 		.crt,
 		.flicker {
@@ -86,7 +87,7 @@ export class DgApp extends LitElement {
 		}
 
 		.crt {
-			z-index: 101;
+			z-index: 5;
 			background: ${unsafeCSS(CRT_BACKGROUND)};
 		}
 
