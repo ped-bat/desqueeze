@@ -113,6 +113,19 @@ export class DgFooterBar extends LitElement {
 				gap: 8px;
 				flex: none;
 			}
+
+			/* The empty stage has no actions in the bar, only the caption, so
+			   the caption sits centred there. The actions box is dropped from
+			   the layout entirely for that state: even empty it would keep the
+			   bar's gap and pull the centre a little to the left. */
+			.summary.centred {
+				justify-content: center;
+				text-align: center;
+			}
+
+			.actions[hidden] {
+				display: none;
+			}
 		`,
 	];
 
@@ -123,9 +136,10 @@ export class DgFooterBar extends LitElement {
 	}
 
 	render() {
+		const captionOnly = this.mode === "ready";
 		return html`
-			<div class="summary">${this._summary()}</div>
-			<div class="actions"><slot name="actions"></slot></div>
+			<div class="summary ${captionOnly ? "centred" : ""}">${this._summary()}</div>
+			<div class="actions" ?hidden=${captionOnly}><slot name="actions"></slot></div>
 		`;
 	}
 
