@@ -62,10 +62,11 @@ borrows from the renderer rather than approximating it:
   following `dg-app`'s modes: ready → a drop (the window-edge ring) →
   settings → processing (three files at a time, the chip stowed) → success
   → "Desqueeze more" hands the window back. It only runs while on screen.
-- **Before and after** (`.compare`) is one photo rendered twice from the
-  same ARW decode, as shot and stretched 1.33x (`assets/photo/`), with the
-  split following the pointer. The squeezed frame is narrower, so it sits
-  centred with dark bands either side rather than being stretched to fit.
+- **Before and after** (`.compare`, under the features title) is one photo
+  rendered twice from the same ARW decode, as shot and stretched 1.33x
+  (`assets/photo/`), with the split following the pointer. The squeezed
+  frame is narrower, so it sits centred with dark bands either side rather
+  than being stretched to fit.
 - **Type** is Science Gothic throughout. Uppercase is reserved for the
   wordmark and the hero title, as in the app; everything else is sentence
   case at the app's UI axes (`wght 450, wdth 92`). The hero title,
@@ -77,12 +78,14 @@ borrows from the renderer rather than approximating it:
 
 ## Keeping content in sync
 
-| Content        | Where it lives here                                                 | Source of truth                                                                         |
-| -------------- | ------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| Format lists   | the "Which files" answer in `index.html`, twice (visible + JSON-LD) | the README's generated format list                                                      |
-| Camera count   | features + FAQ copy in `index.html`                                 | the README's generated camera count                                                     |
-| Version badge  | `#version` in `index.html`                                          | `version` in `package.json` (the page also asks GitHub for the latest release at runtime) |
-| Download URLs  | the three `.dl` links in `index.html`                               | `build.*.artifactName` in `package.json`                                                |
+| Content       | Where it lives here                                                 | Source of truth                          |
+| ------------- | ------------------------------------------------------------------- | ---------------------------------------- |
+| Format lists  | the "Which files" answer in `index.html`, twice (visible + JSON-LD) | the README's generated format list       |
+| Camera count  | features + FAQ copy in `index.html`                                 | the README's generated camera count      |
+| Download URLs | the three `.dl` links in `index.html`                               | `build.*.artifactName` in `package.json` |
+
+The download links point at `releases/latest`, so a new release needs no
+change here.
 
 ## OG image
 

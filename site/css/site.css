@@ -118,7 +118,7 @@
 	--site-pad-section: clamp(72px, 10vw, 112px);
 	--site-gap-head: clamp(44px, 6vw, 64px);
 	--site-prose: 15px;
-	--site-type-title: clamp(30px, 5vw, 52px);
+	--site-type-title: clamp(26px, 3.9vw, 42px);
 	--site-type-display: clamp(1.9rem, 5.2vw, 3.7rem);
 	/* The canvas ground, a step darker than the app's #111111 so the grid
 	   reads as a backdrop behind a page of text */
@@ -470,19 +470,6 @@ section > * {
 	line-height: 1.5;
 	max-width: 560px;
 	margin: 0 auto;
-}
-
-.version {
-	display: inline-block;
-	vertical-align: 0.12em;
-	margin-left: 0.5em;
-	font-size: var(--dg-ui-sm);
-	font-variant-numeric: tabular-nums;
-	color: var(--dg-fg-faint);
-	border: 1px solid var(--dg-chrome-border);
-	border-radius: 4px;
-	padding: 2px 8px;
-	line-height: 1.4;
 }
 
 /* ── 9. Hero ────────────────────────────────────────────────── */
@@ -1057,7 +1044,8 @@ section > * {
 	--split: 50%;
 	position: relative;
 	max-width: 1000px;
-	margin-inline: auto;
+	/* Sits between the section title and the feature cards */
+	margin: 0 auto var(--site-gap-head);
 	aspect-ratio: 1796 / 900;
 	border-radius: 10px;
 	overflow: hidden;

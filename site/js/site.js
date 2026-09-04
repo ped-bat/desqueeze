@@ -2,9 +2,8 @@
  * Desqueeze landing page - page wiring.
  *
  * Owns: the background dot grid, the hero's desqueeze intro, scroll
- * reveals, the platform-aware download button, the live version badge,
- * the batch that runs inside the rebuilt app window, and the before/after
- * photo.
+ * reveals, the platform-aware download button, the batch that runs inside
+ * the rebuilt app window, and the before/after photo.
  */
 
 import { DotGrid } from "./dot-grid.js";
@@ -277,27 +276,6 @@ function initDownloads() {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Version badge: the markup carries the version at deploy time; the
-   latest release overrides it when GitHub answers, so it never goes stale.
-   ───────────────────────────────────────────────────────────── */
-
-async function initVersion() {
-	const el = document.getElementById("version");
-	if (!el) return;
-	try {
-		const res = await fetch("https://api.github.com/repos/ped-bat/desqueeze/releases/latest", {
-			headers: { Accept: "application/vnd.github+json" },
-		});
-		if (!res.ok) return;
-		const json = await res.json();
-		const tag = typeof json.tag_name === "string" ? json.tag_name : "";
-		if (/^v?\d+\.\d+\.\d+/.test(tag)) el.textContent = tag.startsWith("v") ? tag : `v${tag}`;
-	} catch {
-		/* offline, rate-limited or blocked: the deploy-time version stands */
-	}
-}
-
-/* ─────────────────────────────────────────────────────────────
    The app, running a batch. Follows dg-app's modes from the top:
    ready (the empty window) → a drop → settings (files queued) →
    processing (three at a time, the chip stowed) → success (the summary
@@ -541,9 +519,5 @@ const grid = initGrid((f) => {
 Object.assign(hero, initHero(grid));
 initReveals(grid);
 initDownloads();
-initVersion();
 initDemo();
 initCompare();
-
-const year = document.getElementById("year");
-if (year) year.textContent = String(new Date().getFullYear());
