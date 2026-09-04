@@ -85,8 +85,9 @@
 	--dg-ui: 14px;
 	--dg-ui-lg: 16px;
 	--dg-ui-xl: 20px;
-	--dg-var-ui: "wght" 450, "wdth" 92;
-	--dg-var-ui-strong: "wght" 560, "wdth" 92;
+	/* A hundred lighter than the app shipped with; the app follows suit */
+	--dg-var-ui: "wght" 350, "wdth" 92;
+	--dg-var-ui-strong: "wght" 460, "wdth" 92;
 	/* The display line's resting axes (core/config.js fontWeight/fontWidth) */
 	--dg-var-display: "wght" 520, "wdth" 125;
 
@@ -109,6 +110,12 @@
 	--site-canvas: #0b0b0d;
 	--site-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 	--site-reveal: 600ms;
+
+	/* — Radii — half again the app's, shared by every corner on the page */
+	--site-r-sm: 6px;
+	--site-r: 9px;
+	--site-r-md: 12px;
+	--site-r-lg: 15px;
 }
 
 /* ── 2. Base ────────────────────────────────────────────────── */
@@ -169,13 +176,14 @@ summary {
 :focus-visible {
 	outline: 2px solid var(--dg-accent-ring);
 	outline-offset: 2px;
-	border-radius: 4px;
+	border-radius: var(--site-r-sm);
 }
 
 /* ── 3. Background ──────────────────────────────────────────── */
 
-/* Fixed: the grid does not travel with the page. Its focal point sits at
-   the top edge, horizontally centred, and the stretch runs around it. */
+/* Fixed: the grid does not travel with the page or follow the pointer.
+   Its focal point sits at the top edge, horizontally centred, and the
+   stretch runs around it. Softened a touch so it reads as a backdrop. */
 #grid-canvas {
 	position: fixed;
 	inset: 0;
@@ -183,6 +191,7 @@ summary {
 	display: block;
 	background: var(--site-canvas);
 	pointer-events: none;
+	filter: blur(1.6px);
 }
 
 /* The CRT belongs to the grid, not to the controls: it sits over the
@@ -217,7 +226,7 @@ footer {
 	padding: 10px 16px;
 	background: var(--dg-accent);
 	color: var(--dg-accent-fg);
-	border-radius: 6px;
+	border-radius: var(--site-r);
 	font-variation-settings: var(--dg-var-ui-strong);
 	transition: top 120ms var(--site-ease-out);
 }
@@ -287,7 +296,7 @@ code {
 	color: var(--dg-fg-strong);
 	background: rgba(255, 255, 255, 0.06);
 	border: 1px solid var(--dg-chrome-border);
-	border-radius: 4px;
+	border-radius: var(--site-r-sm);
 	padding: 0.05em 0.4em;
 	white-space: nowrap;
 }
@@ -298,7 +307,7 @@ code {
 	font-size: var(--dg-ui-xs);
 	color: var(--dg-fg-soft);
 	border: 1px solid rgba(255, 255, 255, 0.17);
-	border-radius: 4px;
+	border-radius: var(--site-r-sm);
 	padding: 2px 6px;
 	letter-spacing: 0;
 }
@@ -317,7 +326,7 @@ code {
 	white-space: nowrap;
 	padding: 0.72em 1.1em;
 	border: 1px solid transparent;
-	border-radius: 6px;
+	border-radius: var(--site-r);
 	background: transparent;
 	color: var(--dg-fg-strong);
 	text-decoration: none;
@@ -357,7 +366,7 @@ code {
 .btn-lg {
 	font-size: var(--dg-ui-lg);
 	padding: 0.85em 1.35em;
-	border-radius: 7px;
+	border-radius: var(--site-r-md);
 }
 
 /* ── 7. Section scaffolding ─────────────────────────────────── */
@@ -425,7 +434,7 @@ section > * {
 
 .hero {
 	text-align: center;
-	padding-block: clamp(120px, 22vh, 220px) var(--site-pad-section);
+	padding-block: clamp(150px, 26vh, 260px) var(--site-pad-section);
 }
 
 .hero > * {
@@ -528,7 +537,7 @@ section > * {
 	align-items: center;
 	gap: 7px;
 	padding: 6px 9px;
-	border-radius: 5px;
+	border-radius: var(--site-r-sm);
 	color: var(--dg-fg-soft);
 	transition:
 		background 0.16s ease,
@@ -554,7 +563,7 @@ section > * {
 .hero-shot {
 	width: 100%;
 	max-width: var(--site-max);
-	margin: clamp(44px, 7vh, 68px) auto 0;
+	margin: clamp(64px, 9vh, 96px) auto 0;
 }
 
 /* ── 9. Before and after ────────────────────────────────────── */
@@ -570,7 +579,7 @@ section > * {
 	--split: 50%;
 	position: relative;
 	aspect-ratio: 1796 / 900;
-	border-radius: 10px;
+	border-radius: var(--site-r-lg);
 	overflow: hidden;
 	border: 1px solid var(--dg-chrome-border);
 	background: #050506;
@@ -676,7 +685,7 @@ section > * {
 	align-items: center;
 	gap: 8px;
 	padding: 6px 10px;
-	border-radius: 6px;
+	border-radius: var(--site-r);
 	background: rgba(6, 6, 7, 0.55);
 	border: 1px solid var(--dg-chrome-border);
 	backdrop-filter: blur(4px);
@@ -732,7 +741,7 @@ section > * {
 .panel {
 	background: var(--dg-body-scrim);
 	border: 1px solid var(--dg-chrome-border);
-	border-radius: 10px;
+	border-radius: var(--site-r-lg);
 	padding: clamp(26px, 4vw, 36px) clamp(20px, 3vw, 28px);
 	text-align: center;
 }
@@ -770,7 +779,7 @@ section > * {
 .steps {
 	background: var(--dg-body-scrim);
 	border: 1px solid var(--dg-chrome-border);
-	border-radius: 10px;
+	border-radius: var(--site-r-lg);
 	padding: clamp(32px, 5vw, 56px) clamp(20px, 4vw, 40px);
 	display: grid;
 	gap: 36px;
@@ -834,12 +843,12 @@ section > * {
 	padding: 10px;
 	background: var(--dg-body-scrim);
 	border: 1px solid var(--dg-chrome-border);
-	border-radius: 10px;
+	border-radius: var(--site-r-lg);
 }
 
 .faq details {
 	background: var(--dg-row);
-	border-radius: 6px;
+	border-radius: var(--site-r);
 	transition: background 0.16s ease;
 }
 
@@ -927,12 +936,12 @@ section > * {
 	margin-bottom: 32px;
 }
 
+/* The platform note sits out of flow beneath the row, inside the section's
+   own bottom padding, so the gap to the next section matches every other */
 .dl-block {
 	position: relative;
 	max-width: 900px;
 	margin-inline: auto;
-	/* Room for the platform note that sits out of flow beneath the row */
-	padding-bottom: 24px;
 }
 
 .grid-download {
@@ -947,7 +956,7 @@ section > * {
 	align-items: center;
 	gap: 16px;
 	padding: 22px 24px;
-	border-radius: 8px;
+	border-radius: var(--site-r-md);
 	background: var(--dg-row);
 	border: 1px solid transparent;
 	color: var(--dg-fg-strong);
@@ -985,7 +994,7 @@ section > * {
    line wherever the width allows. */
 .download-note {
 	position: absolute;
-	top: calc(100% + 8px);
+	top: calc(100% + 22px);
 	left: 50%;
 	width: max-content;
 	max-width: 100%;

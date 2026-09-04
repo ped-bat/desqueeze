@@ -83,10 +83,8 @@ function initGrid(onFrame) {
 		resizeTimer = setTimeout(fit, 120);
 	});
 
-	// Pointer drives the magnetic spotlight. Coarse pointers never fire
-	// mousemove, so those visitors keep the ambient spotlight.
-	window.addEventListener("mousemove", (e) => grid.setPointer(e.clientX, e.clientY), { passive: true });
-	document.addEventListener("mouseleave", () => grid.clearPointer());
+	// The pointer is deliberately not wired up: the grid is a fixed backdrop
+	// here, with the ambient spotlight only, no magnetism.
 
 	document.addEventListener("visibilitychange", () => {
 		if (document.hidden) grid.stop();
