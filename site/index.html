@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Desqueeze - Desqueeze anamorphic photos without losing a pixel</title>
+		<meta
+			name="description"
+			content="Native desktop app that desqueezes anamorphic photos and RAW files. In DNG mode it writes metadata instead of resampling pixels, so the result opens straight in Lightroom at full quality. Offline and open source, for macOS, Windows and Linux."
+		/>
+		<meta name="theme-color" content="#08080a" />
+
+		<link rel="canonical" href="https://desqueeze.io/" />
+		<link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+
+		<meta property="og:title" content="Desqueeze - Desqueeze anamorphic photos without losing a pixel" />
+		<meta
+			property="og:description"
+			content="Restore anamorphic proportions as DNG metadata, not resampled pixels, and edit straight in Lightroom. 25 RAW formats, batch processing, everything on your machine."
+		/>
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Desqueeze" />
+		<meta property="og:locale" content="en_GB" />
+		<meta property="og:url" content="https://desqueeze.io/" />
+		<meta property="og:image" content="https://desqueeze.io/assets/og.png" />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content="Desqueeze - Desqueeze anamorphic photos without losing a pixel" />
+		<meta
+			name="twitter:description"
+			content="Restore anamorphic proportions as DNG metadata, not resampled pixels. Native, offline and open source."
+		/>
+		<meta name="twitter:image" content="https://desqueeze.io/assets/og.png" />
+
+		<style>
+			/* Painted before the stylesheet arrives, so the page never flashes
+			   light. Keep in sync with --dg-bg-page in css/site.css. */
+			html {
+				color-scheme: dark;
+				background-color: #08080a;
+			}
+			/* Hold the content back until the stylesheet lands; site.css sets
+			   opacity back to 1 with a transition. */
+			body {
+				opacity: 0;
+			}
+		</style>
+		<noscript>
+			<style>
+				body {
+					opacity: 1 !important;
+				}
+			</style>
+		</noscript>
+		<script>
+			/* Failsafe: if the stylesheet never arrives, show the page anyway. */
+			addEventListener("DOMContentLoaded", function () {
+				setTimeout(function () {
+					if (getComputedStyle(document.body).opacity === "0") document.body.style.opacity = "1";
+				}, 2500);
+			});
+		</script>
+
+		<link rel="preload" href="assets/fonts/science-gothic.woff2" as="font" type="font/woff2" crossorigin />
+		<link rel="stylesheet" href="css/site.css" />
+		<script type="module" src="js/site.js"></script>
+
+		<script type="application/ld+json">
+			{
+				"@context": "https://schema.org",
+				"@graph": [
+					{
+						"@type": "SoftwareApplication",
+						"name": "Desqueeze",
+						"url": "https://desqueeze.io/",
+						"image": "https://desqueeze.io/assets/og.png",
+						"description": "Native desktop app that desqueezes anamorphic photos and RAW files. In DNG mode it writes metadata instead of resampling pixels, so the result opens straight in Lightroom at full quality. Offline and open source.",
+						"applicationCategory": "MultimediaApplication",
+						"operatingSystem": "macOS, Windows, Linux",
+						"offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+						"license": "https://github.com/ped-bat/desqueeze/blob/main/LICENSE",
+						"downloadUrl": "https://github.com/ped-bat/desqueeze/releases/latest",
+						"author": { "@type": "Person", "name": "Pedro Batista" }
+					},
+					{
+						"@type": "FAQPage",
+						"mainEntity": [
+							{
+								"@type": "Question",
+								"name": "What does lossless mean here?",
+								"acceptedAnswer": {
+									"@type": "Answer",
+									"text": "In DNG mode nothing is resampled. Desqueeze writes the squeeze factor into the file's DefaultScale tag and leaves the pixel data untouched. Lightroom, Camera Raw and other DNG-aware apps apply the scale when they open the file, and the tag can be changed or removed later. The other output formats bake the stretch into the pixels, which is a real resample."
+								}
+							},
+							{
+								"@type": "Question",
+								"name": "Which files does Desqueeze accept?",
+								"acceptedAnswer": {
+									"@type": "Answer",
+									"text": "25 RAW formats (3fr, ari, arw, cr2, cr3, crw, dcr, dcs, dng, erf, iiq, kdc, mef, mos, mrw, nef, nrw, orf, pef, raf, raw, rw2, sr2, srf, srw) and the common bitmaps (jpg, jpeg, png, tif, tiff, webp). Output is DNG, JPEG, PNG, TIFF or WebP."
+								}
+							},
+							{
+								"@type": "Question",
+								"name": "Is my camera supported?",
+								"acceptedAnswer": {
+									"@type": "Answer",
+									"text": "RAW decoding comes from DNGLab, which covers 825 cameras from 32 manufacturers. The full list is published in the repository. Bitmap files work regardless of camera."
+								}
+							},
+							{
+								"@type": "Question",
+								"name": "Does it work offline?",
+								"acceptedAnswer": {
+									"@type": "Answer",
+									"text": "Yes. Everything runs locally. DNGLab, dcraw_emu and ExifTool ship inside the app, so there is nothing else to install and no network access while processing."
+								}
+							},
+							{
+								"@type": "Question",
+								"name": "Where do the files go?",
+								"acceptedAnswer": {
+									"@type": "Answer",
+									"text": "Into a desqueezed folder next to the originals, which are never modified. Files that already carry a desqueeze are skipped rather than stretched twice."
+								}
+							},
+							{
+								"@type": "Question",
+								"name": "Are Intel Macs supported?",
+								"acceptedAnswer": {
+									"@type": "Answer",
+									"text": "Not yet. The macOS build is for Apple Silicon. Windows (x64) and Linux (x86_64) builds are available."
+								}
+							}
+						]
+					}
+				]
+			}
+		</script>
+	</head>
+	<body>
+		<a class="skip-link" href="#main">Skip to content</a>
+
+		<!-- The app's dot grid, running behind the whole page, with its CRT
+		     scanlines over the grid but under the page's own controls. -->
+		<canvas id="grid-canvas" aria-hidden="true"></canvas>
+		<div class="scanlines" aria-hidden="true"></div>
+
+		<!-- The app's top bar, made persistent -->
+		<header class="bar bar-top">
+			<a class="mark" href="#top">Desqueeze.io</a>
+			<nav class="bar-nav" aria-label="Site">
+				<a href="#features">Features</a>
+				<a href="#how">How it works</a>
+				<a href="#faq">Questions</a>
+				<a href="https://github.com/ped-bat/desqueeze" rel="noopener">GitHub</a>
+				<a class="chip" href="#download">Download</a>
+			</nav>
+		</header>
+
+		<main id="main">
+			<!-- Hero -->
+			<section class="hero" id="top" aria-labelledby="hero-heading">
+				<div class="hero-logo reveal-load" data-reveal-delay="0" aria-hidden="true">
+					<svg viewBox="0 0 320 320" fill="currentColor">
+						<path
+							d="M160,105.9c-69.74,0-121.78-12.99-123.96-13.54-3.21-.81-5.15-4.08-4.34-7.29.81-3.21,4.07-5.15,7.29-4.34.52.13,52.86,13.17,121.01,13.17s120.49-13.04,121.01-13.17c3.22-.81,6.48,1.13,7.29,4.34.81,3.21-1.13,6.47-4.34,7.29-2.18.55-54.22,13.54-123.96,13.54Z"
+						/>
+						<path
+							d="M282.49,239.46c-.49,0-.98-.06-1.48-.18-.52-.13-52.86-13.17-121.01-13.17s-120.49,13.04-121.01,13.17c-3.22.81-6.48-1.13-7.29-4.34-.81-3.21,1.13-6.47,4.34-7.29,2.18-.55,54.22-13.54,123.96-13.54s121.78,12.99,123.96,13.54c3.21.81,5.15,4.08,4.34,7.29-.69,2.72-3.13,4.53-5.81,4.53Z"
+						/>
+						<path
+							d="M225.71,153.01l-25.72-9.8c-.81-.31-1.65-.46-2.49-.46-1.4,0-2.79.42-3.97,1.24-1.9,1.31-3.03,3.46-3.03,5.76v19.61c0,2.3,1.13,4.46,3.03,5.76,1.18.82,2.57,1.24,3.97,1.24.84,0,1.69-.15,2.49-.46l25.72-9.8c2.71-1.03,4.51-3.64,4.51-6.54s-1.79-5.51-4.51-6.54Z"
+						/>
+						<path
+							d="M125.07,143.98c-1.18-.82-2.57-1.24-3.97-1.24-.84,0-1.69.15-2.49.46l-25.72,9.8c-2.71,1.03-4.51,3.64-4.51,6.54s1.79,5.51,4.51,6.54l25.72,9.8c.81.31,1.65.46,2.49.46,1.4,0,2.79-.42,3.97-1.24,1.9-1.31,3.03-3.46,3.03-5.76v-19.61c0-2.3-1.13-4.46-3.03-5.76Z"
+						/>
+					</svg>
+				</div>
+
+				<!-- The app's display line: three RGB layers, screen-blended.
+				     It arrives squeezed and desqueezes into place. -->
+				<h1 class="hero-title chroma reveal-load" data-reveal-delay="60" id="hero-heading">
+					<span class="layer layer-r" aria-hidden="true">Desqueeze</span>
+					<span class="layer layer-g">Desqueeze</span>
+					<span class="layer layer-b" aria-hidden="true">Desqueeze</span>
+				</h1>
+
+				<p class="hero-lede reveal-load" data-reveal-delay="140">
+					<span>Desqueeze anamorphic photos and RAW files</span>
+					<span><strong>Lossless as DNG, straight into Lightroom</strong></span>
+					<span>Native, offline and open source</span>
+				</p>
+
+				<div class="download reveal-load" data-reveal-delay="200">
+					<a href="#download" class="btn btn-primary btn-lg" id="primary-download" data-os="macos">
+						<svg class="icon-brand" id="primary-download-icon" aria-hidden="true">
+							<use href="assets/icons.svg#i-apple" />
+						</svg>
+						<span id="primary-download-label">Download for macOS</span>
+					</a>
+
+					<div class="download-alt" id="download-alt" role="group" aria-label="Other platforms">
+						<span class="alt-label">Also for</span>
+						<a href="#download" data-os="macos">
+							<svg class="icon-brand" aria-hidden="true"><use href="assets/icons.svg#i-apple" /></svg>
+							macOS
+						</a>
+						<span class="alt-sep" aria-hidden="true">·</span>
+						<a href="#download" data-os="windows">
+							<svg class="icon-brand" aria-hidden="true"><use href="assets/icons.svg#i-windows" /></svg>
+							Windows
+						</a>
+						<span class="alt-sep" aria-hidden="true">·</span>
+						<a href="#download" data-os="linux">
+							<svg class="icon-brand" aria-hidden="true"><use href="assets/icons.svg#i-linux" /></svg>
+							Linux
+						</a>
+					</div>
+				</div>
+
+				<!-- The app itself, rebuilt in HTML and running a batch: the
+				     working surface with its bars, the file list and the
+				     footer actions. Decorative; the caption carries the text. -->
+				<figure class="hero-shot reveal-load" data-reveal-delay="260">
+					<div
+						class="app"
+						id="app-demo"
+						role="img"
+						aria-label="The Desqueeze window with seven RAW files queued. Each row shows a file's format, name and state, and the bar below shows the batch progress and its actions."
+					>
+						<div class="app-bar app-top" aria-hidden="true">
+							<span class="app-mark">Desqueeze.io</span>
+							<span class="app-chip" id="demo-chip">
+								<span class="k">Factor</span> 1.33x <span class="k">·</span> <span class="k">Format</span> DNG
+								<span class="cv">&#9662;</span>
+							</span>
+						</div>
+						<div class="app-body" aria-hidden="true">
+							<div class="app-list" id="demo-list">
+								<div class="row queued">
+									<span class="light"></span><span class="badge">nef</span
+									><span class="name">DSC_4821.NEF</span><span class="status">Queued</span
+									><span class="btn btn-quiet btn-sm reveal-btn">Reveal</span>
+								</div>
+								<div class="row queued">
+									<span class="light"></span><span class="badge">cr3</span
+									><span class="name">_MG_0932.CR3</span><span class="status">Queued</span
+									><span class="btn btn-quiet btn-sm reveal-btn">Reveal</span>
+								</div>
+								<div class="row queued">
+									<span class="light"></span><span class="badge">arw</span
+									><span class="name">A7R05531.ARW</span><span class="status">Queued</span
+									><span class="btn btn-quiet btn-sm reveal-btn">Reveal</span>
+								</div>
+								<div class="row queued">
+									<span class="light"></span><span class="badge">raf</span
+									><span class="name">DSCF2210.RAF</span><span class="status">Queued</span
+									><span class="btn btn-quiet btn-sm reveal-btn">Reveal</span>
+								</div>
+								<div class="row queued">
+									<span class="light"></span><span class="badge">rw2</span
+									><span class="name">P1040311.RW2</span><span class="status">Queued</span
+									><span class="btn btn-quiet btn-sm reveal-btn">Reveal</span>
+								</div>
+								<div class="row queued">
+									<span class="light"></span><span class="badge">dng</span
+									><span class="name">L1004512.DNG</span><span class="status">Queued</span
+									><span class="btn btn-quiet btn-sm reveal-btn">Reveal</span>
+								</div>
+								<div class="row queued">
+									<span class="light"></span><span class="badge">cr2</span
+									><span class="name">IMG_7743.CR2</span><span class="status">Queued</span
+									><span class="btn btn-quiet btn-sm reveal-btn">Reveal</span>
+								</div>
+							</div>
+						</div>
+						<div class="app-bar app-foot" aria-hidden="true">
+							<div class="summary" id="demo-summary"><span><b>7 files</b> · 1.33x · DNG</span></div>
+							<div class="actions" id="demo-actions">
+								<span class="btn btn-quiet">Clear</span>
+								<span class="btn btn-primary">Desqueeze images</span>
+							</div>
+						</div>
+					</div>
+				</figure>
+			</section>
+
+			<!-- Features -->
+			<section id="features" class="ruled" aria-labelledby="features-heading">
+				<header class="section-head">
+					<h2 class="section-title reveal" id="features-heading">Built for anamorphic photography</h2>
+				</header>
+
+				<ul class="grid grid-features">
+					<li class="panel reveal">
+						<h3>Lossless by default</h3>
+						<p>
+							In DNG mode the squeeze factor is written as metadata, the <code>DefaultScale</code> tag, and every
+							pixel stays where the sensor put it. Lightroom, Camera Raw and any other DNG-aware app read the tag
+							and show the image at its true proportions. Nothing is resampled, so nothing is lost, and it can be
+							undone.
+						</p>
+					</li>
+					<li class="panel reveal">
+						<h3>Offline and private</h3>
+						<p>
+							Everything runs on your machine. No account, no uploads, no telemetry. The converters it relies on,
+							DNGLab, dcraw_emu and ExifTool, ship inside the app, so there is nothing else to install.
+						</p>
+					</li>
+					<li class="panel reveal">
+						<h3>RAW in, DNG out</h3>
+						<p>
+							Reads 25 RAW formats from 825 cameras across 32 manufacturers, plus JPEG, PNG, TIFF and WebP. Bitmaps
+							get a proper colour profile on the way to DNG, and you can export a flat JPEG, PNG, TIFF or WebP
+							instead when that is what you need.
+						</p>
+					</li>
+					<li class="panel reveal">
+						<h3>Free and open source</h3>
+						<p>
+							MIT licensed, with every line on GitHub. It was built for one anamorphic lens and one Lightroom
+							catalogue; it may be useful for yours too.
+						</p>
+					</li>
+				</ul>
+			</section>
+
+			<!-- How it works -->
+			<section id="how" class="ruled" aria-labelledby="how-heading">
+				<header class="section-head">
+					<h2 class="section-title reveal" id="how-heading">Drop, set, done</h2>
+				</header>
+
+				<!-- The three states of a file in the app, read left to right:
+				     waiting, working, done. -->
+				<ol class="steps reveal">
+					<li class="step is-queued">
+						<span class="light" aria-hidden="true"></span>
+						<h3>Drop files</h3>
+						<p>Drag photos or whole folders anywhere onto the window, or choose them from a dialog.</p>
+					</li>
+					<li class="step is-running">
+						<span class="light" aria-hidden="true"></span>
+						<h3>Set the factor</h3>
+						<p>
+							Pick your lens's squeeze: 1.33x, 1.5x, 2x or a custom value. Keep DNG for a lossless result, or
+							choose JPEG, PNG, TIFF or WebP for a flat file.
+						</p>
+					</li>
+					<li class="step is-done">
+						<span class="light" aria-hidden="true"></span>
+						<h3>Desqueeze</h3>
+						<p>
+							Files are processed in parallel and land in a <code>desqueezed</code> folder next to the originals,
+							which are never touched.
+						</p>
+					</li>
+				</ol>
+			</section>
+
+			<!-- FAQ -->
+			<section id="faq" class="ruled" aria-labelledby="faq-heading">
+				<header class="section-head">
+					<h2 class="section-title reveal" id="faq-heading">Common questions</h2>
+				</header>
+
+				<div class="faq">
+					<details class="reveal">
+						<summary>What does lossless mean here?</summary>
+						<p>
+							In DNG mode nothing is resampled. Desqueeze writes the squeeze factor into the file's
+							<code>DefaultScale</code> tag and leaves the pixel data untouched. Lightroom, Camera Raw and other
+							DNG-aware apps apply the scale when they open the file, and the tag can be changed or removed later.
+							The other output formats bake the stretch into the pixels, which is a real resample, so choose DNG
+							when quality matters.
+						</p>
+					</details>
+					<details class="reveal">
+						<summary>Which files does Desqueeze accept?</summary>
+						<p>
+							RAW: <code>3fr</code> <code>ari</code> <code>arw</code> <code>cr2</code> <code>cr3</code>
+							<code>crw</code> <code>dcr</code> <code>dcs</code> <code>dng</code> <code>erf</code> <code>iiq</code>
+							<code>kdc</code> <code>mef</code> <code>mos</code> <code>mrw</code> <code>nef</code> <code>nrw</code>
+							<code>orf</code> <code>pef</code> <code>raf</code> <code>raw</code> <code>rw2</code> <code>sr2</code>
+							<code>srf</code> <code>srw</code>. Bitmaps: <code>jpg</code> <code>jpeg</code> <code>png</code>
+							<code>tif</code> <code>tiff</code> <code>webp</code>. Output is DNG, JPEG, PNG, TIFF or WebP.
+						</p>
+					</details>
+					<details class="reveal">
+						<summary>Is my camera supported?</summary>
+						<p>
+							RAW decoding comes from DNGLab, which covers 825 cameras from 32 manufacturers. The
+							<a href="https://github.com/ped-bat/desqueeze/blob/main/resources/cameras.json" rel="noopener"
+								>full list</a
+							>
+							is published in the repository. Bitmap files work regardless of camera.
+						</p>
+					</details>
+					<details class="reveal">
+						<summary>Does it work offline?</summary>
+						<p>
+							Yes. Everything runs locally. DNGLab, <code>dcraw_emu</code> and ExifTool ship inside the app, so
+							there is nothing else to install and no network access while processing.
+						</p>
+					</details>
+					<details class="reveal">
+						<summary>Where do the files go?</summary>
+						<p>
+							Into a <code>desqueezed</code> folder next to the originals, which are never modified. Files that
+							already carry a desqueeze are skipped rather than stretched twice.
+						</p>
+					</details>
+					<details class="reveal">
+						<summary>Are Intel Macs supported?</summary>
+						<p>
+							Not yet. The macOS build is for Apple Silicon. Windows (x64) and Linux (x86_64) builds are
+							available.
+						</p>
+					</details>
+				</div>
+			</section>
+
+			<!-- Download -->
+			<section id="download" class="ruled section-alt" aria-labelledby="download-heading">
+				<header class="section-head">
+					<h2 class="section-title reveal" id="download-heading">Download Desqueeze</h2>
+					<p class="section-lede reveal">
+						Free and open source <span class="version" id="version" title="Latest release">v0.1.2</span>
+					</p>
+				</header>
+
+				<div class="dl-block">
+					<ul class="grid grid-download">
+						<li>
+							<a
+								class="dl reveal"
+								data-os="macos"
+								href="https://github.com/ped-bat/desqueeze/releases/latest/download/Desqueeze-macOS-arm64.dmg"
+								rel="noopener"
+							>
+								<svg class="icon-brand" aria-hidden="true"><use href="assets/icons.svg#i-apple" /></svg>
+								<span>
+									<span class="dl-title">macOS</span>
+									<span class="dl-sub">Apple Silicon · .dmg</span>
+								</span>
+							</a>
+						</li>
+						<li>
+							<a
+								class="dl reveal"
+								data-os="windows"
+								href="https://github.com/ped-bat/desqueeze/releases/latest/download/Desqueeze-Windows-x64.exe"
+								rel="noopener"
+							>
+								<svg class="icon-brand" aria-hidden="true"><use href="assets/icons.svg#i-windows" /></svg>
+								<span>
+									<span class="dl-title">Windows</span>
+									<span class="dl-sub">x64 · installer</span>
+								</span>
+							</a>
+						</li>
+						<li>
+							<a
+								class="dl reveal"
+								data-os="linux"
+								href="https://github.com/ped-bat/desqueeze/releases/latest/download/Desqueeze-Linux-x86_64.AppImage"
+								rel="noopener"
+							>
+								<svg class="icon-brand" aria-hidden="true"><use href="assets/icons.svg#i-linux" /></svg>
+								<span>
+									<span class="dl-title">Linux</span>
+									<span class="dl-sub">x86_64 · AppImage</span>
+								</span>
+							</a>
+						</li>
+					</ul>
+					<p class="download-note" data-for="windows">
+						Windows may show a SmartScreen warning on first install. Click <strong>More info</strong>, then
+						<strong>Run anyway</strong>.
+					</p>
+					<p class="download-note" data-for="linux">
+						Make the AppImage executable first: <code>chmod +x Desqueeze-Linux-x86_64.AppImage</code>
+					</p>
+				</div>
+				<p class="download-all reveal">
+					Or browse <a href="https://github.com/ped-bat/desqueeze/releases" rel="noopener">every release</a>.
+				</p>
+			</section>
+
+			<!-- Support and feedback -->
+			<section id="support" class="strip-section" aria-label="Support and feedback">
+				<div class="strip">
+					<p class="strip-note reveal">
+						<span>If Desqueeze is useful to you, a star on GitHub helps others find it.</span>
+						<span>If something goes wrong, please report it.</span>
+					</p>
+					<div class="strip-actions reveal">
+						<a class="btn btn-ghost" href="https://github.com/ped-bat/desqueeze" rel="noopener">
+							<svg class="icon-brand" aria-hidden="true"><use href="assets/icons.svg#i-github" /></svg>
+							Star on GitHub
+						</a>
+						<a class="btn btn-ghost" href="https://github.com/ped-bat/desqueeze/issues/new" rel="noopener">
+							Report an issue
+						</a>
+					</div>
+				</div>
+			</section>
+		</main>
+
+		<!-- The app's footer bar, carrying its own resting summary line -->
+		<footer class="bar bar-foot">
+			<p class="summary">Images processed on this machine, nothing is uploaded.</p>
+			<nav class="footer-links" aria-label="Footer">
+				<a href="https://github.com/ped-bat/desqueeze" rel="noopener">GitHub</a>
+				<a href="https://github.com/ped-bat/desqueeze/blob/main/LICENSE" rel="noopener">MIT license</a>
+				<a href="https://github.com/ped-bat/desqueeze/blob/main/THIRD-PARTY-LICENSES.md" rel="noopener"
+					>Third-party licenses</a
+				>
+			</nav>
+			<p class="colophon">© <span id="year">2026</span> Desqueeze · Created by Pedro Batista</p>
+		</footer>
+	</body>
+</html>

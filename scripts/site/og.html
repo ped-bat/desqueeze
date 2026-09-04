@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Desqueeze - OG image</title>
+		<style>
+			@font-face {
+				font-family: "Science Gothic";
+				font-weight: 100 900;
+				font-stretch: 50% 200%;
+				src: url("../../site/assets/fonts/science-gothic.woff2") format("woff2");
+			}
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+			html,
+			body {
+				width: 1200px;
+				height: 630px;
+				overflow: hidden;
+				background: #111111;
+				font-family: "Science Gothic", sans-serif;
+				color: rgba(255, 255, 255, 0.9);
+			}
+			/* The dot grid, static, with the centre spotlight */
+			.grid {
+				position: absolute;
+				inset: 0;
+				background-image: radial-gradient(circle, rgba(255, 255, 255, 0.55) 1.4px, transparent 1.8px);
+				background-size: 30px 30px;
+				background-position: 15px 15px;
+				-webkit-mask-image: radial-gradient(ellipse 62% 58% at 50% 50%, #000 20%, transparent 100%);
+				mask-image: radial-gradient(ellipse 62% 58% at 50% 50%, #000 20%, transparent 100%);
+			}
+			.vignette {
+				position: absolute;
+				inset: 0;
+				background: radial-gradient(ellipse 80% 80% at 50% 50%, transparent 40%, rgba(0, 0, 0, 0.45) 100%);
+			}
+			.scanlines {
+				position: absolute;
+				inset: 0;
+				background: repeating-linear-gradient(
+					to bottom,
+					transparent 0px,
+					transparent 1px,
+					rgba(0, 0, 0, 0.14) 1px,
+					rgba(0, 0, 0, 0.14) 2px
+				);
+			}
+			.bar {
+				position: absolute;
+				left: 0;
+				right: 0;
+				height: 66px;
+				padding: 0 52px;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				background: rgba(6, 6, 7, 0.2);
+			}
+			.bar::after {
+				content: "";
+				position: absolute;
+				left: 0;
+				right: 0;
+				height: 1px;
+				background: linear-gradient(
+					to right,
+					rgba(255, 255, 255, 0.04),
+					rgba(255, 255, 255, 0.17) 50%,
+					rgba(255, 255, 255, 0.04)
+				);
+			}
+			.top {
+				top: 0;
+			}
+			.top::after {
+				bottom: 0;
+			}
+			.foot {
+				bottom: 0;
+			}
+			.foot::after {
+				top: 0;
+			}
+			.mark {
+				font-size: 18px;
+				font-variation-settings: "wght" 600, "wdth" 88;
+				letter-spacing: 0.06em;
+				text-transform: uppercase;
+			}
+			.chip {
+				font-size: 14px;
+				font-variation-settings: "wght" 450, "wdth" 92;
+				background: rgba(255, 255, 255, 0.05);
+				border: 1px solid rgba(255, 255, 255, 0.16);
+				border-radius: 6px;
+				padding: 9px 14px;
+			}
+			.chip .k {
+				color: rgba(255, 255, 255, 0.52);
+			}
+			.summary {
+				font-size: 14px;
+				font-variation-settings: "wght" 450, "wdth" 92;
+				color: rgba(255, 255, 255, 0.62);
+			}
+			.stage {
+				position: absolute;
+				inset: 66px 0;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				gap: 22px;
+				text-align: center;
+			}
+			.title {
+				position: relative;
+				isolation: isolate;
+				font-size: 118px;
+				line-height: 1;
+				text-transform: uppercase;
+				font-variation-settings: "wght" 520, "wdth" 125;
+				letter-spacing: 0.045em;
+				padding-left: 0.045em;
+			}
+			.layer {
+				display: block;
+				mix-blend-mode: screen;
+			}
+			.r,
+			.b {
+				position: absolute;
+				left: 0;
+				top: 0;
+				width: 100%;
+			}
+			.g {
+				position: relative;
+				color: #0050cc;
+				text-shadow:
+					0 0 12px rgba(0, 80, 204, 0.6),
+					0 0 30px rgba(0, 80, 204, 0.3);
+			}
+			.r {
+				color: #ff0000;
+				transform: translateX(3px);
+				text-shadow:
+					0 0 12px rgba(255, 0, 0, 0.6),
+					0 0 30px rgba(255, 0, 0, 0.3);
+			}
+			.b {
+				color: #00cc44;
+				transform: translateX(-3px);
+				text-shadow:
+					0 0 12px rgba(0, 200, 68, 0.6),
+					0 0 30px rgba(0, 200, 68, 0.3);
+			}
+			.lede {
+				font-size: 30px;
+				line-height: 1.35;
+				font-variation-settings: "wght" 450, "wdth" 92;
+				color: rgba(255, 255, 255, 0.7);
+				text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+			}
+			.lede b {
+				font-weight: normal;
+				font-variation-settings: "wght" 560, "wdth" 92;
+				color: rgba(255, 255, 255, 0.9);
+			}
+		</style>
+	</head>
+	<body>
+		<div class="grid"></div>
+		<div class="vignette"></div>
+		<div class="scanlines"></div>
+		<div class="bar top">
+			<span class="mark">Desqueeze.io</span>
+			<span class="chip"><span class="k">Factor</span> 1.33x <span class="k">· Format</span> DNG <span class="k">▾</span></span>
+		</div>
+		<div class="stage">
+			<div class="title">
+				<span class="layer r">Desqueeze</span>
+				<span class="layer g">Desqueeze</span>
+				<span class="layer b">Desqueeze</span>
+			</div>
+			<p class="lede">
+				Desqueeze anamorphic photos and RAW files<br /><b>Lossless as DNG, straight into Lightroom</b>
+			</p>
+		</div>
+		<div class="bar foot">
+			<span class="summary">Images processed on this machine, nothing is uploaded.</span>
+			<span class="summary">macOS · Windows · Linux · Open source</span>
+		</div>
+	</body>
+</html>
