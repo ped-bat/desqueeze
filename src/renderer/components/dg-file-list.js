@@ -84,7 +84,11 @@ export class DgFileList extends LitElement {
 				background-clip: content-box;
 			}
 
-			/* [light] [format] [name] [target] [status] [action] */
+			/* [light] [format] [name] [action] [status]
+			   The action (Reveal, or its invisible stand-in) sits between the
+			   filename and the status word rather than after it, so the status
+			   word ends at the row's edge in every state and the space held
+			   for the button reads as the gap between name and status. */
 			.row {
 				position: relative;
 				/* Rows keep their natural height. As flex children in a
@@ -268,14 +272,13 @@ export class DgFileList extends LitElement {
 			}
 
 			/* Until a row has finished, an invisible twin of its Reveal button
-			   holds the button's exact box. The row is a grid whose last column
-			   sizes to its content, so a button appearing on "Done" used to
-			   widen that column by 68px — shoving the status word and the
-			   filename left — and, being taller than the text beside it, grow
-			   the row by 8px and shove every row below it down. Reserving the
-			   real thing, rather than a guessed height and width, keeps both
-			   dimensions the same in every state, and tracks any future change
-			   to the button's size for free. */
+			   holds the button's exact box. The action column sizes to its
+			   content, so a button appearing on "Done" used to widen it by 68px
+			   — shifting the filename's clipping edge — and, being taller than
+			   the text beside it, grow the row by 8px and shove every row below
+			   it down. Reserving the real thing, rather than a guessed height
+			   and width, keeps both dimensions the same in every state, and
+			   tracks any future change to the button's size for free. */
 			.reveal.ghost {
 				visibility: hidden;
 				pointer-events: none;
@@ -320,17 +323,17 @@ export class DgFileList extends LitElement {
 				display: block;
 			}
 
-			/* The tap target is far bigger than the 22px box that draws: it
-			   spans the row's full height and the whole slot the X sits in
-			   (the space held for Reveal), so the empty run to the right of
-			   the status word is all button. Only the box and its hover wash
-			   stay 22px. */
+			/* The tap target is bigger than the 22px box that draws: it spans
+			   the row's full height and runs to the row's edge. It stops short
+			   on the left so it never sits over the status word, which steps
+			   aside by 28px when the X is revealed. Only the box and its hover
+			   wash stay 22px. */
 			.rm::before {
 				content: "";
 				position: absolute;
 				top: -12px;
 				bottom: -12px;
-				left: -34px;
+				left: -6px;
 				right: -12px;
 			}
 
@@ -488,6 +491,15 @@ export class DgFileList extends LitElement {
 				<span class="light" aria-hidden="true"></span>
 				<span class="badge">${f.ext || "-"}</span>
 				<span class="name" title=${f.path}>${f.name}</span>
+				${isDone
+					? html`<button
+							class="btn btn-quiet btn-sm reveal"
+							title="Show ${f.name} in the file manager"
+							@click=${() => this._reveal(f.path)}
+						>
+							Reveal
+						</button>`
+					: html`<span class="btn btn-quiet btn-sm reveal ghost" aria-hidden="true">Reveal</span>`}
 				<span class="status ${f.status}">${icon}${label}</span>
 				${removable
 					? html`<button
@@ -499,15 +511,6 @@ export class DgFileList extends LitElement {
 							${EX}
 						</button>`
 					: nothing}
-				${isDone
-					? html`<button
-							class="btn btn-quiet btn-sm reveal"
-							title="Show ${f.name} in the file manager"
-							@click=${() => this._reveal(f.path)}
-						>
-							Reveal
-						</button>`
-					: html`<span class="btn btn-quiet btn-sm reveal ghost" aria-hidden="true">Reveal</span>`}
 				${f.status === "failed" && f.error
 					? html`<span class="why" title=${f.error}>${f.error}</span>`
 					: nothing}
