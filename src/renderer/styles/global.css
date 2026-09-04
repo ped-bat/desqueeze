@@ -100,7 +100,7 @@
 	   list screen than on the empty one and the two chromes stopped
 	   matching. Scoped here, the bars always sit over the same
 	   full-strength grid and take one value in every state. */
-	--dg-body-scrim: rgba(8, 8, 10, 0.62);
+	--dg-body-scrim: rgba(8, 8, 10, 0.75);
 
 	/* — Typography — */
 	/* Fluid type: preferred values are calibrated to the 1120x720 design
