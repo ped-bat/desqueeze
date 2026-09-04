@@ -79,7 +79,7 @@
 	/* Chrome for the working surface: bars and the file panel sit on these
 	   rather than on the raw canvas, so filenames are read against a
 	   consistent ground instead of moving dots. */
-	--dg-chrome: rgba(6, 6, 7, 0.5);
+	--dg-chrome: rgba(6, 6, 7, 0.6);
 	--dg-chrome-border: rgba(255, 255, 255, 0.17);
 	/* The ends of the bars' gradient rule: a quarter of the border's strength
 	   rather than nothing, so the line still reads at the window edges

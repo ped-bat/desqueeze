@@ -68,7 +68,9 @@ export class DgTopBar extends LitElement {
 
 			.mark {
 				font-family: var(--dg-font);
-				font-size: var(--dg-ui-lg);
+				/* A step under --dg-ui-lg (16px): the wordmark is uppercase and
+				   tracked, and at 16px it outweighed the chip beside it. */
+				font-size: 15px;
 				font-variation-settings: var(--dg-var-mark);
 				letter-spacing: 0.06em;
 				text-transform: uppercase;
