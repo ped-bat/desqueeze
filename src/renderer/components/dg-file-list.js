@@ -84,11 +84,9 @@ export class DgFileList extends LitElement {
 				background-clip: content-box;
 			}
 
-			/* [light] [format] [name] [action] [status]
-			   The action (Reveal, or its invisible stand-in) sits between the
-			   filename and the status word rather than after it, so the status
-			   word ends at the row's edge in every state and the space held
-			   for the button reads as the gap between name and status. */
+			/* [light] [format] [name] [status]
+			   Reveal is part of the status cell, to the right of "Done", so a
+			   finished row ends in "Done  Reveal" at the row's edge. */
 			.row {
 				position: relative;
 				/* Rows keep their natural height. As flex children in a
@@ -97,7 +95,7 @@ export class DgFileList extends LitElement {
 				   row below instead of scrolling. */
 				flex: none;
 				display: grid;
-				grid-template-columns: 10px 3.6em minmax(0, 1fr) auto auto;
+				grid-template-columns: 10px 3.6em minmax(0, 1fr) auto;
 				align-items: center;
 				gap: 12px;
 				padding: 9px 14px;
@@ -268,20 +266,27 @@ export class DgFileList extends LitElement {
 			}
 
 			.reveal {
-				justify-self: end;
+				flex: none;
+				margin-left: 12px;
 			}
 
-			/* Until a row has finished, an invisible twin of its Reveal button
-			   holds the button's exact box. The action column sizes to its
-			   content, so a button appearing on "Done" used to widen it by 68px
-			   — shifting the filename's clipping edge — and, being taller than
-			   the text beside it, grow the row by 8px and shove every row below
-			   it down. Reserving the real thing, rather than a guessed height
-			   and width, keeps both dimensions the same in every state, and
-			   tracks any future change to the button's size for free. */
+			/* Until a row has finished, a zero-width, invisible twin of the
+			   Reveal button keeps the status cell — and so the row — at the
+			   button's height: without it a finished row grew by 8px and shoved
+			   every row below it down. It reserves no width, so "Queued" ends
+			   at the row's edge; "Done" steps left by the button's width when
+			   Reveal arrives beside it. */
 			.reveal.ghost {
 				visibility: hidden;
 				pointer-events: none;
+				width: 0;
+				min-width: 0;
+				padding-left: 0;
+				padding-right: 0;
+				margin-left: 0;
+				border-left-width: 0;
+				border-right-width: 0;
+				overflow: hidden;
 			}
 
 			/* ── Remove ──────────────────────────────────────────────
@@ -491,16 +496,18 @@ export class DgFileList extends LitElement {
 				<span class="light" aria-hidden="true"></span>
 				<span class="badge">${f.ext || "-"}</span>
 				<span class="name" title=${f.path}>${f.name}</span>
-				${isDone
-					? html`<button
-							class="btn btn-quiet btn-sm reveal"
-							title="Show ${f.name} in the file manager"
-							@click=${() => this._reveal(f.path)}
-						>
-							Reveal
-						</button>`
-					: html`<span class="btn btn-quiet btn-sm reveal ghost" aria-hidden="true">Reveal</span>`}
-				<span class="status ${f.status}">${icon}${label}</span>
+				<span class="status ${f.status}">
+					${icon}${label}
+					${isDone
+						? html`<button
+								class="btn btn-quiet btn-sm reveal"
+								title="Show ${f.name} in the file manager"
+								@click=${() => this._reveal(f.path)}
+							>
+								Reveal
+							</button>`
+						: html`<span class="btn btn-quiet btn-sm reveal ghost" aria-hidden="true">Reveal</span>`}
+				</span>
 				${removable
 					? html`<button
 							class="rm"
