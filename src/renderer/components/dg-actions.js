@@ -72,7 +72,7 @@ export class DgActions extends LitElement {
 				if (n === 0) return btn("clear", "Clear", "ghost");
 				return html`
 					${btn("clear", "Clear", "quiet")}
-					${btn("start", n === 1 ? "Desqueeze image" : "Desqueeze images", "primary")}
+					${btn("start", "Desqueeze", "primary")}
 				`;
 			}
 
