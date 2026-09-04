@@ -1,12 +1,12 @@
 {
 	"name": "desqueeze",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"description": "Desktop app for desqueezing anamorphic photos and RAW files",
 	"author": "Pedro Batista",
 	"type": "module",
 	"main": "out/main/index.js",
 	"devDependencies": {
-		"electron": "39.8.10",
+		"electron": "44.1.1",
 		"electron-builder": "^26.0.12",
 		"electron-vite": "^5.0.0",
 		"vite": "^7.3.0",
