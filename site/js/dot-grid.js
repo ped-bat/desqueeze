@@ -87,9 +87,15 @@ export const CONFIG = {
 	stretchDuration: 1.5,
 
 	// Where the grid's focal point sits, as a fraction of the height: the
-	// centre spotlight, the stretch and the barrel all work around it. The
-	// app centres it (0.5); the site anchors it to the top edge (0).
+	// centre spotlight, the stretch, the barrel and the wave all work around
+	// it. The app centres it (0.5); the site moves it with the page.
 	focusY: 0.5,
+
+	// The app's success-mode wave: a radial travelling wave that dims each
+	// dot towards `dark` and nudges it outward by `displacement` px as it
+	// passes, every `period` seconds. Off by default.
+	// e.g. { period: 6, delay: 0, dark: 90, displacement: 4 }
+	wave: null,
 	gridSpring: { stiffness: 125, damping: 15 },
 	rowStretch: { center: 1, edge: 0.5 },
 	colStretch: { center: 1, edge: 0 },
@@ -169,6 +175,7 @@ export class DotGrid {
 		this.phase = "idle"; // 'stretch' | 'spring' | 'idle'
 		this.stretchTimer = 0;
 		this.loopTimer = 0;
+		this.waveTimer = 0;
 		this.gridSpring = { pos: 0, vel: 0 };
 
 		// Parallax: the grid drifts slightly as the page scrolls, so the
@@ -293,6 +300,11 @@ export class DotGrid {
 		this.scrollOffset = px;
 	}
 
+	/** Move the focal point: a fraction of the height, 0 at the top edge. */
+	setFocus(y) {
+		this.C.focusY = Math.max(0, Math.min(1, y));
+	}
+
 	_buildGrid() {
 		const C = this.C;
 		this.dots = [];
@@ -371,6 +383,9 @@ export class DotGrid {
 
 		const springT = Math.min(Math.abs(this.gridSpring.pos) / C.stretchAmount, 1);
 		const bMax = Math.sqrt(cx * cx + cy * cy) * C.barrelRadius;
+		if (C.wave) this.waveTimer += dt;
+		// The wave's reach: the far corner from the focal point
+		const maxDist = Math.hypot(Math.max(cx, w - cx), Math.max(cy, h - cy)) || 1;
 		const spotRxA = w * C.cursorSpotlight.width * 0.5;
 		const spotRyA = h * C.cursorSpotlight.height * 0.5;
 		const spotRangeA = C.cursorSpotlight.range;
@@ -431,8 +446,26 @@ export class DotGrid {
 				}
 			}
 
-			const drawX = baseX + dot.ox * cursorW + animOffX;
-			const drawY = baseY + dot.oy * cursorW + animOffY;
+			let drawX = baseX + dot.ox * cursorW + animOffX;
+			let drawY = baseY + dot.oy * cursorW + animOffY;
+
+			// Wave (the app's success mode): dims each dot and nudges it
+			// outward as the front passes, then again every period
+			let waveT = 0;
+			if (C.wave) {
+				const wdx = drawX - cx;
+				const wdy = drawY - cy;
+				const wd = Math.sqrt(wdx * wdx + wdy * wdy);
+				const age = this.waveTimer - C.wave.delay - (wd / maxDist) * C.wave.period;
+				if (age > 0) {
+					waveT = (1 - Math.cos((age / C.wave.period) * Math.PI * 2)) * 0.5;
+					if (C.wave.displacement && wd > 0.1) {
+						const push = C.wave.displacement * waveT;
+						drawX += (wdx / wd) * push;
+						drawY += (wdy / wd) * push;
+					}
+				}
+			}
 
 			// Spotlight visibility: cursor and centre spotlights, cross-faded
 			const csdx = (drawX - smx) / spotRxA;
@@ -452,6 +485,7 @@ export class DotGrid {
 
 			const dotRadius = lerp(C.minDotRadius, C.maxDotRadius, vis);
 			const dotOpacity = lerp(C.baseOpacity, C.maxOpacity, vis);
+			const shade = waveT > 0 ? Math.round(lerp(255, C.wave.dark, waveT)) : 255;
 
 			// Chromatic aberration vector: repulsion direction blended with
 			// the radial stretch direction
@@ -488,14 +522,14 @@ export class DotGrid {
 				for (const [r, g, b, dir] of CHROMA_CHANNELS) {
 					offCtx.beginPath();
 					offCtx.arc(drawX + cnx * chromaOff * dir, drawY + cny * chromaOff * dir, dotRadius, 0, Math.PI * 2);
-					offCtx.fillStyle = `rgba(${r},${g},${b},${opa})`;
+					offCtx.fillStyle = `rgba(${Math.round((r * shade) / 255)},${Math.round((g * shade) / 255)},${Math.round((b * shade) / 255)},${opa})`;
 					offCtx.fill();
 				}
 				offCtx.globalCompositeOperation = "source-over";
 			} else {
 				offCtx.beginPath();
 				offCtx.arc(drawX, drawY, dotRadius, 0, Math.PI * 2);
-				offCtx.fillStyle = `rgba(255,255,255,${dotOpacity})`;
+				offCtx.fillStyle = `rgba(${shade},${shade},${shade},${dotOpacity})`;
 				offCtx.fill();
 			}
 		}

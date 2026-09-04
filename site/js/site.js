@@ -1,14 +1,16 @@
 /*
  * Desqueeze landing page - page wiring.
  *
- * Owns: the background dot grid, the hero's desqueeze intro, scroll
- * reveals, the platform-aware download button, and the before/after photo.
+ * Owns: the background dot grid and where it looks, the hero's desqueeze
+ * intro, scroll reveals, the platform-aware download button, and the
+ * before/after photo.
  */
 
 import { DotGrid } from "./dot-grid.js";
 
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const lerp = (a, b, t) => a + (b - a) * t;
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
 // Always open at the top: left on "auto", a webfont swapping in after the
 // browser restores the previous offset nudges that position on every reload.
@@ -31,10 +33,13 @@ function stepSpringTo(s, target, cfg, dt) {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Background dot grid: fixed and centred in the viewport, running the
-   app's processing-stage stretch on its 3s loop. It does not travel
-   with the page or follow the pointer.
+   Background dot grid: fixed, ignoring the pointer, waving slowly the
+   way the app's success state does, with smaller dots. Its focal point
+   starts on the hero's title block and eases up to the top edge over the
+   first 600px of scroll, then stays there.
    ───────────────────────────────────────────────────────────── */
+
+const FOCUS_SCROLL = 600;
 
 function initGrid(onFrame) {
 	const canvas = document.getElementById("grid-canvas");
@@ -45,7 +50,8 @@ function initGrid(onFrame) {
 	const grid = new DotGrid(canvas, {
 		onFrame,
 		config: {
-			loop: !reduceMotion,
+			maxDotRadius: 1.1,
+			wave: reduceMotion ? null : { period: 6, delay: 0, dark: 90, displacement: 4 },
 			baseOpacity: 0.16,
 			maxOpacity: 0.5,
 			glowOpacity: 0.025,
@@ -56,8 +62,7 @@ function initGrid(onFrame) {
 	const fit = () => grid.resize(window.innerWidth, window.innerHeight);
 	fit();
 
-	// Reduced motion still gets the grid, held still: no cursor magnetism,
-	// no stretch loop, no grain churn.
+	// Reduced motion still gets the grid, held still: no wave, no grain churn.
 	if (reduceMotion) {
 		grid.renderOnce();
 		let staticTimer;
@@ -79,8 +84,7 @@ function initGrid(onFrame) {
 		resizeTimer = setTimeout(fit, 120);
 	});
 
-	// The pointer is deliberately not wired up: the grid is a fixed backdrop
-	// here, with the ambient spotlight only, no magnetism.
+	// The pointer is deliberately not wired up: the grid is a fixed backdrop.
 
 	document.addEventListener("visibilitychange", () => {
 		if (document.hidden) grid.stop();
@@ -90,10 +94,39 @@ function initGrid(onFrame) {
 	return grid;
 }
 
+/**
+ * The focal point follows the page: on the title block at the top, then
+ * up to the top edge as the first 600px scroll by, so the grid's centre
+ * leaves with the hero rather than hanging mid-screen behind the prose.
+ */
+function initGridFocus(grid) {
+	const head = document.getElementById("hero-heading");
+	const download = document.querySelector(".download");
+	if (!grid || !head) return;
+
+	let blockY = 0.3; // fraction of the viewport height, at scroll 0
+
+	const apply = () => {
+		const t = clamp(window.scrollY / FOCUS_SCROLL, 0, 1);
+		grid.setFocus(lerp(blockY, 0, t));
+		if (reduceMotion) grid.renderOnce();
+	};
+	const measure = () => {
+		const top = head.getBoundingClientRect().top + window.scrollY;
+		const bottom = (download || head).getBoundingClientRect().bottom + window.scrollY;
+		blockY = (top + bottom) / 2 / Math.max(window.innerHeight, 1);
+		apply();
+	};
+
+	measure();
+	window.addEventListener("resize", measure);
+	window.addEventListener("scroll", apply, { passive: true });
+}
+
 /* ─────────────────────────────────────────────────────────────
    Hero: the wordmark arrives squeezed and desqueezes into its resting
    axes on the app's own text spring, with the RGB split riding the
-   spring's velocity. Everything marked .reveal-load fades in on the same
+   spring's velocity. Everything marked .reveal-load rises in on the same
    beat, once the variable font is in so nothing draws in a fallback face.
    ───────────────────────────────────────────────────────────── */
 
@@ -101,11 +134,10 @@ const TEXT_SPRING = { stiffness: 125, damping: 15 }; // config.js textSpring
 const REST = { wght: 520, wdth: 125, track: 0.045 }; // config.js fontWeight/fontWidth rest
 const SQUEEZED = { wght: 380, wdth: 58, track: -0.012 };
 
-function initHero(grid) {
+function initHero() {
 	const title = document.getElementById("hero-heading");
 	const layerR = title?.querySelector(".layer-r");
 	const layerB = title?.querySelector(".layer-b");
-	const state = { introDone: reduceMotion };
 
 	const applyChroma = (px) => {
 		if (!layerR || !layerB) return;
@@ -127,23 +159,16 @@ function initHero(grid) {
 
 	const run = () => {
 		revealLoad();
-		if (reduceMotion || !title) {
-			state.introDone = true;
-			return;
-		}
+		if (reduceMotion || !title) return;
 
 		const spring = { value: 0, vel: 0 };
 		const start = performance.now();
 		let last = start;
 
-		// The grid stretches on the same beat, as it does when the app changes state
-		if (grid) setTimeout(() => grid.pulse(), 180);
-
 		const settle = () => {
 			title.style.fontVariationSettings = "";
 			title.style.letterSpacing = "";
 			applyChroma(0);
-			state.introDone = true;
 		};
 
 		const frame = (now) => {
@@ -169,8 +194,6 @@ function initHero(grid) {
 	} else {
 		run();
 	}
-
-	return { state, applyChroma };
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -259,26 +282,66 @@ function initDownloads() {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Before and after: the split runs top to bottom and rides a spring
-   towards the pointer, so it eases in when the pointer enters, follows
-   it while it is over the photo, and stays wherever it was left. Touch
-   drags it; the up and down arrow keys move it for keyboard users.
+   Before and after: a diagonal split, bottom-left to top-right. The
+   frame as shot sits above and left of it, the desqueezed frame below
+   and right. On entry the split eases to the pointer on a spring, then
+   tracks it directly, and stays wherever it was left. Touch drags it;
+   the arrow keys move it for keyboard users.
+
+   The split is k in [0, 2] on the family of lines x/W + y/H = k: 0 is
+   the top-left corner, 1 the corner-to-corner diagonal, 2 the
+   bottom-right corner.
    ───────────────────────────────────────────────────────────── */
 
 // Stiff and close to critically damped, like the app's hover spring:
 // quick, with just enough give to feel physical and almost no overshoot.
 const SPLIT_SPRING = { stiffness: 170, damping: 24 };
+const ENTRY_MS = 600; // after this the split tracks the pointer directly
 
 function initCompare() {
 	const el = document.getElementById("compare-view");
-	if (!el) return;
+	const before = el?.querySelector(".compare-before");
+	const line = el?.querySelector(".compare-line");
+	const handle = el?.querySelector(".compare-handle");
+	if (!el || !before || !line || !handle) return;
 
-	const spring = { value: 50, vel: 0 };
-	let target = 50;
+	const spring = { value: 1, vel: 0 };
+	let target = 1;
 	let raf = 0;
 	let last = 0;
+	let enteredAt = -Infinity;
 
-	const paint = (v) => el.style.setProperty("--split", `${Math.max(0, Math.min(100, v)).toFixed(2)}%`);
+	const pct = (v) => `${(v * 100).toFixed(2)}%`;
+	const paint = (k) => {
+		k = clamp(k, 0, 2);
+		before.style.clipPath =
+			k <= 1
+				? `polygon(0 0, ${pct(k)} 0, 0 ${pct(k)})`
+				: `polygon(0 0, 100% 0, 100% ${pct(k - 1)}, ${pct(k - 1)} 100%, 0 100%)`;
+		// (kW/2, kH/2) lies on the line, and walks the other diagonal
+		const c = pct(k / 2);
+		line.style.left = c;
+		line.style.top = c;
+		handle.style.left = c;
+		handle.style.top = c;
+	};
+
+	// The hairline turns to the box's own corner-to-corner angle
+	const angle = () => {
+		const r = el.getBoundingClientRect();
+		if (r.width > 0) line.style.setProperty("--angle", `${((-Math.atan2(r.height, r.width) * 180) / Math.PI).toFixed(3)}deg`);
+	};
+	angle();
+	window.addEventListener("resize", angle);
+	paint(1);
+
+	const snap = () => {
+		if (raf) cancelAnimationFrame(raf);
+		raf = 0;
+		spring.value = target;
+		spring.vel = 0;
+		paint(target);
+	};
 
 	const frame = (now) => {
 		// Clamped: a backgrounded tab can hand back a huge delta, and
@@ -286,18 +349,20 @@ function initCompare() {
 		const dt = Math.min((now - last) / 1000, 0.05);
 		last = now;
 		const settled = stepSpringTo(spring, target, SPLIT_SPRING, dt);
+		if (settled || now - enteredAt > ENTRY_MS) {
+			snap();
+			return;
+		}
 		paint(spring.value);
-		raf = settled ? 0 : requestAnimationFrame(frame);
+		raf = requestAnimationFrame(frame);
 	};
 
-	// Retargeting mid-flight keeps the spring's velocity, so a pointer that
-	// changes direction never restarts a curve.
-	const moveTo = (pct) => {
-		target = Math.max(0, Math.min(100, pct));
-		if (reduceMotion) {
-			spring.value = target;
-			spring.vel = 0;
-			paint(target);
+	// Eased on entry; direct once the entry has landed
+	const moveTo = (k, ease) => {
+		target = clamp(k, 0, 2);
+		const entering = ease && performance.now() - enteredAt <= ENTRY_MS;
+		if (reduceMotion || !entering) {
+			snap();
 			return;
 		}
 		if (!raf) {
@@ -306,36 +371,39 @@ function initCompare() {
 		}
 	};
 
-	const fromEvent = (e) => {
+	const kOf = (e) => {
 		const r = el.getBoundingClientRect();
-		if (r.height > 0) moveTo(((e.clientY - r.top) / r.height) * 100);
+		if (r.width <= 0 || r.height <= 0) return target;
+		return (e.clientX - r.left) / r.width + (e.clientY - r.top) / r.height;
 	};
 
 	el.addEventListener("pointerenter", (e) => {
-		if (e.pointerType !== "touch") fromEvent(e);
+		if (e.pointerType === "touch") return;
+		enteredAt = performance.now();
+		moveTo(kOf(e), true);
 	});
 	el.addEventListener("pointermove", (e) => {
 		if (e.pointerType === "touch" && e.buttons === 0) return;
-		fromEvent(e);
+		moveTo(kOf(e), true);
 	});
-	el.addEventListener("pointerdown", fromEvent);
+	el.addEventListener("pointerdown", (e) => moveTo(kOf(e), false));
+	el.addEventListener("pointerleave", () => {
+		enteredAt = -Infinity;
+	});
 	el.addEventListener("keydown", (e) => {
-		if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
+		const delta = { ArrowLeft: -0.1, ArrowUp: -0.1, ArrowRight: 0.1, ArrowDown: 0.1 }[e.key];
+		if (delta === undefined) return;
 		e.preventDefault();
-		moveTo(target + (e.key === "ArrowUp" ? -5 : 5));
+		enteredAt = performance.now();
+		moveTo(target + delta, true);
 	});
 }
 
 /* ───────────────────────────────────────────────────────────── */
 
-const hero = { state: { introDone: reduceMotion }, applyChroma: () => {} };
-const grid = initGrid((f) => {
-	// The title's RGB split rides the grid's stretch spring, exactly as
-	// dg-app bridges onFrame into <dg-chroma-text>. The intro owns the
-	// layers until it has settled.
-	if (hero.state.introDone) hero.applyChroma(f.chromaOffset * 2);
-});
-Object.assign(hero, initHero(grid));
+const grid = initGrid(null);
+initGridFocus(grid);
+initHero();
 initReveals();
 initDownloads();
 initCompare();

@@ -52,19 +52,22 @@ borrows from the renderer rather than approximating it:
 - **The dot grid** (`js/dot-grid.js`) is a real port of the app's engine,
   with film grain and dot glow baked into tiles because per-frame
   generation is far too expensive across a full viewport. On the site it
-  is fixed and centred, ignores the pointer, and runs the app's
-  processing-stage stretch on its 3s loop (`loop: true`); it does not
-  travel with the page. It is also knocked back (`config` in
-  `js/site.js`: lower base and ceiling opacity, softer glow, a darker
-  canvas ground, a slight CSS blur) so it stays a backdrop behind a page
-  of text.
+  is fixed, ignores the pointer, and waves slowly the way the app's
+  success state does (`wave` in the config, with smaller dots). Its focal
+  point starts on the hero's title block and eases up to the top edge over
+  the first 600px of scroll (`initGridFocus` in `js/site.js`). It is also
+  knocked back (lower base and ceiling opacity, softer glow, a darker
+  canvas ground) so it stays a backdrop behind a page of text.
 - **Before and after** (`.compare`, in the hero) is one photo rendered
   twice from the same ARW decode, as shot and stretched 1.33x
-  (`assets/photo/`), split top over bottom. The split rides a spring
-  towards the pointer, so it eases in on entry, follows the pointer up and
-  down, and stays where it was left. The squeezed frame is narrower, so it
-  sits centred with dark bands either side rather than being stretched to
-  fit.
+  (`assets/photo/`), split along a diagonal from the bottom-left to the
+  top-right: as shot above and left of it, desqueezed below and right.
+  On entry the split eases to the pointer on a spring, then tracks it
+  directly, and stays where it was left. The squeezed frame is narrower,
+  so it sits centred with dark bands either side rather than being
+  stretched to fit.
+- **Reveals** rise into place as they arrive, Bind it's way: a fixed
+  40px over one second, staggered a little across a row.
 - **Type** is Science Gothic throughout. Uppercase is reserved for the
   wordmark and the hero title, as in the app; everything else is sentence
   case at the app's UI axes (`wght 450, wdth 92`). The hero title,

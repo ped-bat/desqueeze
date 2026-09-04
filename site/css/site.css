@@ -109,7 +109,10 @@
 	   reads as a backdrop behind a page of text */
 	--site-canvas: #0b0b0d;
 	--site-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-	--site-reveal: 600ms;
+	/* Every reveal travels the same distance, over the same time */
+	--site-reveal: 1000ms;
+	--site-reveal-shift: 40px;
+	--site-reveal-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
 
 	/* — Radii — half again the app's, shared by every corner on the page */
 	--site-r-sm: 6px;
@@ -182,8 +185,8 @@ summary {
 /* ── 3. Background ──────────────────────────────────────────── */
 
 /* Fixed: the grid does not travel with the page or follow the pointer.
-   Its focal point sits at the centre of the viewport, and the stretch runs
-   around it. Softened a touch so it reads as a backdrop. */
+   Its focal point starts on the hero's title block and eases up to the top
+   edge over the first 600px of scroll (site.js drives it). */
 #grid-canvas {
 	position: fixed;
 	inset: 0;
@@ -191,7 +194,6 @@ summary {
 	display: block;
 	background: var(--site-canvas);
 	pointer-events: none;
-	filter: blur(1.6px);
 }
 
 /* The CRT belongs to the grid, not to the controls: it sits over the
@@ -235,23 +237,26 @@ footer {
 	top: 12px;
 }
 
-/* Reveal: a crossfade, nothing else. The app never slides a screen in; it
-   fades one out and the next in, and the page keeps to the same rule. */
+/* Reveal: blocks rise into place as they arrive. The shift is a fixed
+   distance, not a percentage, so a tall card travels no further than a
+   heading. */
 .reveal,
 .reveal-load {
 	opacity: 0;
 }
 
 .is-revealed {
-	animation: dg-in var(--site-reveal) ease both;
+	animation: dg-rise var(--site-reveal) var(--site-reveal-ease) both;
 }
 
-@keyframes dg-in {
+@keyframes dg-rise {
 	from {
 		opacity: 0;
+		transform: translate3d(0, var(--site-reveal-shift), 0);
 	}
 	to {
 		opacity: 1;
+		transform: translate3d(0, 0, 0);
 	}
 }
 
@@ -351,6 +356,10 @@ code {
 
 .btn-primary:hover {
 	background: var(--dg-accent-hover);
+	/* A light halo stands in for a border on a light face */
+	box-shadow:
+		inset 0 -1px 0 rgba(0, 0, 0, 0.16),
+		0 0 0 2px rgba(255, 255, 255, 0.35);
 }
 
 .btn-ghost {
@@ -360,7 +369,7 @@ code {
 
 .btn-ghost:hover {
 	background: rgba(255, 255, 255, 0.1);
-	border-color: rgba(255, 255, 255, 0.32);
+	border-color: rgba(255, 255, 255, 0.62);
 }
 
 .btn-lg {
@@ -590,12 +599,13 @@ section > * {
 	border: 1px solid var(--dg-chrome-border);
 	background: #050506;
 	box-shadow: 0 30px 70px -30px rgba(0, 0, 0, 0.9);
-	cursor: row-resize;
+	cursor: nwse-resize;
 	touch-action: none;
 	user-select: none;
 	-webkit-user-select: none;
-	/* The split is driven by a spring in site.js: it eases towards the
-	   pointer when it enters, follows it, and stays put when it leaves. */
+	/* The split is a diagonal running bottom-left to top-right, driven by
+	   site.js: it eases to the pointer on entry, then tracks it directly,
+	   and stays put when the pointer leaves. */
 }
 
 .compare:focus-visible {
@@ -619,12 +629,13 @@ section > * {
 }
 
 /* The squeezed frame is narrower: same height, centred, dark either side.
-   It shows above the split; the desqueezed frame shows below it. */
+   It shows above and left of the diagonal; the desqueezed frame shows
+   below and right of it. The polygon is written by site.js. */
 .compare-before {
 	position: absolute;
 	inset: 0;
 	background: #050506;
-	clip-path: inset(0 0 calc(100% - var(--split)) 0);
+	clip-path: polygon(0 0, 100% 0, 0 100%);
 }
 
 .compare-before img {
@@ -636,13 +647,16 @@ section > * {
 	transform: translateX(-50%);
 }
 
+/* A long hairline, turned to the box's own diagonal and centred on the
+   split; the box clips it */
 .compare-line {
+	--angle: -26.6deg;
 	position: absolute;
-	left: 0;
-	right: 0;
-	top: var(--split);
+	left: 50%;
+	top: 50%;
+	width: 300%;
 	height: 1px;
-	margin-top: -0.5px;
+	transform: translate(-50%, -50%) rotate(var(--angle));
 	background: rgba(255, 255, 255, 0.7);
 	box-shadow: 0 0 8px rgba(255, 255, 255, 0.35);
 	pointer-events: none;
@@ -652,22 +666,22 @@ section > * {
 	position: absolute;
 	top: 50%;
 	left: 50%;
-	width: 24px;
-	height: 24px;
+	width: 26px;
+	height: 26px;
 	transform: translate(-50%, -50%);
 	border-radius: 50%;
 	background: rgba(6, 6, 7, 0.6);
 	border: 1px solid rgba(255, 255, 255, 0.45);
 	backdrop-filter: var(--dg-blur-glass);
 	-webkit-backdrop-filter: var(--dg-blur-glass);
+	pointer-events: none;
 }
 
-/* Two small chevrons, up and down, drawn rather than typed */
+/* Two small chevrons, up-left and down-right, drawn rather than typed */
 .compare-handle::before,
 .compare-handle::after {
 	content: "";
 	position: absolute;
-	left: 50%;
 	width: 5px;
 	height: 5px;
 	border-top: 1.5px solid rgba(255, 255, 255, 0.85);
@@ -676,17 +690,17 @@ section > * {
 
 .compare-handle::before {
 	top: 6px;
-	transform: translateX(-50%) rotate(45deg);
+	left: 6px;
 }
 
 .compare-handle::after {
+	right: 6px;
 	bottom: 6px;
-	transform: translateX(-50%) rotate(225deg);
+	transform: rotate(180deg);
 }
 
 .compare-tag {
 	position: absolute;
-	left: 16px;
 	padding: 9px 14px;
 	border-radius: var(--site-r);
 	background: rgba(6, 6, 7, 0.72);
@@ -702,25 +716,28 @@ section > * {
 
 .compare-tag.top {
 	top: 16px;
+	left: 16px;
 }
 
 .compare-tag.bottom {
 	bottom: 16px;
+	right: 16px;
 }
 
 @media (max-width: 600px) {
 	.compare-tag {
-		left: 10px;
 		padding: 6px 10px;
 		font-size: var(--dg-ui-sm);
 	}
 
 	.compare-tag.top {
 		top: 10px;
+		left: 10px;
 	}
 
 	.compare-tag.bottom {
 		bottom: 10px;
+		right: 10px;
 	}
 }
 
@@ -984,7 +1001,7 @@ section > * {
 
 .dl:hover {
 	background: rgba(255, 255, 255, 0.1);
-	border-color: rgba(255, 255, 255, 0.32);
+	border-color: rgba(255, 255, 255, 0.62);
 }
 
 .dl svg {
