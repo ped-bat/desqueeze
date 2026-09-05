@@ -89,7 +89,9 @@ export class DgTopBar extends LitElement {
 				background: rgba(255, 255, 255, 0.05);
 				border: 1px solid rgba(255, 255, 255, 0.16);
 				border-radius: 6px;
-				padding: 8px 13px;
+				/* About 32px tall: the bar is 44px (see --dg-bar-h) and the
+				   chip has to sit inside it with room either side. */
+				padding: 6px 12px;
 				cursor: pointer;
 				transition:
 					background 0.16s ease,

@@ -61,7 +61,7 @@ export class DgApp extends LitElement {
 
 		/* ── The CRT ──────────────────────────────────────────────
 		   Three screen-wide layers. The scanlines and the flicker sit above
-		   everything — the shell, the drop ring, the settings popover — so
+		   everything — the shell, the drop wash, the settings popover — so
 		   the beam falls across the bars, the rows and the buttons, not just
 		   the dot grid. The vignette and edge curvature sit BELOW the shell:
 		   they darken the grid and the scrim towards the corners, but a
@@ -98,6 +98,8 @@ export class DgApp extends LitElement {
 		}
 
 		.body {
+			/* Anchors the drop wash. */
+			position: relative;
 			flex: 1;
 			min-height: 0;
 			display: flex;
@@ -117,8 +119,8 @@ export class DgApp extends LitElement {
 		/* ── Empty state ───────────────────────────────────────
 		   No resting outline: the whole window is the drop target, and
 		   drawing a box around the hero only fenced it in. Drag feedback
-		   is the window-edge ring below, the same cue the file list gets,
-		   so both states answer a drag the same way. */
+		   is the body wash below, the same cue the file list gets, so both
+		   states answer a drag the same way. */
 		.stage {
 			flex: 1;
 			min-height: 0;
@@ -129,12 +131,6 @@ export class DgApp extends LitElement {
 			gap: 1.1rem;
 			text-align: center;
 			padding: 2rem;
-			border-radius: 10px;
-			transition: background 0.18s ease;
-		}
-
-		:host([dragging]) .stage {
-			background: var(--dg-accent-wash);
 		}
 
 		dg-chroma-text[variant="subtitle"] {
@@ -154,15 +150,26 @@ export class DgApp extends LitElement {
 			opacity: 0;
 		}
 
-		/* Drop feedback in every state: a ring on the window edge. */
-		.dropring {
+		/* Drop feedback in every state: a wash over the body, the same rounded
+		   field the hero sits in, so a drag lights up the place the files
+		   will land and nothing else. There used to be a ring on the window
+		   edge as well, which drew a frame around the whole app; the frame
+		   went, the wash stayed. Positioned inside .body at the body's own
+		   padding, so it tracks the bars whatever their height. Kept mounted
+		   and faded by attribute, so it eases out as well as in. */
+		.dropwash {
 			position: absolute;
-			inset: 6px;
+			inset: 16px var(--dg-bar-pad);
 			z-index: 20;
-			border: 2px solid var(--dg-accent-ring);
-			border-radius: 12px;
+			border-radius: 10px;
 			pointer-events: none;
-			background: var(--dg-accent-wash);
+			background: var(--dg-drop-wash);
+			opacity: 0;
+			transition: opacity 0.18s ease;
+		}
+
+		:host([dragging]) .dropwash {
+			opacity: 1;
 		}
 
 		/* ── Settings popover ────────────────────────────────────
@@ -299,6 +306,7 @@ export class DgApp extends LitElement {
 								@remove=${(e) => store.removeFile(e.detail.path)}
 							></dg-file-list>`
 						: this._stage()}
+					<div class="dropwash"></div>
 				</div>
 
 				<dg-footer-bar id="footer" .mode=${this.displayMode}>
@@ -322,8 +330,6 @@ export class DgApp extends LitElement {
 						: nothing}
 				</dg-footer-bar>
 			</div>
-
-			${this.dragging ? html`<div class="dropring"></div>` : nothing}
 
 			<div
 				class="popover ${store.settingsOpen ? "open" : ""}"

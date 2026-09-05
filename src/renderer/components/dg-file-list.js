@@ -411,14 +411,14 @@ export class DgFileList extends LitElement {
 			/* The tap target is bigger than the 22px box that draws: it spans
 			   the row's full height and runs to the row's edge. It stops short
 			   on the left so it never sits over the status word, which steps
-			   aside by 24px when the X is revealed. Only the box and its hover
+			   aside by 20px when the X is revealed. Only the box and its hover
 			   wash stay 22px. */
 			.rm::before {
 				content: "";
 				position: absolute;
 				top: -12px;
 				bottom: -12px;
-				left: -6px;
+				left: -2px;
 				right: -12px;
 			}
 
@@ -432,10 +432,12 @@ export class DgFileList extends LitElement {
 				outline-offset: 1px;
 			}
 
-			/* Steps aside by exactly the X's width plus its gutter, so the word
-			   lands clear of it rather than merely somewhere to the left. */
+			/* Steps aside by a little less than the X's 22px box, so the word
+			   lands just clear of the box rather than a full gutter away from
+			   it. The glyph is 11px inside that box, so the visible gap between
+			   the word and the X comes to about 8px. */
 			.row.removable .status {
-				transform: translateX(calc(var(--rm-t, 0) * -24px));
+				transform: translateX(calc(var(--rm-t, 0) * -20px));
 			}
 
 			/* Hover still governs whether the control can be clicked; the

@@ -40,6 +40,14 @@ export class DgActions extends LitElement {
 				gap: 8px;
 				pointer-events: auto;
 			}
+
+			/* In the footer bar (slotted as "actions") the buttons come down to
+			   about 32px tall so they sit inside the 44px bar (see --dg-bar-h).
+			   On the empty stage the primary button keeps its full size. */
+			:host([slot="actions"]) .btn {
+				padding-top: 0.58em;
+				padding-bottom: 0.58em;
+			}
 		`,
 	];
 

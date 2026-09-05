@@ -61,6 +61,10 @@
 	--dg-accent-fg: #0c0c0e;
 	--dg-accent-ring: rgba(255, 255, 255, 0.65);
 	--dg-accent-wash: rgba(255, 255, 255, 0.1);
+	/* The drag-over field. Stronger than the wash above because it is the
+	   only cue there is: it used to be two washes stacked, the stage's and
+	   the window ring's, which read at about this strength. */
+	--dg-drop-wash: rgba(255, 255, 255, 0.18);
 
 	/* Semantic status, kept separate from the accent so a finished row and
 	   the primary button never compete for the same meaning.
@@ -89,9 +93,13 @@
 	--dg-row: rgba(255, 255, 255, 0.04);
 	--dg-row-hover: rgba(255, 255, 255, 0.075);
 
-	/* Bar heights. The top bar has to clear the macOS traffic lights, which
-	   sit at y:16 with hiddenInset, so it cannot be shorter than this. */
-	--dg-bar-h: 66px;
+	/* Bar heights. The macOS traffic lights sit at y:16 with hiddenInset
+	   (see main/index.js) and are 12px tall, so their centre is at y:22; a
+	   44px bar puts them on its centre line. The footer takes the same
+	   height so the two bars mirror each other. Everything that lives in a
+	   bar has to fit inside this: the settings chip and the bar buttons are
+	   sized to about 32px for it. */
+	--dg-bar-h: 44px;
 	--dg-bar-pad: 20px;
 
 	/* Knocks the grid back behind the file list. This is painted over the
