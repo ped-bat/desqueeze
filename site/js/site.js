@@ -318,12 +318,14 @@ function initCompare() {
 			k <= 1
 				? `polygon(0 0, ${pct(k)} 0, 0 ${pct(k)})`
 				: `polygon(0 0, 100% 0, 100% ${pct(k - 1)}, ${pct(k - 1)} 100%, 0 100%)`;
-		// (kW/2, kH/2) lies on the line, and walks the other diagonal
+		// (kW/2, kH/2) is the midpoint of the visible stretch of line, and
+		// walks the other diagonal. The handle is held clear of the corners
+		// so it stays on the photo at either end.
 		const c = pct(k / 2);
 		line.style.left = c;
 		line.style.top = c;
-		handle.style.left = c;
-		handle.style.top = c;
+		handle.style.left = `clamp(18px, ${c}, calc(100% - 18px))`;
+		handle.style.top = `clamp(18px, ${c}, calc(100% - 18px))`;
 	};
 
 	// The hairline turns to the box's own corner-to-corner angle
