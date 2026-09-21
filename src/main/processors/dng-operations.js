@@ -15,7 +15,16 @@ import log from "../logger.js";
 import { BinaryResolver } from "../services/binary-resolver.js";
 import { CommandRunner } from "../services/command-runner.js";
 import { ExifToolService } from "../services/exiftool-service.js";
-import { isPlaceholderNeutral, neutralFromWbTags, formatNeutral } from "../analyzers/white-balance.js";
+import {
+	isPlaceholderNeutral,
+	gainsFromWbTags,
+	neutralFromGains,
+	formatTriplet,
+} from "../analyzers/white-balance.js";
+
+/** DNG PhotometricInterpretation values of a raw image IFD */
+const CFA = 32803;
+const LINEAR_RAW = 34892;
 
 class DngOperations {
 	/**
@@ -70,46 +79,80 @@ class DngOperations {
 
 		await this.runDNGLabCommand(args);
 		await this._verifyOutput(outputPath);
-		await this.repairAsShotNeutral(inputPath, outputPath);
+		await this.repairWhiteBalance(inputPath, outputPath);
 		log.info(`DNG file created: ${outputPath}`);
 		return outputPath;
 	}
 
 	/**
-	 * Restore the camera's white balance when DNGLab did not carry it over.
+	 * Give the DNG the camera's white balance when DNGLab did not carry it.
 	 *
 	 * DNGLab writes AsShotNeutral as "1 1 1" when its decoder has no
-	 * white-balance reader for a camera (the Sony ILCE-7CM2, for one). A raw
-	 * editor takes that literally — "the neutral the camera saw was equal
-	 * R = G = B" — and opens the DNG at a temperature and tint nothing like
-	 * the original's: 2350K / −150 against the ARW's 5350K / +13. Dialling
-	 * the original's numbers back in then goes magenta, because the baseline
-	 * they are relative to is wrong. The camera's multipliers are still in
-	 * the source's maker notes, which exiftool reads, so the neutral is
-	 * rebuilt from them. Only a placeholder is replaced; a neutral DNGLab did
-	 * read is left alone.
+	 * white-balance coefficients for a file. A raw editor then back-computes
+	 * an illuminant from an identity neutral, so its As-Shot temperature and
+	 * tint land nowhere near the original's (2350K / −150 against the ARW's
+	 * 5350K / +13 on a Sony ILCE-7CM2) even when the picture looks about
+	 * right, and colours drift because the wrong matrix is chosen.
+	 *
+	 * Which tag to write depends on what the stored data is:
+	 *
+	 *  - Sony's lossless "M"/"S" sizes are stored demosaiced and already
+	 *    white-balanced, and arrive here as 3-sample LinearRaw. There "1 1 1"
+	 *    is true, and the gains the camera applied belong in AnalogBalance,
+	 *    which the editor folds into its colour transform. Writing the
+	 *    camera-space neutral instead applies the gains a second time and
+	 *    the image goes magenta — measured, not guessed.
+	 *
+	 *  - Bayer (CFA) data is in camera space, so "1 1 1" is a placeholder and
+	 *    AsShotNeutral gets the camera-space neutral.
+	 *
+	 * Both come from the multipliers still in the source's maker notes. Only
+	 * a placeholder is acted on; a neutral DNGLab did read is left alone, and
+	 * linear data from a make whose pipeline has not been checked is left
+	 * alone too rather than guessed at.
 	 *
 	 * @param {string} sourcePath - The raw file the DNG was converted from
 	 * @param {string} dngPath
-	 * @returns {Promise<boolean>} Whether the tag was rewritten
+	 * @returns {Promise<"kept"|"analog-balance"|"neutral">} What was written
 	 */
-	async repairAsShotNeutral(sourcePath, dngPath) {
-		const dng = await this._exiftool.read(dngPath);
-		if (!isPlaceholderNeutral(dng.AsShotNeutral)) return false;
+	async repairWhiteBalance(sourcePath, dngPath) {
+		// -a -G1: every IFD's copy of the tag, keyed by group, so the raw
+		// image's photometric type is found wherever dnglab put the raw IFD.
+		const dng = await this._exiftool.read(dngPath, [
+			"-G1", "-a", "-n",
+			"-PhotometricInterpretation", "-AsShotNeutral", "-AnalogBalance", "-Make",
+		]);
+		const tag = (name) => dng[`IFD0:${name}`] ?? dng[name];
+		if (!isPlaceholderNeutral(tag("AsShotNeutral"))) return "kept";
+
+		const photometric = Object.entries(dng)
+			.filter(([k]) => k.endsWith("PhotometricInterpretation"))
+			.map(([, v]) => Number(v))
+			.find((v) => v === CFA || v === LINEAR_RAW);
 
 		const source = await this._exiftool.read(sourcePath);
-		const neutral = neutralFromWbTags(source);
-		if (!neutral) {
-			log.warn(
-				`AsShotNeutral is a placeholder and ${sourcePath} carries no readable white balance; leaving it.`
-			);
-			return false;
+		const gains = gainsFromWbTags(source);
+		if (!gains) {
+			log.warn(`No white balance to restore: ${sourcePath} carries no readable WB tags; leaving AsShotNeutral as is.`);
+			return "kept";
 		}
 
-		const value = formatNeutral(neutral);
+		if (photometric === LINEAR_RAW) {
+			const make = String(tag("Make") ?? source.Make ?? "");
+			if (!/sony/i.test(make)) {
+				log.warn(`Linear raw data from ${make || "an unknown make"} with no white balance; not guessing whether it is pre-balanced.`);
+				return "kept";
+			}
+			const value = formatTriplet(gains);
+			log.info(`Pre-balanced linear raw: declaring the camera's gains as AnalogBalance ${value}`);
+			await this._exiftool.write(dngPath, { AsShotNeutral: "1 1 1", AnalogBalance: value }, ["-overwrite_original"]);
+			return "analog-balance";
+		}
+
+		const value = formatTriplet(neutralFromGains(gains));
 		log.info(`Restoring AsShotNeutral from the camera's white balance: ${value}`);
 		await this._exiftool.write(dngPath, { AsShotNeutral: value }, ["-overwrite_original"]);
-		return true;
+		return "neutral";
 	}
 
 	/**

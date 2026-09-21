@@ -30,10 +30,14 @@ class ExifToolService {
 	/**
 	 * Read EXIF metadata from a file
 	 * @param {string} filePath - Path to the image file
+	 * @param {string[]} [readArgs=[]] - Extra exiftool arguments, e.g. "-G1" to
+	 *   prefix keys with their IFD group, "-a" to keep duplicate tags
 	 * @returns {Promise<Object>} EXIF data
 	 */
-	async read(filePath) {
-		return this._exiftool.read(filePath);
+	async read(filePath, readArgs = []) {
+		return readArgs.length
+			? this._exiftool.read(filePath, { readArgs })
+			: this._exiftool.read(filePath);
 	}
 
 	/**
