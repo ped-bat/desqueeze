@@ -15,6 +15,7 @@ import log from "../logger.js";
 import { BinaryResolver } from "../services/binary-resolver.js";
 import { CommandRunner } from "../services/command-runner.js";
 import { ExifToolService } from "../services/exiftool-service.js";
+import { isPlaceholderNeutral, neutralFromWbTags, formatNeutral } from "../analyzers/white-balance.js";
 
 class DngOperations {
 	/**
@@ -69,8 +70,46 @@ class DngOperations {
 
 		await this.runDNGLabCommand(args);
 		await this._verifyOutput(outputPath);
+		await this.repairAsShotNeutral(inputPath, outputPath);
 		log.info(`DNG file created: ${outputPath}`);
 		return outputPath;
+	}
+
+	/**
+	 * Restore the camera's white balance when DNGLab did not carry it over.
+	 *
+	 * DNGLab writes AsShotNeutral as "1 1 1" when its decoder has no
+	 * white-balance reader for a camera (the Sony ILCE-7CM2, for one). A raw
+	 * editor takes that literally — "the neutral the camera saw was equal
+	 * R = G = B" — and opens the DNG at a temperature and tint nothing like
+	 * the original's: 2350K / −150 against the ARW's 5350K / +13. Dialling
+	 * the original's numbers back in then goes magenta, because the baseline
+	 * they are relative to is wrong. The camera's multipliers are still in
+	 * the source's maker notes, which exiftool reads, so the neutral is
+	 * rebuilt from them. Only a placeholder is replaced; a neutral DNGLab did
+	 * read is left alone.
+	 *
+	 * @param {string} sourcePath - The raw file the DNG was converted from
+	 * @param {string} dngPath
+	 * @returns {Promise<boolean>} Whether the tag was rewritten
+	 */
+	async repairAsShotNeutral(sourcePath, dngPath) {
+		const dng = await this._exiftool.read(dngPath);
+		if (!isPlaceholderNeutral(dng.AsShotNeutral)) return false;
+
+		const source = await this._exiftool.read(sourcePath);
+		const neutral = neutralFromWbTags(source);
+		if (!neutral) {
+			log.warn(
+				`AsShotNeutral is a placeholder and ${sourcePath} carries no readable white balance; leaving it.`
+			);
+			return false;
+		}
+
+		const value = formatNeutral(neutral);
+		log.info(`Restoring AsShotNeutral from the camera's white balance: ${value}`);
+		await this._exiftool.write(dngPath, { AsShotNeutral: value }, ["-overwrite_original"]);
+		return true;
 	}
 
 	/**
