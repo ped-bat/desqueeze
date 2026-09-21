@@ -80,9 +80,9 @@ export class DgApp extends LitElement {
 			background: repeating-linear-gradient(
 				to bottom,
 				transparent 0px,
-				transparent 1px,
-				rgba(0, 0, 0, 0.14) 1px,
-				rgba(0, 0, 0, 0.14) 2px
+				transparent 0.5px,
+				rgba(0, 0, 0, 0.14) 0.5px,
+				rgba(0, 0, 0, 0.14) 1.5px
 			);
 		}
 

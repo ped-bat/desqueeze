@@ -418,7 +418,7 @@ export class DgFileList extends LitElement {
 				position: absolute;
 				top: -12px;
 				bottom: -12px;
-				left: -2px;
+				left: -8px;
 				right: -12px;
 			}
 
@@ -437,7 +437,7 @@ export class DgFileList extends LitElement {
 			   it. The glyph is 11px inside that box, so the visible gap between
 			   the word and the X comes to about 8px. */
 			.row.removable .status {
-				transform: translateX(calc(var(--rm-t, 0) * -20px));
+				transform: translateX(calc(var(--rm-t, 0) * -28px));
 			}
 
 			/* Hover still governs whether the control can be clicked; the

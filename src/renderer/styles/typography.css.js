@@ -18,7 +18,7 @@ export const typography = css`
 	.type-ui {
 		font-family: var(--dg-font);
 		font-size: var(--dg-font-size-sub);
-		font-weight: 300;
+		font-weight: 240;
 		text-transform: uppercase;
 		letter-spacing: var(--dg-tracking);
 	}

@@ -48,14 +48,14 @@ export class DgChromaText extends LitElement {
 		   engine (see ENGINE_CONFIG.fontWidth), which widens the letterforms
 		   while holding stroke weight even. */
 		:host([variant="title"]) .stack {
-			font-weight: 600;
+			font-weight: 480;
 			font-size: var(--dg-font-size-title);
 			letter-spacing: var(--dg-tracking-tight);
 		}
 
 		:host([variant="subtitle"]) .stack {
 			font-size: var(--dg-font-size-sub);
-			font-weight: 400;
+			font-weight: 320;
 			letter-spacing: 0;
 			text-align: center;
 			/* Was nowrap: a sentence long enough to say what is supported
