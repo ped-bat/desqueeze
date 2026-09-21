@@ -41,6 +41,19 @@ class ExifToolService {
 	}
 
 	/**
+	 * Extract the embedded preview JPEG from a raw or DNG file.
+	 * @param {string} filePath - Source image
+	 * @param {string} destPath - Where to write the JPEG
+	 * @returns {Promise<boolean>} false when the file carries no preview
+	 */
+	async extractPreview(filePath, destPath) {
+		// Resolves to undefined on success and to exiftool's status line when
+		// the tag is absent — the library deliberately doesn't throw there.
+		const status = await this._exiftool.extractPreview(filePath, destPath);
+		return status == null;
+	}
+
+	/**
 	 * Write EXIF metadata to a file
 	 * @param {string} filePath - Path to the image file
 	 * @param {Object} tags - Tags to write

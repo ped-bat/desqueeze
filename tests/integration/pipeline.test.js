@@ -26,6 +26,11 @@ vi.mock("../../src/main/processors/dng-operations.js", () => {
 	});
 
 	DngOperations.prototype.finalizeDNG = vi.fn();
+	DngOperations.prototype.inspectLayout = vi.fn().mockResolvedValue({
+		rawGroup: "IFD0",
+		previewGroup: null,
+		currentScale: 1,
+	});
 	return { DngOperations };
 });
 vi.mock("../../src/main/services/exiftool-service.js", () => ({
@@ -34,6 +39,8 @@ vi.mock("../../src/main/services/exiftool-service.js", () => ({
 			shutdown: vi.fn(),
 			read: vi.fn().mockResolvedValue({}),
 			write: vi.fn().mockResolvedValue({}),
+			// The mock DNG has no preview to pull, so the raw path skips it
+			extractPreview: vi.fn().mockResolvedValue(false),
 		})),
 	},
 }));

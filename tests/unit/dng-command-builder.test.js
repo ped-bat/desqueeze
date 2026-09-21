@@ -86,4 +86,21 @@ describe("DngCommandBuilder", () => {
 		expect(() => builder.build(baseMetadata, null, "out.dng")).toThrow(/required/);
 		expect(() => builder.build(baseMetadata, "in.jpg", "")).toThrow(/required/);
 	});
+
+	it("should map a preview JPEG to the DNG preview and thumbnail", () => {
+		const args = builder.build(baseMetadata, "in.jpg", "out.dng", { previewPath: "prev.jpg" });
+
+		// Both inputs follow a single -i (dnglab rejects the flag twice),
+		// index 0 supplies pixels + metadata, index 1 the reduced images.
+		const i = args.indexOf("-i");
+		expect(args.slice(i, i + 3)).toEqual(["-i", "in.jpg", "prev.jpg"]);
+		const m = args.indexOf("--map");
+		expect(args.slice(m, m + 6)).toEqual(["--map", "0:raw", "1:preview", "1:thumbnail", "0:exif", "0:xmp"]);
+		expect(args).toContain("out.dng");
+	});
+
+	it("should leave --map out when no preview is given", () => {
+		expect(builder.build(baseMetadata, "in.jpg", "out.dng")).not.toContain("--map");
+		expect(builder.build(baseMetadata, "in.jpg", "out.dng", { previewPath: null })).not.toContain("--map");
+	});
 });

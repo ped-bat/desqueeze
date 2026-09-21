@@ -135,6 +135,49 @@ class SharpService {
 		await pipeline.toFile(outputPath);
 		return outputPath;
 	}
+
+	// ====================================================================
+	// Preview rendering (for embedding inside a DNG)
+	// ====================================================================
+
+	/**
+	 * Render a JPEG preview with the desqueeze baked in. Finder, Explorer,
+	 * QuickLook and culling tools show a DNG's embedded preview instead of
+	 * decoding the raw data, so without this the output looks exactly like
+	 * the squeezed input in every file browser.
+	 *
+	 * The stretch goes along the *stored* horizontal axis, without
+	 * autoOrient, because that is the axis DefaultScale applies to in the
+	 * raw IFD. Metadata is stripped (sharp's default), which also converts
+	 * wide-gamut sources to sRGB and keeps a bare preview from carrying its
+	 * own Orientation tag. Only the width changes unless maxWidth forces a
+	 * downscale, so a preview swapped in place keeps its row layout valid.
+	 *
+	 * @param {string} inputPath - Source image (a bitmap, or a preview pulled from a DNG)
+	 * @param {string} outputPath - Destination JPEG path
+	 * @param {number} stretchFactor - Horizontal stretch multiplier
+	 * @param {{ maxWidth?: number, quality?: number }} [opts]
+	 * @returns {Promise<{ path: string, width: number, height: number }>}
+	 */
+	async renderPreview(inputPath, outputPath, stretchFactor, opts = {}) {
+		const sharpOpts = { failOn: "none", sequentialRead: true };
+		const meta = await sharp(inputPath, sharpOpts).metadata();
+
+		let width = Math.max(1, Math.round(meta.width * stretchFactor));
+		let height = meta.height;
+		if (opts.maxWidth && width > opts.maxWidth) {
+			height = Math.max(1, Math.round((height * opts.maxWidth) / width));
+			width = opts.maxWidth;
+		}
+
+		log.info(`Rendering desqueezed preview ${meta.width}×${meta.height} → ${width}×${height}`);
+		await sharp(inputPath, sharpOpts)
+			.resize({ width, height, fit: "fill" })
+			.jpeg({ quality: opts.quality ?? 85 })
+			.toFile(outputPath);
+
+		return { path: outputPath, width, height };
+	}
 }
 
 export { SharpService };

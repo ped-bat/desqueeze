@@ -1,7 +1,7 @@
 /**
  * RawProcessor - Processes RAW files through the desqueeze pipeline
  *
- * Pipeline (DNG output):   RAW → DNG → Write DefaultScale tag (metadata-only, lossless)
+ * Pipeline (DNG output):   RAW → DNG → Desqueezed preview (Sharp) → DefaultScale + preview swap (metadata-only, lossless)
  * Pipeline (other output): RAW → dcraw_emu → TIFF (temp, 8 or 16-bit) → Sharp pixel-stretch + export → Cleanup
  */
 
@@ -10,7 +10,7 @@ import log from "../logger.js";
 import { SharpService } from "../services/sharp-service.js";
 import { RawConverterService } from "../services/raw-converter.js";
 import { ExifToolService } from "../services/exiftool-service.js";
-import { getOutputPath, safeUnlink } from "../utils/file-utils.js";
+import { getOutputPath, getTempFilePath, safeUnlink } from "../utils/file-utils.js";
 
 class RawProcessor {
 	/**
@@ -44,9 +44,15 @@ class RawProcessor {
 		return this._processExport(filePath, ext, ratioX, ratioY, outputOpts);
 	}
 
-	/** DNG output — metadata-only desqueeze, no pixel resampling */
+	/**
+	 * DNG output — metadata-only desqueeze, no resampling of the raw data.
+	 * The embedded preview is re-rendered with the stretch applied, since
+	 * file browsers and culling tools show that JPEG rather than honouring
+	 * DefaultScale.
+	 */
 	async _processDng(filePath, ext, ratioX, ratioY) {
 		const outputPath = await getOutputPath(filePath, ext, ".dng");
+		let preview = null;
 
 		try {
 			if (ext !== ".dng") {
@@ -57,15 +63,53 @@ class RawProcessor {
 				await fs.copyFile(filePath, outputPath);
 			}
 
-			await this._dngOps.writeDesqueezeTag(outputPath, ratioX, ratioY);
+			// A DNG input may already carry a DefaultScale (and a preview
+			// rendered to match it), so only the remaining stretch is applied
+			// to the preview while the tag itself is overwritten outright.
+			const layout = await this._dngOps.inspectLayout(outputPath);
+			const previewStretch = ratioX / ratioY / layout.currentScale;
+			preview = await this._renderDesqueezedPreview(outputPath, previewStretch);
+
+			await this._dngOps.writeDesqueezeTag(outputPath, ratioX, ratioY, preview, layout);
 		} catch (error) {
 			// Don't leave a partial/untagged DNG behind
 			await safeUnlink(outputPath);
 			throw error;
+		} finally {
+			if (preview) await safeUnlink(preview.path);
 		}
 
 		log.info(`RAW processed (DNG): ${outputPath}`);
 		return outputPath;
+	}
+
+	/**
+	 * Pull the preview dnglab (or the camera) embedded in the DNG and
+	 * re-encode it with the stretch baked in. Best effort: the DNG is still
+	 * correct without it, so any failure just leaves the squeezed preview.
+	 *
+	 * @param {string} dngPath
+	 * @param {number} stretchFactor
+	 * @returns {Promise<import("./dng-operations.js").DngPreview|null>}
+	 */
+	async _renderDesqueezedPreview(dngPath, stretchFactor) {
+		const extracted = getTempFilePath(".jpg");
+		const stretched = getTempFilePath(".jpg");
+
+		try {
+			const found = await ExifToolService.getInstance().extractPreview(dngPath, extracted);
+			if (!found) {
+				log.warn("DNG has no embedded preview; file browsers will show it squeezed.");
+				return null;
+			}
+			return await this._sharp.renderPreview(extracted, stretched, stretchFactor);
+		} catch (err) {
+			log.warn(`Could not render desqueezed preview: ${err.message}`);
+			await safeUnlink(stretched);
+			return null;
+		} finally {
+			await safeUnlink(extracted);
+		}
 	}
 
 	/**
