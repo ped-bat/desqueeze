@@ -1,19 +1,26 @@
 /**
- * Camera white balance → DNG AsShotNeutral.
+ * Camera white balance → DNG colour tags.
  *
  * DNGLab writes AsShotNeutral as "1 1 1" when its decoder has no
- * white-balance reader for a camera (seen on the Sony ILCE-7CM2). A raw
- * editor takes that literally — "the neutral the camera saw was equal
- * R = G = B" — and derives an As-Shot temperature and tint that are
- * nothing like the original's. The camera's own multipliers are still in
- * the source file's maker notes, which exiftool reads, so the neutral can
- * be reconstructed from them.
+ * white-balance coefficients for a file. What that means depends on the
+ * data it wrote:
  *
- * A camera's WB multipliers m = [mR, mG, mB] are the gains that make a
- * neutral patch neutral. That patch's raw values are therefore proportional
- * to 1/m, and AsShotNeutral is that vector normalised to green:
+ *  - Bayer (CFA) data is in camera space, so "1 1 1" is a placeholder for a
+ *    neutral it did not know. The camera's multipliers m = [mR, mG, mB] make
+ *    a neutral patch neutral, so that patch's raw values are ∝ 1/m and
+ *    AsShotNeutral = [mG/mR, 1, mG/mB].
  *
- *   AsShotNeutral = [mG/mR, 1, mG/mB]
+ *  - Sony's lossless "M"/"S" sizes are stored demosaiced AND white-balanced
+ *    (measured: a neutral patch reads R ≈ G ≈ B), and DNGLab writes them as
+ *    3-sample LinearRaw. There "1 1 1" is the truth about the data, and the
+ *    tag that describes what happened is AnalogBalance — the gain already
+ *    applied to each stored channel — which a raw editor folds into its
+ *    colour transform so its As-Shot temperature and tint come out where the
+ *    camera's did. Writing the camera-space neutral instead applies the
+ *    gains a second time and the image goes magenta.
+ *
+ * Both tags are derived from the same multipliers, which the source file
+ * still carries in its maker notes and exiftool reads.
  */
 
 /** Parse a space/comma-separated tag value (or array) into finite numbers */
@@ -24,8 +31,8 @@ export function parseNumbers(value) {
 }
 
 /**
- * Is a DNG's AsShotNeutral the placeholder DNGLab writes when it knows no
- * white balance? Missing, malformed, or all components equal.
+ * Is a DNG's AsShotNeutral the value DNGLab writes when it knows no white
+ * balance? Missing, malformed, or all components equal.
  * @param {string|number[]|undefined} value
  */
 export function isPlaceholderNeutral(value) {
@@ -66,11 +73,12 @@ const READERS = [
 ];
 
 /**
- * Reconstruct AsShotNeutral from a source file's white-balance tags.
+ * The camera's white-balance gains, normalised to green: [mR/mG, 1, mB/mG].
+ * This is the AnalogBalance of data the camera has already balanced.
  * @param {Record<string, unknown>} tags - exiftool's read() of the source
- * @returns {[number, number, number] | null} normalised to green, or null
+ * @returns {[number, number, number] | null}
  */
-export function neutralFromWbTags(tags) {
+export function gainsFromWbTags(tags) {
 	if (!tags) return null;
 
 	let m = null;
@@ -88,15 +96,31 @@ export function neutralFromWbTags(tags) {
 	const [mR, mG, mB] = m;
 	if (![mR, mG, mB].every((v) => Number.isFinite(v) && v > 0)) return null;
 
-	const neutral = [mG / mR, 1, mG / mB];
-	// A real neutral sits within a few stops of green either way; anything
+	const gains = [mR / mG, 1, mB / mG];
+	// Real gains sit within a few stops of green either way; anything
 	// outside that is a misread tag, and writing it would be worse than
 	// leaving the placeholder.
-	if (!neutral.every((v) => v >= 0.05 && v <= 20)) return null;
-	return neutral;
+	if (!gains.every((v) => v >= 0.05 && v <= 20)) return null;
+	return gains;
 }
 
-/** Format a neutral the way exiftool expects the tag: "r g b" */
-export function formatNeutral(neutral) {
-	return neutral.map((v) => Number(v.toFixed(6))).join(" ");
+/**
+ * The camera-space neutral implied by the gains: the AsShotNeutral of data
+ * the camera has NOT balanced.
+ * @param {[number, number, number]} gains - from gainsFromWbTags
+ * @returns {[number, number, number]}
+ */
+export function neutralFromGains(gains) {
+	return [1 / gains[0], 1, 1 / gains[2]];
+}
+
+/** Convenience: AsShotNeutral straight from the source's tags, or null */
+export function neutralFromWbTags(tags) {
+	const gains = gainsFromWbTags(tags);
+	return gains ? neutralFromGains(gains) : null;
+}
+
+/** Format a triplet the way exiftool expects a rational tag: "r g b" */
+export function formatTriplet(values) {
+	return values.map((v) => Number(v.toFixed(6))).join(" ");
 }
