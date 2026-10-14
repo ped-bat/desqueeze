@@ -1,32 +1,36 @@
 # Desqueeze - landing page
 
-Static marketing site for desqueeze.io. No build step, no dependencies:
-plain HTML, CSS and ES modules, deployed as-is.
+Marketing site for desqueeze.io: plain HTML, CSS and ES modules, bundled
+by Vite into `dist/`. Laid out like Bind it's `landing/`.
 
 ```
-site/
+landing/
 ├── index.html            # the whole page
-├── css/site.css          # tokens + components
+├── css/site.css          # tokens + components (bundled by Vite)
 ├── js/
 │   ├── dot-grid.js       # port of the app's DotGridEngine
 │   └── site.js           # page wiring (hero intro, reveals, downloads, demo)
-├── assets/
-│   ├── fonts/science-gothic.woff2
-│   ├── icons.svg         # platform and GitHub glyphs
-│   ├── favicon.svg, logo.svg
-│   └── og.png            # rendered by scripts/site/render-og.sh
-├── robots.txt
-└── sitemap.xml
+├── public/               # copied to dist/ as-is
+│   ├── assets/
+│   │   ├── fonts/science-gothic.woff2
+│   │   ├── icons.svg     # platform and GitHub glyphs
+│   │   ├── favicon.svg, logo.svg
+│   │   ├── photo/        # before-and-after photos
+│   │   └── og.png        # rendered by scripts/render-og.sh
+│   ├── robots.txt
+│   └── sitemap.xml
+├── scripts/              # OG image template and renderer
+└── vite.config.js
 ```
 
 ## Preview locally
 
-ES modules have to be served over HTTP; opening `index.html` from the
-filesystem will not work.
-
 ```bash
-cd site && python3 -m http.server 8000
-# → http://localhost:8000
+cd landing
+npm install
+npm run dev       # → http://localhost:1422
+npm run build     # → dist/
+npm run preview   # serves dist/
 ```
 
 ## Structure
@@ -91,20 +95,22 @@ change here.
 
 ## OG image
 
-`assets/og.png` is rendered from `scripts/site/og.html`:
+`public/assets/og.png` is rendered from `scripts/og.html`:
 
 ```bash
-scripts/site/render-og.sh
+landing/scripts/render-og.sh
 ```
 
 ## Deploying
 
-The directory deploys as-is. `.github/workflows/deploy-site.yml` syncs
-`site/` over FTPS on every push to `main` that touches it, and needs these
+`.github/workflows/deploy-landing.yml` builds the site and syncs
+`landing/dist/` over FTPS on every push to `main` that touches `landing/`
+(or on a manual run), and needs these
 repository settings:
 
 - variables: `FTP_SERVER`, `FTP_USERNAME`, `FTP_PORT`, `WEBSITE_URL`,
   `FTP_REMOTE_DIR`
 - secret: `FTP_PASSWORD`
 
-Any static host works instead: publish directory `site`, no build command.
+Any static host works instead: base directory `landing`, build command
+`npm run build`, publish directory `dist`.

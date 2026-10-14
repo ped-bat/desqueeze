@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Renders site/assets/og.png (1200x630) from scripts/site/og.html with
+# Renders landing/public/assets/og.png (1200x630) from landing/scripts/og.html with
 # headless Chrome. Re-run whenever the OG template or the wordmark changes.
 #
 # Chrome writes the screenshot and then, on this machine, hangs on exit
@@ -8,9 +8,9 @@
 # produced a file) gives the page a moment for the font before capture.
 set -euo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
-root="$(cd "$here/../.." && pwd)"
+root="$(cd "$here/.." && pwd)"
 chrome="${CHROME:-/Applications/Google Chrome.app/Contents/MacOS/Google Chrome}"
-out="$root/site/assets/og.png"
+out="$root/public/assets/og.png"
 profile="$(mktemp -d)"
 rm -f "$out"
 
