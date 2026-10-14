@@ -1,11 +1,11 @@
-name: Deploy landing site
+name: Deploy website
 
 on:
   push:
-    branches: [main]
+    branches: [main, ci/deploy-website]
     paths:
       - 'site/**'
-      - '.github/workflows/deploy-site.yml'
+      - '.github/workflows/deploy-website.yml'
   workflow_dispatch:
 
 jobs:
