@@ -1,0 +1,1233 @@
+/* ================================================================
+   Desqueeze - landing page
+
+   The app's dot grid runs fixed behind a page of Bind it's shape, and the
+   page's controls are the app's: sentence-case Science Gothic at the UI
+   axes, the achromatic primary, rows and panels on the body scrim, hue
+   reserved for the wordmark's RGB split. Tokens are copied verbatim from
+   src/renderer/styles/global.css; anything the site needs that the app
+   does not have is namespaced --site-*.
+
+   1. Tokens
+   2. Base
+   3. Background
+   4. Utilities (skip-link, reveal, icons)
+   5. Type
+   6. Buttons (effects.css.js, verbatim)
+   7. Section scaffolding
+   8. Hero
+   9. Before and after
+   10. Features
+   11. How it works
+   12. FAQ
+   13. Download
+   14. Support strip
+   15. Footer
+   16. Reduced motion
+   ================================================================ */
+
+/* ── 1. Tokens ──────────────────────────────────────────────── */
+
+@font-face {
+	font-family: "Science Gothic";
+	font-style: normal;
+	font-weight: 100 900;
+	font-stretch: 50% 200%;
+	font-display: swap;
+	src: url("/assets/fonts/science-gothic.woff2") format("woff2");
+}
+
+:root {
+	color-scheme: dark;
+
+	/* — Colors (the app's) — */
+	--dg-bg-page: #08080a;
+	--dg-bg-canvas: #111111;
+
+	--dg-chroma-red: #ff0000;
+	--dg-chroma-blue: #0050cc;
+	--dg-chroma-green: #00cc44;
+
+	--dg-fg-strong: rgba(255, 255, 255, 0.9);
+	--dg-fg: rgba(255, 255, 255, 0.7);
+	--dg-fg-mid: rgba(255, 255, 255, 0.55);
+	--dg-fg-soft: rgba(255, 255, 255, 0.62);
+	--dg-fg-faint: rgba(255, 255, 255, 0.52);
+	--dg-fg-ghost: rgba(255, 255, 255, 0.45);
+
+	--dg-border: rgba(255, 255, 255, 0.35);
+	--dg-border-soft: rgba(255, 255, 255, 0.2);
+	--dg-border-hover: rgba(255, 255, 255, 0.4);
+
+	--dg-surface: rgba(255, 255, 255, 0.03);
+	--dg-surface-hover: rgba(255, 255, 255, 0.13);
+
+	/* Accent: light, not a hue. Used for exactly one control per screen. */
+	--dg-accent: #ededf0;
+	--dg-accent-hover: #ffffff;
+	--dg-accent-fg: #0c0c0e;
+	--dg-accent-ring: rgba(255, 255, 255, 0.65);
+	--dg-accent-wash: rgba(255, 255, 255, 0.1);
+
+	/* Chrome for panels and rows */
+	--dg-chrome: rgba(6, 6, 7, 0.2);
+	--dg-chrome-border: rgba(255, 255, 255, 0.17);
+	--dg-chrome-border-end: color-mix(in srgb, var(--dg-chrome-border) 25%, transparent);
+	--dg-row: rgba(255, 255, 255, 0.04);
+	--dg-row-hover: rgba(255, 255, 255, 0.075);
+	--dg-body-scrim: rgba(8, 8, 10, 0.62);
+
+	/* — Typography — */
+	--dg-font: "Science Gothic", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	--dg-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+	--dg-ui-xs: 11px;
+	--dg-ui-sm: 12.5px;
+	--dg-ui: 14px;
+	--dg-ui-lg: 16px;
+	--dg-ui-xl: 20px;
+	/* A hundred lighter than the app shipped with; the app follows suit */
+	--dg-var-ui: "wght" 350, "wdth" 92;
+	--dg-var-ui-strong: "wght" 460, "wdth" 92;
+	/* The display line's resting axes (core/config.js fontWeight/fontWidth) */
+	--dg-var-display: "wght" 520, "wdth" 125;
+
+	/* — Effects — */
+	--dg-glow-white: 0 1px 3px rgba(0, 0, 0, 0.85), 0 0 10px rgba(0, 0, 0, 0.6), 0 0 8px rgba(255, 255, 255, 0.15),
+		0 0 20px rgba(255, 255, 255, 0.08);
+	--dg-blur-glass: blur(8px);
+	--dg-ease: 0.2s ease;
+
+	/* — Site — */
+	--site-max: 1080px;
+	--site-pad-x: clamp(20px, 4vw, 32px);
+	--site-pad-section: clamp(72px, 10vw, 112px);
+	--site-gap-head: clamp(44px, 6vw, 64px);
+	--site-prose: 15px;
+	--site-type-title: clamp(26px, 3.9vw, 42px);
+	--site-type-display: clamp(1.9rem, 5.2vw, 3.7rem);
+	/* The canvas ground, a step darker than the app's #111111 so the grid
+	   reads as a backdrop behind a page of text */
+	--site-canvas: #0b0b0d;
+	--site-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+	/* Every reveal travels the same distance, over the same time */
+	--site-reveal: 1000ms;
+	--site-reveal-shift: 40px;
+	--site-reveal-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+	/* — Radii — half again the app's, shared by every corner on the page */
+	--site-r-sm: 6px;
+	--site-r: 9px;
+	--site-r-md: 12px;
+	--site-r-lg: 15px;
+}
+
+/* ── 2. Base ────────────────────────────────────────────────── */
+
+*,
+*::before,
+*::after {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+html {
+	scroll-behavior: smooth;
+	scroll-padding-top: 24px;
+	background-color: var(--dg-bg-page);
+}
+
+body {
+	/* Counterpart to the inline `body { opacity: 0 }` in index.html */
+	opacity: 1;
+	transition: opacity 260ms var(--site-ease-out);
+
+	font-family: var(--dg-font);
+	font-size: var(--dg-ui);
+	font-variation-settings: var(--dg-var-ui);
+	line-height: 1.6;
+	color: var(--dg-fg);
+	background: transparent;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	text-rendering: optimizeLegibility;
+	overflow-x: hidden;
+}
+
+a {
+	color: var(--dg-fg-strong);
+	text-decoration: none;
+}
+
+svg {
+	display: block;
+}
+
+li {
+	list-style: none;
+}
+
+summary {
+	cursor: pointer;
+}
+
+::selection {
+	background: rgba(255, 255, 255, 0.3);
+	color: #fff;
+}
+
+:focus-visible {
+	outline: 2px solid var(--dg-accent-ring);
+	outline-offset: 2px;
+	border-radius: var(--site-r-sm);
+}
+
+/* ── 3. Background ──────────────────────────────────────────── */
+
+/* Fixed: the grid does not travel with the page or follow the pointer.
+   Its focal point starts on the hero's title block and eases up to the top
+   edge over the first 600px of scroll (site.js drives it). */
+#grid-canvas {
+	position: fixed;
+	inset: 0;
+	z-index: 0;
+	display: block;
+	background: var(--site-canvas);
+	pointer-events: none;
+}
+
+/* The CRT belongs to the grid, not to the controls: it sits over the
+   canvas and under everything readable, exactly as dg-canvas scopes it. */
+.scanlines {
+	position: fixed;
+	inset: 0;
+	z-index: 1;
+	pointer-events: none;
+	background: repeating-linear-gradient(
+		to bottom,
+		transparent 0px,
+		transparent 1px,
+		rgba(0, 0, 0, 0.14) 1px,
+		rgba(0, 0, 0, 0.14) 2px
+	);
+}
+
+main,
+footer {
+	position: relative;
+	z-index: 2;
+}
+
+/* ── 4. Utilities ───────────────────────────────────────────── */
+
+.skip-link {
+	position: absolute;
+	top: -100px;
+	left: 12px;
+	z-index: 100;
+	padding: 10px 16px;
+	background: var(--dg-accent);
+	color: var(--dg-accent-fg);
+	border-radius: var(--site-r);
+	font-variation-settings: var(--dg-var-ui-strong);
+	transition: top 120ms var(--site-ease-out);
+}
+
+.skip-link:focus-visible {
+	top: 12px;
+}
+
+/* Reveal: blocks rise into place as they arrive. The shift is a fixed
+   distance, not a percentage, so a tall card travels no further than a
+   heading. */
+.reveal,
+.reveal-load {
+	opacity: 0;
+}
+
+.is-revealed {
+	animation: dg-rise var(--site-reveal) var(--site-reveal-ease) both;
+}
+
+@keyframes dg-rise {
+	from {
+		opacity: 0;
+		transform: translate3d(0, var(--site-reveal-shift), 0);
+	}
+	to {
+		opacity: 1;
+		transform: translate3d(0, 0, 0);
+	}
+}
+
+/* Icons: filled (brand) vs stroked (UI) */
+.icon-brand {
+	fill: currentColor;
+	stroke: none;
+}
+
+.icon-line {
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 2;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+/* ── 5. Type ────────────────────────────────────────────────── */
+
+h1,
+h2,
+h3 {
+	font-weight: normal;
+	color: var(--dg-fg-strong);
+}
+
+p {
+	color: var(--dg-fg);
+}
+
+strong {
+	font-weight: normal;
+	font-variation-settings: var(--dg-var-ui-strong);
+	color: var(--dg-fg-strong);
+}
+
+/* Filenames, paths and tag names: the app's .badge, inline */
+code {
+	font-family: var(--dg-mono);
+	font-size: 0.86em;
+	letter-spacing: 0;
+	color: var(--dg-fg-strong);
+	background: rgba(255, 255, 255, 0.06);
+	border: 1px solid var(--dg-chrome-border);
+	border-radius: var(--site-r-sm);
+	padding: 0.05em 0.4em;
+	white-space: nowrap;
+}
+
+/* The app's file-list badge, used by the before/after tags */
+.badge {
+	font-family: var(--dg-mono);
+	font-size: var(--dg-ui-xs);
+	color: var(--dg-fg-soft);
+	border: 1px solid rgba(255, 255, 255, 0.17);
+	border-radius: var(--site-r-sm);
+	padding: 2px 6px;
+	letter-spacing: 0;
+}
+
+/* ── 6. Buttons ─────────────────────────────────────────────── */
+
+.btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5em;
+	font-family: var(--dg-font);
+	font-size: var(--dg-ui);
+	font-variation-settings: var(--dg-var-ui-strong);
+	line-height: 1;
+	white-space: nowrap;
+	padding: 0.72em 1.1em;
+	border: 1px solid transparent;
+	border-radius: var(--site-r);
+	background: transparent;
+	color: var(--dg-fg-strong);
+	text-decoration: none;
+	cursor: pointer;
+	transition:
+		background 0.16s ease,
+		border-color 0.16s ease,
+		color 0.16s ease;
+}
+
+.btn svg {
+	width: 1.1em;
+	height: 1.1em;
+	flex: none;
+}
+
+.btn-primary {
+	background: var(--dg-accent);
+	color: var(--dg-accent-fg);
+	box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.16);
+}
+
+.btn-primary:hover {
+	background: var(--dg-accent-hover);
+	/* A light halo stands in for a border on a light face */
+	box-shadow:
+		inset 0 -1px 0 rgba(0, 0, 0, 0.16),
+		0 0 0 2px rgba(255, 255, 255, 0.35);
+}
+
+.btn-ghost {
+	background: rgba(255, 255, 255, 0.05);
+	border-color: rgba(255, 255, 255, 0.2);
+}
+
+.btn-ghost:hover {
+	background: rgba(255, 255, 255, 0.1);
+	border-color: rgba(255, 255, 255, 0.62);
+}
+
+.btn-lg {
+	font-size: var(--dg-ui-lg);
+	padding: 0.85em 1.35em;
+	border-radius: var(--site-r-md);
+}
+
+/* ── 7. Section scaffolding ─────────────────────────────────── */
+
+section {
+	position: relative;
+	padding-block: var(--site-pad-section);
+	padding-inline: var(--site-pad-x);
+}
+
+section > * {
+	max-width: var(--site-max);
+	margin-inline: auto;
+}
+
+/* Sections part on the bars' rule rather than a full-strength border. The
+   rule keeps to the content's measure, not the viewport's. */
+.ruled::before,
+.strip-section::before,
+.site-footer::before {
+	left: max(var(--site-pad-x), calc((100% - var(--site-max)) / 2));
+	right: max(var(--site-pad-x), calc((100% - var(--site-max)) / 2));
+}
+
+.ruled::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	height: 1px;
+	pointer-events: none;
+	background: linear-gradient(
+		to right,
+		var(--dg-chrome-border-end) 0%,
+		var(--dg-chrome-border) 50%,
+		var(--dg-chrome-border-end) 100%
+	);
+}
+
+/* The grid knocked back, as it is behind the file list */
+.section-alt {
+	background: var(--dg-body-scrim);
+}
+
+.section-head {
+	text-align: center;
+	margin-bottom: var(--site-gap-head);
+}
+
+.section-title {
+	font-size: var(--site-type-title);
+	/* The display line's weight at a narrower width: wide enough to carry
+	   the desqueeze, not so wide that a sentence-case title turns into a
+	   banner. */
+	font-variation-settings: "wght" 520, "wdth" 112;
+	line-height: 1.06;
+	letter-spacing: 0.005em;
+	text-wrap: balance;
+	text-shadow: var(--dg-glow-white);
+	margin-bottom: 16px;
+}
+
+.section-lede {
+	color: var(--dg-fg-soft);
+	font-size: var(--dg-ui-lg);
+	line-height: 1.5;
+	max-width: 560px;
+	margin: 0 auto;
+}
+
+/* ── 8. Hero ────────────────────────────────────────────────── */
+
+.hero {
+	text-align: center;
+	padding-block: clamp(150px, 26vh, 260px) var(--site-pad-section);
+}
+
+.hero > * {
+	position: relative;
+	z-index: 1;
+}
+
+/* The app's display treatment: three stacked layers, screen-blended */
+.chroma {
+	position: relative;
+	isolation: isolate;
+	font-variation-settings: var(--dg-var-display);
+	text-transform: uppercase;
+	letter-spacing: 0.045em;
+	line-height: 1;
+	/* the trailing tracking would otherwise pull the line off centre */
+	padding-left: 0.045em;
+}
+
+.hero-title {
+	font-size: var(--site-type-display);
+	margin-bottom: clamp(16px, 2.6vh, 24px);
+}
+
+.chroma .layer {
+	display: block;
+	mix-blend-mode: screen;
+	will-change: transform;
+}
+
+.chroma .layer-r,
+.chroma .layer-b {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+}
+
+.chroma .layer-g {
+	position: relative;
+}
+
+.chroma .layer-r {
+	color: var(--dg-chroma-red);
+	text-shadow:
+		0 0 12px rgba(255, 0, 0, 0.6),
+		0 0 30px rgba(255, 0, 0, 0.3);
+}
+
+.chroma .layer-g {
+	color: var(--dg-chroma-blue);
+	text-shadow:
+		0 0 12px rgba(0, 80, 204, 0.6),
+		0 0 30px rgba(0, 80, 204, 0.3);
+}
+
+.chroma .layer-b {
+	color: var(--dg-chroma-green);
+	text-shadow:
+		0 0 12px rgba(0, 200, 68, 0.6),
+		0 0 30px rgba(0, 200, 68, 0.3);
+}
+
+.hero-lede {
+	font-size: clamp(17px, 2.1vw, 20px);
+	line-height: 1.5;
+	color: var(--dg-fg);
+	max-width: 560px;
+	margin: 0 auto clamp(26px, 4.5vh, 40px);
+	text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+}
+
+.hero-lede span {
+	display: block;
+}
+
+.download {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 16px;
+}
+
+.download-alt {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: 2px 4px;
+	font-size: var(--dg-ui-sm);
+	color: var(--dg-fg-faint);
+}
+
+.download-alt .alt-label {
+	margin-right: 4px;
+}
+
+.download-alt a {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	padding: 6px 9px;
+	border-radius: var(--site-r-sm);
+	color: var(--dg-fg-soft);
+	transition:
+		background 0.16s ease,
+		color 0.16s ease;
+}
+
+.download-alt a:hover {
+	background: rgba(255, 255, 255, 0.08);
+	color: var(--dg-fg-strong);
+}
+
+.download-alt a svg {
+	width: 13px;
+	height: 13px;
+}
+
+.download-alt a[hidden],
+.alt-sep[hidden] {
+	display: none;
+}
+
+/* Spans the page's measure, the same width as the feature grid below */
+.hero-shot {
+	width: 100%;
+	max-width: var(--site-max);
+	margin: clamp(96px, 13vh, 144px) auto 0;
+}
+
+/* ── 9. Before and after ────────────────────────────────────── */
+
+/* Registered so the split can ease back to centre when the pointer leaves */
+@property --split {
+	syntax: "<percentage>";
+	inherits: true;
+	initial-value: 50%;
+}
+
+.compare {
+	--split: 50%;
+	position: relative;
+	border-radius: var(--site-r-lg);
+	overflow: hidden;
+	border: 1px solid var(--dg-chrome-border);
+	background: #050506;
+	box-shadow: 0 30px 70px -30px rgba(0, 0, 0, 0.9);
+	cursor: nwse-resize;
+	touch-action: none;
+	user-select: none;
+	-webkit-user-select: none;
+	/* The split is a diagonal running bottom-left to top-right, driven by
+	   site.js: it eases to the pointer on entry, then tracks it directly,
+	   and stays put when the pointer leaves. */
+}
+
+.compare:focus-visible {
+	outline: 2px solid var(--dg-accent-ring);
+	outline-offset: 3px;
+}
+
+.compare img {
+	display: block;
+}
+
+/* The desqueezed frame sets the box's height from its own proportions,
+   so the full photo always shows, never cropped to a fixed ratio */
+.compare-after {
+	display: block;
+}
+
+.compare-after img {
+	width: 100%;
+	height: auto;
+}
+
+/* The squeezed frame is narrower: same height, centred, dark either side.
+   It shows above and left of the diagonal; the desqueezed frame shows
+   below and right of it. The polygon is written by site.js. */
+.compare-before {
+	position: absolute;
+	inset: 0;
+	background: #050506;
+	clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+.compare-before img {
+	position: absolute;
+	top: 0;
+	left: 50%;
+	height: 100%;
+	width: auto;
+	transform: translateX(-50%);
+}
+
+/* A long hairline, turned to the box's own diagonal and centred on the
+   split; the box clips it */
+.compare-line {
+	--angle: -26.6deg;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	width: 300%;
+	height: 3px;
+	transform: translate(-50%, -50%) rotate(var(--angle));
+	background: rgba(255, 255, 255, 0.85);
+	box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+	pointer-events: none;
+}
+
+/* Sits on the midpoint of the visible stretch of line; site.js keeps it
+   clear of the corners so it never leaves the photo */
+.compare-handle {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 28px;
+	height: 28px;
+	transform: translate(-50%, -50%);
+	border-radius: 50%;
+	background: rgba(6, 6, 7, 0.65);
+	border: 1.5px solid rgba(255, 255, 255, 0.7);
+	backdrop-filter: var(--dg-blur-glass);
+	-webkit-backdrop-filter: var(--dg-blur-glass);
+	pointer-events: none;
+}
+
+/* Two small chevrons, up-left and down-right, drawn rather than typed */
+.compare-handle::before,
+.compare-handle::after {
+	content: "";
+	position: absolute;
+	width: 5px;
+	height: 5px;
+	border-top: 1.5px solid rgba(255, 255, 255, 0.85);
+	border-left: 1.5px solid rgba(255, 255, 255, 0.85);
+}
+
+.compare-handle::before {
+	top: 7px;
+	left: 7px;
+}
+
+.compare-handle::after {
+	right: 7px;
+	bottom: 7px;
+	transform: rotate(180deg);
+}
+
+.compare-tag {
+	position: absolute;
+	display: inline-flex;
+	align-items: center;
+	gap: 9px;
+	padding: 8px 14px 8px 10px;
+	border-radius: var(--site-r);
+	background: rgba(6, 6, 7, 0.72);
+	border: 1px solid rgba(255, 255, 255, 0.22);
+	backdrop-filter: blur(6px);
+	-webkit-backdrop-filter: blur(6px);
+	font-size: var(--dg-ui);
+	font-variation-settings: var(--dg-var-ui-strong);
+	color: var(--dg-fg-strong);
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+	pointer-events: none;
+}
+
+/* The format, in the same chip as the formats list */
+.compare-tag code {
+	font-size: var(--dg-ui-xs);
+	padding: 2px 6px;
+	text-shadow: none;
+}
+
+.compare-tag.top {
+	top: 16px;
+	left: 16px;
+}
+
+.compare-tag.bottom {
+	bottom: 16px;
+	right: 16px;
+}
+
+@media (max-width: 600px) {
+	.compare-tag {
+		padding: 6px 10px;
+		font-size: var(--dg-ui-sm);
+	}
+
+	.compare-tag.top {
+		top: 10px;
+		left: 10px;
+	}
+
+	.compare-tag.bottom {
+		bottom: 10px;
+		right: 10px;
+	}
+}
+
+/* ── 10. Features ───────────────────────────────────────────── */
+
+.grid {
+	display: grid;
+	gap: 14px;
+}
+
+.grid-features {
+	grid-template-columns: 1fr;
+}
+
+@media (min-width: 700px) {
+	.grid-features {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+/* The settings popover's ground, without the blur four of them would cost */
+.panel {
+	background: var(--dg-body-scrim);
+	border: 1px solid var(--dg-chrome-border);
+	border-radius: var(--site-r-lg);
+	padding: clamp(26px, 4vw, 36px) clamp(20px, 3vw, 28px);
+	text-align: center;
+}
+
+.icon-feature {
+	width: 28px;
+	height: 28px;
+	margin: 0 auto 18px;
+	color: var(--dg-fg-soft);
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 2;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+.panel h3,
+.step h3 {
+	font-size: 18px;
+	font-variation-settings: var(--dg-var-ui-strong);
+	line-height: 1.3;
+	margin-bottom: 8px;
+}
+
+.panel p,
+.step p {
+	font-size: var(--site-prose);
+	line-height: 1.62;
+	max-width: 36ch;
+	margin-inline: auto;
+}
+
+/* ── 11. How it works ───────────────────────────────────────── */
+
+.steps {
+	background: var(--dg-body-scrim);
+	border: 1px solid var(--dg-chrome-border);
+	border-radius: var(--site-r-lg);
+	padding: clamp(32px, 5vw, 56px) clamp(20px, 4vw, 40px);
+	display: grid;
+	gap: 36px;
+	text-align: center;
+}
+
+/* The numeral in the display treatment: the one place a number is the
+   subject, so it takes the wordmark's axes */
+.step-number {
+	display: block;
+	font-size: 40px;
+	font-variation-settings: var(--dg-var-display);
+	line-height: 1;
+	color: var(--dg-fg-soft);
+	text-shadow: var(--dg-glow-white);
+	margin-bottom: 14px;
+}
+
+.step p {
+	max-width: 30ch;
+}
+
+@media (min-width: 768px) {
+	.steps {
+		grid-template-columns: repeat(3, 1fr);
+		gap: 0;
+		align-items: start;
+	}
+
+	.step {
+		position: relative;
+		padding-inline: clamp(16px, 3vw, 32px);
+	}
+
+	/* The bars' rule, turned on its side */
+	.step + .step::before {
+		content: "";
+		position: absolute;
+		left: 0;
+		top: 0;
+		bottom: 0;
+		width: 1px;
+		background: linear-gradient(
+			to bottom,
+			var(--dg-chrome-border-end) 0%,
+			var(--dg-chrome-border) 50%,
+			var(--dg-chrome-border-end) 100%
+		);
+	}
+}
+
+/* ── 12. FAQ ────────────────────────────────────────────────── */
+
+/* A list panel: the app's body scrim holding its rows */
+.faq {
+	max-width: 880px;
+	margin-inline: auto;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 10px;
+	background: var(--dg-body-scrim);
+	border: 1px solid var(--dg-chrome-border);
+	border-radius: var(--site-r-lg);
+}
+
+.faq details {
+	background: var(--dg-row);
+	border-radius: var(--site-r);
+	transition: background 0.16s ease;
+}
+
+.faq details:hover,
+.faq details[open] {
+	background: var(--dg-row-hover);
+}
+
+.faq summary {
+	list-style: none;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 19px 20px;
+	font-size: 15px;
+	font-variation-settings: var(--dg-var-ui-strong);
+	color: var(--dg-fg-strong);
+}
+
+.faq summary::-webkit-details-marker {
+	display: none;
+}
+
+.faq summary::after {
+	content: "\25BE";
+	font-size: 0.8em;
+	opacity: 0.6;
+	flex: none;
+	transition: transform 0.16s ease;
+}
+
+.faq details[open] summary::after {
+	transform: rotate(180deg);
+}
+
+.faq p {
+	padding: 0 20px 20px;
+	font-size: var(--site-prose);
+	line-height: 1.62;
+}
+
+/* Format lists: one line per kind, the kind in strong, the formats as chips */
+.faq p.formats {
+	line-height: 2;
+}
+
+.faq p.formats:not(:last-child) {
+	padding-bottom: 6px;
+}
+
+.faq p.formats strong {
+	margin-right: 0.35em;
+}
+
+.faq p a {
+	text-decoration: underline;
+	text-decoration-color: rgba(255, 255, 255, 0.3);
+	text-underline-offset: 3px;
+}
+
+.faq p a:hover {
+	text-decoration-color: rgba(255, 255, 255, 0.7);
+}
+
+/* Animate the disclosure where ::details-content exists; elsewhere it
+   opens instantly. */
+@supports (interpolate-size: allow-keywords) {
+	:root {
+		interpolate-size: allow-keywords;
+	}
+
+	.faq details::details-content {
+		height: 0;
+		overflow: hidden;
+		opacity: 0;
+		content-visibility: hidden;
+		transition:
+			height 240ms var(--site-ease-out),
+			opacity 120ms ease,
+			content-visibility 240ms allow-discrete;
+	}
+
+	.faq details[open]::details-content {
+		height: auto;
+		opacity: 1;
+		content-visibility: visible;
+		transition:
+			height 240ms var(--site-ease-out),
+			opacity 200ms ease 90ms,
+			content-visibility 240ms allow-discrete;
+	}
+}
+
+/* ── 13. Download ───────────────────────────────────────────── */
+
+#download .section-head {
+	margin-bottom: 32px;
+}
+
+/* The platform note sits out of flow beneath the row, inside the section's
+   own bottom padding, so the gap to the next section matches every other */
+.dl-block {
+	position: relative;
+	max-width: 900px;
+	margin-inline: auto;
+}
+
+.grid-download {
+	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	gap: 14px;
+}
+
+/* The ghost button's ground, border and hover, at a larger size */
+.dl {
+	display: grid;
+	grid-template-columns: 28px minmax(0, 1fr);
+	align-items: center;
+	gap: 16px;
+	padding: 22px 24px;
+	border-radius: var(--site-r-md);
+	background: rgba(255, 255, 255, 0.05);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	color: var(--dg-fg-strong);
+	transition:
+		background 0.16s ease,
+		border-color 0.16s ease;
+}
+
+.dl:hover {
+	background: rgba(255, 255, 255, 0.1);
+	border-color: rgba(255, 255, 255, 0.62);
+}
+
+.dl svg {
+	width: 28px;
+	height: 28px;
+	color: var(--dg-fg-soft);
+}
+
+.dl-title {
+	display: block;
+	font-size: var(--dg-ui-lg);
+	font-variation-settings: var(--dg-var-ui-strong);
+}
+
+.dl-sub {
+	display: block;
+	font-size: 13px;
+	color: var(--dg-fg-faint);
+	font-variant-numeric: tabular-nums;
+}
+
+/* Platform notes sit out of flow under the row and show on hover or focus
+   of the button they concern, so the section's height never jumps. One
+   line wherever the width allows. */
+.download-note {
+	position: absolute;
+	top: calc(100% + 22px);
+	left: 50%;
+	width: max-content;
+	max-width: 100%;
+	text-align: center;
+	font-size: var(--dg-ui-sm);
+	line-height: 1.55;
+	color: var(--dg-fg-soft);
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+	transform: translate(-50%, -4px);
+	transition:
+		opacity 200ms ease,
+		transform 260ms var(--site-ease-out),
+		visibility 0s linear 200ms;
+}
+
+.dl-block:has(.dl[data-os="windows"]:hover) .download-note[data-for="windows"],
+.dl-block:has(.dl[data-os="windows"]:focus-visible) .download-note[data-for="windows"],
+.dl-block:has(.dl[data-os="linux"]:hover) .download-note[data-for="linux"],
+.dl-block:has(.dl[data-os="linux"]:focus-visible) .download-note[data-for="linux"] {
+	opacity: 1;
+	visibility: visible;
+	transform: translate(-50%, 0);
+	transition:
+		opacity 200ms ease,
+		transform 260ms var(--site-ease-out),
+		visibility 0s;
+}
+
+/* ── 14. Support strip ──────────────────────────────────────── */
+
+.strip-section {
+	padding-block: clamp(40px, 6vw, 64px);
+}
+
+.strip-section::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	height: 1px;
+	background: linear-gradient(
+		to right,
+		var(--dg-chrome-border-end) 0%,
+		var(--dg-chrome-border) 50%,
+		var(--dg-chrome-border-end) 100%
+	);
+}
+
+.strip {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 20px 40px;
+}
+
+.strip-note {
+	max-width: 52ch;
+	font-size: var(--site-prose);
+	line-height: 1.62;
+	color: var(--dg-fg);
+	text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+}
+
+.strip-note span {
+	display: block;
+}
+
+.strip-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+@media (max-width: 900px) {
+	.strip {
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+	}
+
+	.strip-actions {
+		justify-content: center;
+	}
+}
+
+@media (max-width: 520px) {
+	.strip-actions {
+		width: 100%;
+	}
+
+	.strip-actions .btn {
+		flex: 1 1 auto;
+	}
+}
+
+/* ── 15. Footer ─────────────────────────────────────────────── */
+
+/* The rule runs the full width; the content keeps to the page's measure */
+.site-footer {
+	position: relative;
+	padding: 40px var(--site-pad-x) 56px;
+	font-size: var(--dg-ui-sm);
+	color: var(--dg-fg-ghost);
+}
+
+.site-footer::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	height: 1px;
+	background: linear-gradient(
+		to right,
+		var(--dg-chrome-border-end) 0%,
+		var(--dg-chrome-border) 50%,
+		var(--dg-chrome-border-end) 100%
+	);
+}
+
+.footer-inner {
+	max-width: var(--site-max);
+	margin-inline: auto;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	align-items: center;
+	text-align: center;
+}
+
+.footer-links {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 6px 20px;
+}
+
+.footer-links a,
+.colophon a {
+	/* 24px tall: the WCAG 2.5.8 minimum target */
+	padding: 6px 0;
+	color: var(--dg-fg-faint);
+	transition: color 0.16s ease;
+}
+
+.footer-links a:hover,
+.colophon a:hover {
+	color: var(--dg-fg-strong);
+}
+
+.colophon {
+	color: var(--dg-fg-ghost);
+}
+
+.colophon a {
+	text-decoration: underline;
+	text-decoration-color: rgba(255, 255, 255, 0.25);
+	text-underline-offset: 3px;
+}
+
+@media (min-width: 768px) {
+	.footer-inner {
+		flex-direction: row;
+		justify-content: space-between;
+		text-align: left;
+	}
+}
+
+/* ── 16. Reduced motion ─────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+
+	.reveal,
+	.reveal-load {
+		opacity: 1 !important;
+	}
+
+	.is-revealed {
+		animation: none !important;
+	}
+
+	.faq details::details-content,
+	.faq details[open]::details-content,
+	.download-note,
+	.compare {
+		transition: none !important;
+	}
+}

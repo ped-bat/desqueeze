@@ -1,0 +1,49 @@
+name: Deploy landing site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'landing/**'
+      - '.github/workflows/deploy-landing.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Build and deploy
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: landing
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: landing/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build site
+        run: npm run build
+
+      # Never sync a missing or partial build: the FTP action mirrors
+      # local-dir onto the server, so an empty dist/ would wipe the live site
+      - name: Check build output
+        run: |
+          test -f dist/index.html || { echo "::error::dist/index.html missing - build failed"; exit 1; }
+          ls -R dist
+
+      - name: Sync files over FTPS
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+        with:
+          server: ${{ vars.FTP_SERVER }}
+          username: ${{ vars.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: ${{ vars.FTP_PORT }}
+          protocol: ftps
+          local-dir: ./landing/dist/
+          server-dir: ${{ vars.WEBSITE_URL }}${{ vars.FTP_REMOTE_DIR }}

@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Desqueeze - Desqueeze anamorphic photos without losing a pixel</title>
+		<meta
+			name="description"
+			content="Native desktop app that desqueezes anamorphic photos and RAW files. In DNG mode it writes metadata instead of resampling pixels, so the result opens straight in Lightroom at full quality. Offline and open source, for macOS, Windows and Linux."
+		/>
+		<meta name="theme-color" content="#08080a" />
+
+		<link rel="canonical" href="https://desqueeze.io/" />
+		<link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+
+		<meta property="og:title" content="Desqueeze - Desqueeze anamorphic photos without losing a pixel" />
+		<meta
+			property="og:description"
+			content="Restore anamorphic proportions as DNG metadata, not resampled pixels, and edit straight in Lightroom. 25 RAW formats, batch processing, everything on your machine."
+		/>
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Desqueeze" />
+		<meta property="og:locale" content="en_GB" />
+		<meta property="og:url" content="https://desqueeze.io/" />
+		<meta property="og:image" content="https://desqueeze.io/assets/og.png" />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content="Desqueeze - Desqueeze anamorphic photos without losing a pixel" />
+		<meta
+			name="twitter:description"
+			content="Restore anamorphic proportions as DNG metadata, not resampled pixels. Native, offline and open source."
+		/>
+		<meta name="twitter:image" content="https://desqueeze.io/assets/og.png" />
+
+		<style>
+			/* Painted before the stylesheet arrives, so the page never flashes
+			   light. Keep in sync with --dg-bg-page in css/site.css. */
+			html {
+				color-scheme: dark;
+				background-color: #08080a;
+			}
+			/* Hold the content back until the stylesheet lands; site.css sets
+			   opacity back to 1 with a transition. */
+			body {
+				opacity: 0;
+			}
+		</style>
+		<noscript>
+			<style>
+				body {
+					opacity: 1 !important;
+				}
+			</style>
+		</noscript>
+		<script>
+			/* Failsafe: if the stylesheet never arrives, show the page anyway. */
+			addEventListener("DOMContentLoaded", function () {
+				setTimeout(function () {
+					if (getComputedStyle(document.body).opacity === "0") document.body.style.opacity = "1";
+				}, 2500);
+			});
+		</script>
+
+		<link rel="preload" href="assets/fonts/science-gothic.woff2" as="font" type="font/woff2" crossorigin />
+		<link rel="stylesheet" href="css/site.css" />
+		<script type="module" src="js/site.js"></script>
+
+		<script type="application/ld+json">
+			{
+				"@context": "https://schema.org",
+				"@graph": [
+					{
+						"@type": "SoftwareApplication",
+						"name": "Desqueeze",
+						"url": "https://desqueeze.io/",
+						"image": "https://desqueeze.io/assets/og.png",
+						"description": "Native desktop app that desqueezes anamorphic photos and RAW files. In DNG mode it writes metadata instead of resampling pixels, so the result opens straight in Lightroom at full quality. Offline and open source.",
+						"applicationCategory": "MultimediaApplication",
+						"operatingSystem": "macOS, Windows, Linux",
+						"offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+						"license": "https://github.com/ped-bat/desqueeze/blob/main/LICENSE",
+						"downloadUrl": "https://github.com/ped-bat/desqueeze/releases/latest",
+						"author": { "@type": "Person", "name": "Pedro", "url": "https://pedrobatista.pt" }
+					},
+					{
+						"@type": "FAQPage",
+						"mainEntity": [
+							{
+								"@type": "Question",
+								"name": "What does lossless mean here?",
+								"acceptedAnswer": {
+									"@type": "Answer",
+									"text": "In DNG mode nothing is resampled. The squeeze factor goes into the file's DefaultScale tag; Lightroom, Camera Raw and other DNG-aware apps apply it on open, and it can be changed or removed later. The other output formats (for example JPEG) bake the stretch into the pixels irreversibly."
+								}
+							},
+							{
+								"@type": "Question",
+								"name": "Why DNG?",
+								"acceptedAnswer": {
+									"@type": "Answer",
+									"text": "DNG is an open raw format: publicly documented, royalty-free, and supported by Lightroom, Camera Raw and most raw editors, with all the latitude of the original raw. It also carries the metadata (the DefaultScale tag) that lets those editors desqueeze the photo losslessly. See https://helpx.adobe.com/camera-raw/desktop/dng-and-file-formats/digital-negative.html for more about the format."
+								}
+							},
+							{
+								"@type": "Question",
+								"name": "Which files does Desqueeze accept?",
+								"acceptedAnswer": {
+									"@type": "Answer",
+									"text": "25 RAW formats (3fr, ari, arw, cr2, cr3, crw, dcr, dcs, dng, erf, iiq, kdc, mef, mos, mrw, nef, nrw, orf, pef, raf, raw, rw2, sr2, srf, srw) and the common bitmaps (jpg, jpeg, png, tif, tiff, webp). Output is DNG, JPEG, PNG, TIFF or WebP."
+								}
+							},
+							{
+								"@type": "Question",
+								"name": "Is my camera/lens supported?",
+								"acceptedAnswer": {
+									"@type": "Answer",
+									"text": "RAW decoding comes from DNGLab: 825 cameras from 32 manufacturers, listed in the repository. Bitmaps work regardless of camera. All anamorphic lenses are supported, as the squeeze ratio can be specified manually."
+								}
+							},
+							{
+								"@type": "Question",
+								"name": "Does it work offline?",
+								"acceptedAnswer": {
+									"@type": "Answer",
+									"text": "Yes, all dependencies ship in the app, nothing else to install, no network access while processing."
+								}
+							},
+							{
+								"@type": "Question",
+								"name": "Where do the files go?",
+								"acceptedAnswer": {
+									"@type": "Answer",
+									"text": "Into a desqueezed folder next to the originals, which are never modified. Files already desqueezed are skipped."
+								}
+							},
+							{
+								"@type": "Question",
+								"name": "Are Intel Macs supported?",
+								"acceptedAnswer": {
+									"@type": "Answer",
+									"text": "Not yet. The macOS build is for Apple Silicon; Windows x64 and Linux x86_64 builds are available."
+								}
+							}
+						]
+					}
+				]
+			}
+		</script>
+	</head>
+	<body>
+		<a class="skip-link" href="#main">Skip to content</a>
+
+		<!-- The app's dot grid, fixed behind the whole page and running the
+		     processing-stage stretch, with its CRT scanlines over the grid
+		     but under the page's own controls. -->
+		<canvas id="grid-canvas" aria-hidden="true"></canvas>
+		<div class="scanlines" aria-hidden="true"></div>
+
+		<main id="main">
+			<!-- Hero -->
+			<section class="hero" id="top" aria-labelledby="hero-heading">
+				<!-- The app's wordmark in its display treatment: three RGB
+				     layers, screen-blended. It arrives squeezed and desqueezes
+				     into place. -->
+				<h1 class="hero-title chroma reveal-load" data-reveal-delay="0" id="hero-heading">
+					<span class="layer layer-r" aria-hidden="true">Desqueeze.io</span>
+					<span class="layer layer-g">Desqueeze.io</span>
+					<span class="layer layer-b" aria-hidden="true">Desqueeze.io</span>
+				</h1>
+
+				<p class="hero-lede reveal-load" data-reveal-delay="120">
+					<span><strong>Desqueeze anamorphic RAW photos losslessly</strong></span>
+					<span>Offline, free and open source</span>
+				</p>
+
+				<div class="download reveal-load" data-reveal-delay="180">
+					<a href="#download" class="btn btn-primary btn-lg" id="primary-download" data-os="macos">
+						<svg class="icon-brand" id="primary-download-icon" aria-hidden="true">
+							<use href="assets/icons.svg#i-apple" />
+						</svg>
+						<span id="primary-download-label">Download for macOS</span>
+					</a>
+
+					<div class="download-alt" id="download-alt" role="group" aria-label="Other platforms">
+						<span class="alt-label">Also for</span>
+						<a href="#download" data-os="macos">
+							<svg class="icon-brand" aria-hidden="true"><use href="assets/icons.svg#i-apple" /></svg>
+							macOS
+						</a>
+						<span class="alt-sep" aria-hidden="true">·</span>
+						<a href="#download" data-os="windows">
+							<svg class="icon-brand" aria-hidden="true"><use href="assets/icons.svg#i-windows" /></svg>
+							Windows
+						</a>
+						<span class="alt-sep" aria-hidden="true">·</span>
+						<a href="#download" data-os="linux">
+							<svg class="icon-brand" aria-hidden="true"><use href="assets/icons.svg#i-linux" /></svg>
+							Linux
+						</a>
+					</div>
+				</div>
+
+				<!-- Before and after: one photo, as shot and desqueezed, with
+				     the split following the pointer up and down -->
+				<div class="hero-shot reveal-load" data-reveal-delay="240">
+					<div
+						class="compare"
+						id="compare-view"
+						tabindex="0"
+						role="group"
+						aria-label="Before and after. The RAW as shot in the top-left, the same RAW desqueezed at 1.5x in the bottom-right, split along a diagonal. Move the pointer across the photo, or use the arrow keys, to change where the two meet."
+					>
+						<picture class="compare-after">
+							<source
+								type="image/webp"
+								srcset="
+									assets/photo/anamorphic-photo-1.5x-desqueezed-street-silhouettes-1080w.webp 1080w,
+									assets/photo/anamorphic-photo-1.5x-desqueezed-street-silhouettes.webp       2160w
+								"
+								sizes="(max-width: 1080px) 100vw, 1080px"
+							/>
+							<img
+								src="assets/photo/anamorphic-photo-1.5x-desqueezed-street-silhouettes.jpg"
+								srcset="
+									assets/photo/anamorphic-photo-1.5x-desqueezed-street-silhouettes-1080w.jpg 1080w,
+									assets/photo/anamorphic-photo-1.5x-desqueezed-street-silhouettes.jpg       2160w
+								"
+								sizes="(max-width: 1080px) 100vw, 1080px"
+								width="2160"
+								height="944"
+								alt="Silhouetted people walking past a glowing teal glass wall at night, shot through a 1.5x anamorphic lens and desqueezed to its true widescreen proportions"
+							/>
+						</picture>
+						<div class="compare-before">
+							<picture>
+								<source
+									type="image/webp"
+									srcset="
+										assets/photo/anamorphic-photo-1.5x-squeezed-street-silhouettes-720w.webp   720w,
+										assets/photo/anamorphic-photo-1.5x-squeezed-street-silhouettes.webp       1440w
+									"
+									sizes="(max-width: 1080px) 67vw, 720px"
+								/>
+								<img
+									src="assets/photo/anamorphic-photo-1.5x-squeezed-street-silhouettes.jpg"
+									srcset="
+										assets/photo/anamorphic-photo-1.5x-squeezed-street-silhouettes-720w.jpg   720w,
+										assets/photo/anamorphic-photo-1.5x-squeezed-street-silhouettes.jpg       1440w
+									"
+									sizes="(max-width: 1080px) 67vw, 720px"
+									width="1440"
+									height="944"
+									alt=""
+								/>
+							</picture>
+						</div>
+						<div class="compare-line" aria-hidden="true"></div>
+						<span class="compare-handle" aria-hidden="true"></span>
+						<span class="compare-tag top" aria-hidden="true"><code>arw</code> Raw as shot</span>
+						<span class="compare-tag bottom" aria-hidden="true"><code>dng</code> Raw desqueezed at 1.5x</span>
+					</div>
+				</div>
+			</section>
+
+			<!-- Features -->
+			<section id="features" class="ruled" aria-labelledby="features-heading">
+				<header class="section-head">
+					<h2 class="section-title reveal" id="features-heading">Built for anamorphic photography</h2>
+				</header>
+
+				<ul class="grid grid-features">
+					<li class="panel reveal">
+						<svg class="icon-feature" aria-hidden="true"><use href="assets/icons.svg#i-zap" /></svg>
+						<h3>Lossless by default</h3>
+						<p>
+							Files are converted to <code>dng</code> with desqueeze applied via metadata, nothing is resampled
+							and it can be undone
+						</p>
+					</li>
+					<li class="panel reveal">
+						<svg class="icon-feature" aria-hidden="true"><use href="assets/icons.svg#i-shield" /></svg>
+						<h3>Offline and private</h3>
+						<p>No account, no subscriptions, no uploads, no ads, no tracking. Everything runs on your machine</p>
+					</li>
+					<li class="panel reveal">
+						<svg class="icon-feature" aria-hidden="true"><use href="assets/icons.svg#i-layers" /></svg>
+						<h3>Batch processing</h3>
+						<p>Drop whole folders and process hundreds of photos at once, in parallel</p>
+					</li>
+					<li class="panel reveal">
+						<svg class="icon-feature" aria-hidden="true"><use href="assets/icons.svg#i-code" /></svg>
+						<h3>Free and open source</h3>
+						<p>Free forever, open source, MIT licensed. It was useful for me, it may be useful for you too</p>
+					</li>
+				</ul>
+			</section>
+
+			<!-- How it works -->
+			<section id="how" class="ruled" aria-labelledby="how-heading">
+				<header class="section-head">
+					<h2 class="section-title reveal" id="how-heading">Drop, set, desqueeze</h2>
+				</header>
+
+				<ol class="steps reveal">
+					<li class="step">
+						<span class="step-number" aria-hidden="true">1</span>
+						<h3>Drop files</h3>
+						<p>Drag and drop, or pick files and folders</p>
+					</li>
+					<li class="step">
+						<span class="step-number" aria-hidden="true">2</span>
+						<h3>Settings</h3>
+						<p>Determine the anamorphic factor (ex: 1.5x) and output format</p>
+					</li>
+					<li class="step">
+						<span class="step-number" aria-hidden="true">3</span>
+						<h3>Desqueeze</h3>
+						<p>The files land in a <code>desqueezed</code> folder next to the originals</p>
+					</li>
+				</ol>
+			</section>
+
+			<!-- FAQ -->
+			<section id="faq" class="ruled" aria-labelledby="faq-heading">
+				<header class="section-head">
+					<h2 class="section-title reveal" id="faq-heading">Common questions</h2>
+				</header>
+
+				<div class="faq">
+					<details class="reveal">
+						<summary>What does lossless mean here?</summary>
+						<p>
+							In DNG mode nothing is resampled. The squeeze factor goes into the file's
+							<code>DefaultScale</code> tag; Lightroom, Camera Raw and other DNG-aware apps apply it on open, and
+							it can be changed or removed later. The other output formats (ex: <code>jpeg</code>) bake the
+							stretch into the pixels irreversibly
+						</p>
+					</details>
+					<details class="reveal">
+						<summary>Why DNG?</summary>
+						<p>
+							<code>dng</code> is an open raw format: publicly documented, royalty-free, and supported by
+							Lightroom, Camera Raw and most raw editors, with all the latitude of the original raw. It also
+							carries the metadata (the <code>DefaultScale</code> tag) that lets those editors desqueeze the photo
+							losslessly.
+							<a href="https://helpx.adobe.com/camera-raw/desktop/dng-and-file-formats/digital-negative.html" rel="noopener"
+								>More about the format</a
+							>
+						</p>
+					</details>
+					<details class="reveal">
+						<summary>Which files does Desqueeze accept?</summary>
+						<p class="formats">
+							<strong>RAW</strong> <code>3fr</code> <code>ari</code> <code>arw</code> <code>cr2</code>
+							<code>cr3</code> <code>crw</code> <code>dcr</code> <code>dcs</code> <code>dng</code> <code>erf</code>
+							<code>iiq</code> <code>kdc</code> <code>mef</code> <code>mos</code> <code>mrw</code> <code>nef</code>
+							<code>nrw</code> <code>orf</code> <code>pef</code> <code>raf</code> <code>raw</code> <code>rw2</code>
+							<code>sr2</code> <code>srf</code> <code>srw</code>
+						</p>
+						<p class="formats">
+							<strong>Bitmaps</strong> <code>jpg</code> <code>jpeg</code> <code>png</code> <code>tif</code>
+							<code>tiff</code> <code>webp</code>
+						</p>
+						<p class="formats">
+							<strong>Output</strong> <code>dng</code> <code>jpeg</code> <code>png</code> <code>tiff</code>
+							<code>webp</code>
+						</p>
+					</details>
+					<details class="reveal">
+						<summary>Is my camera/lens supported?</summary>
+						<p>
+							RAW decoding comes from DNGLab: 825 cameras from 32 manufacturers, listed in the
+							<a href="https://github.com/ped-bat/desqueeze/blob/main/resources/cameras.json" rel="noopener"
+								>repository</a
+							>. Bitmaps work regardless of camera. All anamorphic lenses are supported, as the squeeze ratio can be
+							specified manually
+						</p>
+					</details>
+					<details class="reveal">
+						<summary>Does it work offline?</summary>
+						<p>Yes, all dependencies ship in the app, nothing else to install, no network access while processing</p>
+					</details>
+					<details class="reveal">
+						<summary>Where do the files go?</summary>
+						<p>
+							Into a <code>desqueezed</code> folder next to the originals, which are never modified. Files already
+							desqueezed are skipped
+						</p>
+					</details>
+					<details class="reveal">
+						<summary>Are Intel Macs supported?</summary>
+						<p>Not yet. The macOS build is for Apple Silicon; Windows x64 and Linux x86_64 builds are available</p>
+					</details>
+				</div>
+			</section>
+
+			<!-- Download -->
+			<section id="download" class="ruled section-alt" aria-labelledby="download-heading">
+				<header class="section-head">
+					<h2 class="section-title reveal" id="download-heading">Download it</h2>
+					<p class="section-lede reveal">Free and open source</p>
+				</header>
+
+				<div class="dl-block">
+					<ul class="grid grid-download">
+						<li>
+							<a
+								class="dl reveal"
+								data-os="macos"
+								href="https://github.com/ped-bat/desqueeze/releases/latest/download/Desqueeze-macOS-arm64.dmg"
+								rel="noopener"
+							>
+								<svg class="icon-brand" aria-hidden="true"><use href="assets/icons.svg#i-apple" /></svg>
+								<span>
+									<span class="dl-title">macOS</span>
+									<span class="dl-sub">Apple Silicon · .dmg</span>
+								</span>
+							</a>
+						</li>
+						<li>
+							<a
+								class="dl reveal"
+								data-os="windows"
+								href="https://github.com/ped-bat/desqueeze/releases/latest/download/Desqueeze-Windows-x64.exe"
+								rel="noopener"
+							>
+								<svg class="icon-brand" aria-hidden="true"><use href="assets/icons.svg#i-windows" /></svg>
+								<span>
+									<span class="dl-title">Windows</span>
+									<span class="dl-sub">x64 · installer</span>
+								</span>
+							</a>
+						</li>
+						<li>
+							<a
+								class="dl reveal"
+								data-os="linux"
+								href="https://github.com/ped-bat/desqueeze/releases/latest/download/Desqueeze-Linux-x86_64.AppImage"
+								rel="noopener"
+							>
+								<svg class="icon-brand" aria-hidden="true"><use href="assets/icons.svg#i-linux" /></svg>
+								<span>
+									<span class="dl-title">Linux</span>
+									<span class="dl-sub">x86_64 · AppImage</span>
+								</span>
+							</a>
+						</li>
+					</ul>
+					<p class="download-note" data-for="windows">
+						Windows may show a SmartScreen warning on first install. Click <strong>More info</strong>, then
+						<strong>Run anyway</strong>
+					</p>
+					<p class="download-note" data-for="linux">
+						Make the AppImage executable first: <code>chmod +x Desqueeze-Linux-x86_64.AppImage</code>
+					</p>
+				</div>
+			</section>
+
+			<!-- Support and feedback, folded into one strip above the footer -->
+			<section id="support" class="strip-section" aria-label="Support and feedback">
+				<div class="strip">
+					<p class="strip-note reveal">
+						<span><strong>Found this useful?</strong> You can buy me a coffee</span>
+						<span><strong>Found an issue?</strong> Report it please</span>
+					</p>
+					<div class="strip-actions reveal">
+						<!-- TODO: point this at the real donation link (Buy Me a Coffee / Ko-fi / PayPal). -->
+						<a class="btn btn-primary" id="donate" href="#" rel="noopener">
+							<svg class="icon-line" aria-hidden="true"><use href="assets/icons.svg#i-coffee" /></svg>
+							Buy me a coffee
+						</a>
+						<a class="btn btn-ghost" href="https://github.com/ped-bat/desqueeze/issues/new" rel="noopener">
+							<svg class="icon-brand" aria-hidden="true"><use href="assets/icons.svg#i-github" /></svg>
+							Open an issue
+						</a>
+					</div>
+				</div>
+			</section>
+		</main>
+
+		<footer class="site-footer">
+			<div class="footer-inner">
+				<nav class="footer-links" aria-label="Footer">
+					<a href="https://github.com/ped-bat/desqueeze" rel="noopener">GitHub</a>
+					<a href="https://github.com/ped-bat/desqueeze/blob/main/LICENSE" rel="noopener">MIT license</a>
+					<a href="https://github.com/ped-bat/desqueeze/blob/main/THIRD-PARTY-LICENSES.md" rel="noopener"
+						>Third-party licenses</a
+					>
+				</nav>
+				<p class="colophon">© Desqueeze · Created by <a href="https://pedrobatista.pt" rel="noopener">Pedro</a></p>
+			</div>
+		</footer>
+	</body>
+</html>

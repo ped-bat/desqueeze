@@ -1,0 +1,116 @@
+# Desqueeze - landing page
+
+Marketing site for desqueeze.io: plain HTML, CSS and ES modules, bundled
+by Vite into `dist/`. Laid out like Bind it's `landing/`.
+
+```
+landing/
+├── index.html            # the whole page
+├── css/site.css          # tokens + components (bundled by Vite)
+├── js/
+│   ├── dot-grid.js       # port of the app's DotGridEngine
+│   └── site.js           # page wiring (hero intro, reveals, downloads, demo)
+├── public/               # copied to dist/ as-is
+│   ├── assets/
+│   │   ├── fonts/science-gothic.woff2
+│   │   ├── icons.svg     # platform and GitHub glyphs
+│   │   ├── favicon.svg, logo.svg
+│   │   ├── photo/        # before-and-after photos
+│   │   └── og.png        # rendered by scripts/render-og.sh
+│   ├── robots.txt
+│   └── sitemap.xml
+├── scripts/              # OG image template and renderer
+└── vite.config.js
+```
+
+## Preview locally
+
+```bash
+cd landing
+npm install
+npm run dev       # → http://localhost:1422
+npm run build     # → dist/
+npm run preview   # serves dist/
+```
+
+## Structure
+
+The section order follows the Bind it landing page: hero with the
+visitor's download first, features, how it works, common questions,
+download, a support strip, then the footer. The content and the look are
+the app's.
+
+## Design notes
+
+The page is the app's working surface stretched into a document, so it
+borrows from the renderer rather than approximating it:
+
+- **Tokens** in `css/site.css` are copied from
+  `src/renderer/styles/global.css`: the same palette, white-opacity ramp,
+  chrome, blur and radii. The only hues on the page belong to status
+  (amber working, green done) and to the hero title's RGB split, exactly as
+  in the app; the primary action is near-white on near-black.
+- **The footer bar** is `dg-footer-bar`: 66px of chrome with a 2px blur and
+  a rule that fades towards both ends, carrying the app's resting summary
+  line. There is no top bar; the hero title is the wordmark.
+- **The dot grid** (`js/dot-grid.js`) is a real port of the app's engine,
+  with film grain and dot glow baked into tiles because per-frame
+  generation is far too expensive across a full viewport. On the site it
+  is fixed, ignores the pointer, and waves slowly the way the app's
+  success state does (`wave` in the config, with smaller dots). Its focal
+  point starts on the hero's title block and eases up to the top edge over
+  the first 600px of scroll (`initGridFocus` in `js/site.js`). It is also
+  knocked back (lower base and ceiling opacity, softer glow, a darker
+  canvas ground) so it stays a backdrop behind a page of text.
+- **Before and after** (`.compare`, in the hero) is one 1.5x anamorphic
+  photo in two versions, desqueezed and squeezed back to ⅔ width as shot
+  (`assets/photo/`, 2160×944 and 1440×944 for 2x screens, with 1x
+  variants in `srcset`), split along a diagonal from the bottom-left to the
+  top-right: as shot above and left of it, desqueezed below and right.
+  On entry the split eases to the pointer on a spring, then tracks it
+  directly, and stays where it was left. The squeezed frame is narrower,
+  so it sits centred with dark bands either side rather than being
+  stretched to fit.
+- **Reveals** rise into place as they arrive, Bind it's way: a fixed
+  40px over one second, staggered a little across a row.
+- **Type** is Science Gothic throughout. Uppercase is reserved for the
+  wordmark and the hero title, as in the app; everything else is sentence
+  case at the app's UI axes (`wght 450, wdth 92`). The hero title,
+  "Desqueeze.io", rests at the app's display axes (`wght 520, wdth 125`)
+  and desqueezes into them on load, on the app's text spring.
+- **Motion** is one orchestrated moment on load plus crossfades; nothing
+  slides. `prefers-reduced-motion` holds the grid still, skips the intro
+  and shows the demo as a finished batch.
+
+## Keeping content in sync
+
+| Content       | Where it lives here                                                 | Source of truth                          |
+| ------------- | ------------------------------------------------------------------- | ---------------------------------------- |
+| Format lists  | the "Which files" answer in `index.html`, twice (visible + JSON-LD) | the README's generated format list       |
+| Camera count  | features + FAQ copy in `index.html`                                 | the README's generated camera count      |
+| Download URLs | the three `.dl` links in `index.html`                               | `build.*.artifactName` in `package.json` |
+
+The download links point at `releases/latest`, so a new release needs no
+change here.
+
+## OG image
+
+`public/assets/og.png` is rendered from `scripts/og.html`:
+
+```bash
+landing/scripts/render-og.sh
+```
+
+## Deploying
+
+`.github/workflows/deploy-landing.yml` builds the site and syncs
+`landing/dist/` over FTPS on every push to `main` that touches `landing/`
+(or on a manual run), and needs these
+repository settings:
+
+- variables: `FTP_SERVER`, `FTP_USERNAME`, `FTP_PORT`, `WEBSITE_URL`,
+  `FTP_REMOTE_DIR`
+- secret: `FTP_PASSWORD`
+
+Any static host works instead: base directory `landing`, build command
+`npm run build`, publish directory `dist`.
