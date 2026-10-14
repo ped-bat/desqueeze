@@ -16,7 +16,10 @@
 
 :root {
 	/* — Colors — */
-	--dg-bg-page: #333333;
+	/* The page ground sits under the canvas and reads through the body
+	   scrim, so it has to be black rather than grey: a #333 ground turned
+	   the whole file panel mid-grey. */
+	--dg-bg-page: #08080a;
 	--dg-bg-canvas: #111111;
 
 	/* Chroma channel colors (RGB split layers) */
@@ -31,9 +34,12 @@
 	--dg-fg-strong: rgba(255, 255, 255, 0.9);
 	--dg-fg: rgba(255, 255, 255, 0.7);
 	--dg-fg-mid: rgba(255, 255, 255, 0.55);
-	--dg-fg-soft: rgba(255, 255, 255, 0.45);
-	--dg-fg-faint: rgba(255, 255, 255, 0.35);
-	--dg-fg-ghost: rgba(255, 255, 255, 0.28);
+	--dg-fg-soft: rgba(255, 255, 255, 0.62);
+	/* Raised from 0.35/0.28: at those values small text measured about
+	   2.4:1 against the canvas, under the 4.5:1 floor, and it sat over
+	   moving dots. These clear it while staying clearly secondary. */
+	--dg-fg-faint: rgba(255, 255, 255, 0.52);
+	--dg-fg-ghost: rgba(255, 255, 255, 0.45);
 
 	--dg-border: rgba(255, 255, 255, 0.35);
 	--dg-border-soft: rgba(255, 255, 255, 0.2);
@@ -44,59 +50,114 @@
 	--dg-surface-focus: rgba(255, 255, 255, 0.08);
 	--dg-surface-menu: rgba(20, 20, 20, 0.85);
 
+	/* Accent — light, not blue. A saturated blue button was the one hue on
+	   screen that belonged to no part of the app: the grid is white, the
+	   title's colour comes from the RGB split, and status owns amber, green
+	   and red. Near-white on near-black is the strongest contrast available
+	   here, so the primary action reads as primary without borrowing a hue.
+	   Used for exactly one control per screen. */
+	--dg-accent: #ededf0;
+	--dg-accent-hover: #ffffff;
+	--dg-accent-fg: #0c0c0e;
+	--dg-accent-ring: rgba(255, 255, 255, 0.65);
+	--dg-accent-wash: rgba(255, 255, 255, 0.1);
+	/* The drag-over field. Stronger than the wash above because it is the
+	   only cue there is: it used to be two washes stacked, the stage's and
+	   the window ring's, which read at about this strength. */
+	--dg-drop-wash: rgba(255, 255, 255, 0.18);
+
+	/* Semantic status, kept separate from the accent so a finished row and
+	   the primary button never compete for the same meaning.
+	   These read as a traffic light down the left edge of the file list:
+	   grey waiting, amber working, green done, red failed. Hue belongs to
+	   status alone; the accent stays achromatic. */
+	--dg-pending: rgba(255, 255, 255, 0.34);
+	--dg-wait: #e0a63c;
+	--dg-wait-soft: #f0c880;
+	--dg-wait-wash: rgba(224, 166, 60, 0.13);
+	--dg-ok: #54c184;
+	--dg-bad: #ff5c52;
+	--dg-bad-soft: #ff9a93;
+	--dg-bad-wash: rgba(255, 92, 82, 0.1);
+
+	/* Chrome for the working surface: bars and the file panel sit on these
+	   rather than on the raw canvas, so filenames are read against a
+	   consistent ground instead of moving dots. */
+	--dg-chrome: rgba(6, 6, 7, 0.6);
+	--dg-chrome-border: rgba(255, 255, 255, 0.17);
+	/* The ends of the bars' gradient rule: a quarter of the border's strength
+	   rather than nothing, so the line still reads at the window edges
+	   instead of dissolving completely. Derived from the token above so the
+	   two cannot drift apart. */
+	--dg-chrome-border-end: color-mix(in srgb, var(--dg-chrome-border) 25%, transparent);
+	--dg-row: rgba(255, 255, 255, 0.04);
+	--dg-row-hover: rgba(255, 255, 255, 0.075);
+
+	/* Bar heights. The macOS traffic lights sit at y:16 with hiddenInset
+	   (see main/index.js) and are 12px tall, so their centre is at y:22; a
+	   44px bar puts them on its centre line. The footer takes the same
+	   height so the two bars mirror each other. Everything that lives in a
+	   bar has to fit inside this: the settings chip and the bar buttons are
+	   sized to about 32px for it. */
+	--dg-bar-h: 44px;
+	--dg-bar-pad: 20px;
+
+	/* Knocks the grid back behind the file list. This is painted over the
+	   body region only, never the whole canvas: dimming the canvas dimmed
+	   what sits behind the bars too, so the same bar rendered darker on the
+	   list screen than on the empty one and the two chromes stopped
+	   matching. Scoped here, the bars always sit over the same
+	   full-strength grid and take one value in every state. */
+	--dg-body-scrim: rgba(8, 8, 10, 0.75);
+
 	/* — Typography — */
 	/* Fluid type: preferred values are calibrated to the 1120x720 design
 	   window (e.g. title 2.396rem = 3.42vw = 5.33vh), scaling with whichever
 	   window dimension is tighter, clamped to ~0.65x-1.2x of the design. */
 	--dg-font: "Science Gothic", sans-serif;
-	--dg-font-size-title: clamp(1.78rem, min(3.42vw, 5.33vh), 2.88rem);
-	--dg-font-size-sub: clamp(0.92rem, min(1.78vw, 2.77vh), 1.5rem);
-	--dg-font-size-bar: clamp(0.62rem, min(1.16vw, 1.8vh), 0.97rem);
+	--dg-font-size-title: clamp(1.6rem, min(3.08vw, 4.8vh), 2.59rem);
+	--dg-font-size-sub: clamp(0.83rem, min(1.6vw, 2.49vh), 1.35rem);
+	--dg-font-size-bar: clamp(0.56rem, min(1.04vw, 1.62vh), 0.87rem);
 	--dg-tracking: 0.15em;
 	--dg-tracking-tight: 0.1em;
 	--dg-tracking-bar: 0.12em;
-	--dg-font-variation-rest: "wght" 300, "wdth" 80;
+	--dg-font-variation-rest: "wght" 240, "wdth" 80;
+
+	/* — UI type scale —
+	   The display clamps above scale with the window because the empty state
+	   is a composition. Chrome and list text do not: a filename should be the
+	   same size in a 900px window and a 1900px one, so these are fixed. */
+	--dg-ui-xs: 10px;
+	--dg-ui-sm: 11.25px;
+	--dg-ui: 12.6px;
+	--dg-ui-lg: 14.4px;
+	--dg-ui-xl: 18px;
+
+	/* Sentence-case UI text: normal width, mid weight, no tracking. The
+	   0.15em tracking above is for uppercase display only — applied to
+	   sentence case it destroys word shapes. */
+	--dg-var-ui: "wght" 360, "wdth" 92;
+	--dg-var-ui-strong: "wght" 448, "wdth" 92;
+	--dg-var-mark: "wght" 480, "wdth" 88;
+
+	/* Monospace is reserved for filenames and paths — data the user may need
+	   to match character for character against Finder. */
+	--dg-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
 
 	/* — Layout — */
 	/* Letterbox horizontal padding: 52px / 62px at the 1120px design width */
 	--dg-pad-bar: clamp(24px, 4.64vw, 64px);
 	--dg-pad-bar-wide: clamp(30px, 5.54vw, 76px);
 
-	/* Letterbox bars: a hairline inner edge over a lightly blurred backdrop,
-	   so the dot grid reads as softened behind the top/bottom bars.
-	   Keep the blur small. The engine already blurs the canvas by up to 4px
-	   wherever the cursor spotlight isn't (DotGridEngine `blurAlpha`), so the
-	   bars stack on top of that — at 5px the dots inside them smeared into
-	   blobs in cursor modes while staying crisp in settings, which read as
-	   two different materials. */
-	--dg-bar-bg: rgba(255, 255, 255, 0.022);
-	--dg-bar-border: rgba(255, 255, 255, 0.22);
-	--dg-bar-blur: blur(2px);
-
 	/* — Effects — */
 	/* Dark drop shadow first for legibility over the glowing dots, then glow */
 	--dg-glow-white: 0 1px 3px rgba(0, 0, 0, 0.85), 0 0 10px rgba(0, 0, 0, 0.6),
 		0 0 8px rgba(255, 255, 255, 0.15), 0 0 20px rgba(255, 255, 255, 0.08);
 	--dg-glow-surface: 0 0 8px rgba(255, 255, 255, 0.08), 0 0 20px rgba(255, 255, 255, 0.04);
-	--dg-blur-glass: blur(8px);
 
 	/* — Animation — */
 	--dg-ease-fast: 0.15s ease;
 	--dg-ease: 0.2s ease;
-
-	/* Hover spring. Sampled from the same spring integrator the engine uses
-	   (core/easing.js stepSpring), stiffness 420 / damping 26 — ~7% overshoot
-	   then settle. One curve and one duration in BOTH directions: the old
-	   0.12s-in / 0.45s-out pair meant a fast in-and-out swapped easing
-	   mid-flight, which is what made rapid hovering stutter. */
-	--dg-spring: linear(
-		0 0%, 0.1252 4.5%, 0.3599 9.1%, 0.6037 13.6%, 0.804 18.2%, 0.9432 22.7%,
-		1.0143 27.3%, 1.0568 31.8%, 1.067 36.4%, 1.0589 40.9%, 1.0433 45.5%,
-		1.027 50%, 1.0134 54.5%, 1.004 59.1%, 0.9985 63.6%, 0.996 68.2%,
-		0.9955 72.7%, 0.996 77.3%, 0.9971 81.8%, 0.9982 86.4%, 0.9991 90.9%,
-		0.9997 95.5%, 1 100%
-	);
-	--dg-spring-dur: 0.4s;
 	--dg-radius: 4px;
 }
 

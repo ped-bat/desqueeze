@@ -2,9 +2,10 @@ import { LitElement, html, css } from "lit";
 import { DotGridEngine } from "../engine/DotGridEngine.js";
 
 /**
- * <dg-canvas> — hosts the dot-grid engine canvas. The CRT scanline overlay
- * lives in <dg-app> so it covers the buttons and letterbox bars too.
- * Fills its container; forwards pointer position to the engine.
+ * <dg-canvas> — hosts the dot-grid engine canvas. The CRT (scanlines,
+ * vignette, curvature, flicker) is a DOM overlay in <dg-app>, above the
+ * chrome as well as the grid. Fills its container; forwards pointer
+ * position to the engine.
  *
  * Properties:
  * - mode: engine mode key (ready|settings|processing|error|success)

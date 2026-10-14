@@ -17,5 +17,6 @@ export const ipc = {
 	getPathForFile: (file) => api().getPathForFile(file),
 	showInFolder: (filePath) => api().showInFolder(filePath),
 	cancelProcessing: () => api().cancelProcessing(),
+	saveErrorLog: (batch) => api().saveErrorLog(batch),
 	onProcessingProgress: (callback) => api().onProcessingProgress(callback),
 };

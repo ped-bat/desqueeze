@@ -15,9 +15,11 @@ class DngCommandBuilder {
 	 * @param {Object} metadata - Metadata object from ImageAnalyzer
 	 * @param {string} inputPath - Path to input file
 	 * @param {string} outputPath - Path for output DNG
+	 * @param {{ previewPath?: string|null }} [opts] - previewPath: JPEG to embed
+	 *   as the DNG's preview and thumbnail instead of a copy of the source
 	 * @returns {string[]} Complete command arguments array
 	 */
-	build(metadata, inputPath, outputPath) {
+	build(metadata, inputPath, outputPath, opts = {}) {
 		if (!metadata || !metadata.colorDepth || !metadata.colorSpace) {
 			throw new Error("Invalid metadata: missing required color properties.");
 		}
@@ -26,7 +28,7 @@ class DngCommandBuilder {
 		}
 
 		const sections = [
-			this._buildBaseSection(inputPath, outputPath),
+			this._buildBaseSection(inputPath, outputPath, opts.previewPath),
 			this._buildMatrixSection(metadata),
 			this._buildIlluminantSection(metadata),
 			this._buildLinearizationSection(metadata.colorDepth, metadata.colorSpace),
@@ -41,9 +43,24 @@ class DngCommandBuilder {
 	// Section Builders (private)
 	// ========================================================================
 
-	/** Base command with input/output paths */
-	_buildBaseSection(inputPath, outputPath) {
-		return ["makedng", "-i", inputPath, "-o", outputPath];
+	/**
+	 * Base command with input/output paths.
+	 *
+	 * With a preview file, makedng's --map takes the pixels from the source
+	 * and the preview + thumbnail from the (already desqueezed) JPEG, so
+	 * what file browsers show matches what raw editors render. Both inputs
+	 * follow a single -i: dnglab rejects the flag given twice.
+	 */
+	_buildBaseSection(inputPath, outputPath, previewPath) {
+		if (!previewPath) {
+			return ["makedng", "-i", inputPath, "-o", outputPath];
+		}
+		return [
+			"makedng",
+			"-i", inputPath, previewPath,
+			"--map", "0:raw", "1:preview", "1:thumbnail", "0:exif", "0:xmp",
+			"-o", outputPath,
+		];
 	}
 
 	/**

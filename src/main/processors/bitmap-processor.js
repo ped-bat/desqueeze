@@ -1,7 +1,7 @@
 /**
  * BitmapProcessor - Processes bitmap files through the desqueeze pipeline
  *
- * Pipeline (DNG):   Analyze → Flatten alpha (if RGBA) → makedng → Metadata copy + DefaultScale → Cleanup
+ * Pipeline (DNG):   Analyze → Flatten alpha (if RGBA) → Desqueezed preview (Sharp) → makedng → Metadata copy + DefaultScale → Cleanup
  * Pipeline (other): Sharp pixel-stretch + export (Sharp handles alpha)
  */
 
@@ -80,6 +80,7 @@ class BitmapProcessor {
 
 		let inputForDNG = filePath;
 		let alphaTemp = null;
+		let previewTemp = null;
 
 		if (metadata.hasAlpha) {
 			log.info("Image has alpha channel — converting to RGB for DNG conversion...");
@@ -89,7 +90,12 @@ class BitmapProcessor {
 		}
 
 		try {
-			const commandArgs = this._commandBuilder.build(metadata, inputForDNG, outputPath);
+			// Desqueezed preview + thumbnail for file browsers, which show
+			// those instead of applying DefaultScale to the raw data.
+			previewTemp = await this._renderPreview(inputForDNG, ratioX / ratioY);
+			const commandArgs = this._commandBuilder.build(metadata, inputForDNG, outputPath, {
+				previewPath: previewTemp,
+			});
 			log.info(`Command: ${commandArgs.join(" ")}`);
 
 			await this._dngOps.convertBitmapToDNG(outputPath, commandArgs);
@@ -104,6 +110,29 @@ class BitmapProcessor {
 			throw error;
 		} finally {
 			if (alphaTemp) await safeUnlink(alphaTemp);
+			if (previewTemp) await safeUnlink(previewTemp);
+		}
+	}
+
+	/**
+	 * Render the desqueezed preview makedng embeds. Best effort: without it
+	 * makedng falls back to a squeezed preview of the source, and the DNG
+	 * is otherwise unaffected.
+	 *
+	 * @param {string} inputPath - Bitmap fed to makedng (alpha already flattened)
+	 * @param {number} stretchFactor
+	 * @returns {Promise<string|null>} Path to the preview JPEG, or null on failure
+	 */
+	async _renderPreview(inputPath, stretchFactor) {
+		const previewPath = getTempFilePath(".jpg");
+		try {
+			// makedng re-encodes and caps the preview itself, so 2048px is plenty
+			await this._sharp.renderPreview(inputPath, previewPath, stretchFactor, { maxWidth: 2048 });
+			return previewPath;
+		} catch (err) {
+			log.warn(`Could not render desqueezed preview: ${err.message}`);
+			await safeUnlink(previewPath);
+			return null;
 		}
 	}
 

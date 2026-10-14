@@ -20,9 +20,15 @@ export const ENGINE_CONFIG = {
 	rippleWidth: 0.5, // per-dot transition duration (wider = more dots in-flight)
 	rippleFalloff: 1, // bulge envelope exponent (lower = broader plateau)
 	rippleDelay: 0, // seconds before ripple starts after mode change
-	rippleMaxDotRadius: 5, // dot radius at peak of ripple wavefront
+	// Dot radius at the peak of the ripple wavefront. Was 5: with the grid lit
+	// only around the pointer, a 3.3x swell showed up as a bright band flashing
+	// through the bar under the button that was just pressed.
+	rippleMaxDotRadius: 3,
 
-	// Cursor mode (ready state)
+	// Cursor (every state): dots push away from the pointer and the only
+	// spotlight is the one that follows it — the grid is dark until the
+	// pointer lights it, in settings and processing just as on the ready
+	// screen.
 	influenceRadius: 40,
 	falloffRadius: 600,
 	easeInSpeed: 8,
@@ -31,6 +37,11 @@ export const ENGINE_CONFIG = {
 	repulsionStrength: 50,
 	repulsionRadius: 500,
 	cursorSpotlight: { width: 0.2, height: 0.25, range: 5 },
+	spotlightGradient: [
+		[10, 0],
+		[60, 100],
+		[100, 0],
+	],
 
 	// Stretch loop (processing state)
 	loopDuration: 3,
@@ -40,16 +51,6 @@ export const ENGINE_CONFIG = {
 	textSpring: { stiffness: 125, damping: 15 },
 	rowStretch: { center: 1, edge: 0.5 },
 	colStretch: { center: 1, edge: 0 },
-
-	// Center spotlight
-	spotlightWidth: 0.25,
-	spotlightHeight: 0.2,
-	spotlightRange: 5,
-	spotlightGradient: [
-		[10, 0],
-		[60, 100],
-		[100, 0],
-	],
 
 	// Effects
 	barrelStrength: 0.25,
@@ -73,15 +74,19 @@ export const ENGINE_CONFIG = {
 		size: 1, // pixel size of grain (1 = native resolution)
 	},
 
-	// Title font animation (variable font axes, driven by stretch spring)
-	fontWeight: { rest: 300, stretch: 500 },
-	fontWidth: { rest: 80, stretch: 100 },
-	letterSpacing: { rest: 8, stretch: 12 },
+	// Title font animation (variable font axes, driven by stretch spring).
+	// Width now comes from the wdth axis instead of a scaleX transform on the
+	// element, so these carry the display line's whole optical width: 125 is
+	// the resting look, widening to 148 at the peak of the stretch.
+	fontWeight: { rest: 416, stretch: 496 },
+	fontWidth: { rest: 125, stretch: 148 },
+	letterSpacing: { rest: 2, stretch: 5 },
 
-	// Subtitle font animation (processing state)
-	subFontWeight: { rest: 300, stretch: 350 },
-	subFontWidth: { rest: 80, stretch: 95 },
-	subLetterSpacing: { rest: 2.4, stretch: 5 },
+	// Subtitle font animation (processing state). Sentence case, so tracking
+	// stays near zero — the old 2.4px pulled short words apart.
+	subFontWeight: { rest: 320, stretch: 368 },
+	subFontWidth: { rest: 96, stretch: 108 },
+	subLetterSpacing: { rest: 0, stretch: 1.6 },
 	subChromaStrength: 0.6, // max px offset for subtitle RGB split
 };
 
@@ -102,7 +107,7 @@ export const MODE_PARAMS = {
 		waveDelay: 0, // seconds after state change before wave starts
 		waveDarkColor: [80, 5, 5], // darker red to morph toward
 		waveDisplacement: 4, // px push outward from center by wave
-		maxDotRadius: 3.5, // larger dots in error state
+		maxDotRadius: 2.2, // larger than the 1.5 base, but 3.5 read as blobs
 	},
 	success: {
 		dotColor: [255, 255, 255],
@@ -111,23 +116,18 @@ export const MODE_PARAMS = {
 		waveDelay: 0,
 		waveDarkColor: [90, 90, 90],
 		waveDisplacement: 4,
-		maxDotRadius: 3.5,
+		maxDotRadius: 2.2,
 	},
 	settings: {
 		dotColor: [255, 255, 255],
 		convergenceDuration: 6, // seconds per full pull-release cycle
 		convergenceAmount: 0.05, // fraction of distance pulled toward center
 		convergenceEasing: "sine", // 'sine' | 'ease-in-out'
-		spotlightGradientTarget: [
-			[40, 0],
-			[70, 100],
-			[100, 0],
-		],
 	},
 };
 
-/** Mode that follows the cursor (repulsion + cursor spotlight) */
-export const CURSOR_MODE = "ready";
+/** Mode the engine starts in. (The cursor is followed in every mode.) */
+export const INITIAL_MODE = "ready";
 
 /** Mode that runs the stretch/spring loop */
 export const STRETCH_MODE = "processing";

@@ -1,5 +1,5 @@
 import { lerp, sstep, decayEasing, stepSpring, sampleGradient } from "../core/easing.js";
-import { ENGINE_CONFIG, MODE_PARAMS, CURSOR_MODE, STRETCH_MODE } from "../core/config.js";
+import { ENGINE_CONFIG, MODE_PARAMS, INITIAL_MODE, STRETCH_MODE } from "../core/config.js";
 
 /**
  * DotGridEngine — canvas-only renderer for the magnetic dot grid.
@@ -12,12 +12,20 @@ import { ENGINE_CONFIG, MODE_PARAMS, CURSOR_MODE, STRETCH_MODE } from "../core/c
  * @property {{opacity:number, wght:number, wdth:number, letterSpacing:number, chromaOffset:number}} title
  * @property {{opacity:number, wght:number, wdth:number, letterSpacing:number, chromaOffset:number, intensity:number}} subtitle
  * @property {{opacity:number, wght:number, wdth:number, letterSpacing:number, scaleX:number}} actions
+ * @property {{flicker:number}} crt  signed tube flicker for the DOM overlay
  *
  * Callbacks:
  * - onFrame(frameState)  — every frame
  * - onSwap(mode)         — at the transition midpoint, when displayed content
  *                          should switch to the new mode's text/actions
  */
+/**
+ * Fraction of transitionDuration at which the outgoing content has fully
+ * faded, the displayed content swaps, and the incoming content begins to
+ * fade in. All three coincide by design.
+ */
+const SWAP_AT = 0.35;
+
 export class DotGridEngine {
 	/**
 	 * @param {HTMLCanvasElement} canvas
@@ -39,7 +47,7 @@ export class DotGridEngine {
 		this.grainCtx = this.grainCanvas.getContext("2d");
 		this.grainData = null;
 
-		this.mode = CURSOR_MODE;
+		this.mode = INITIAL_MODE;
 		this.prevMode = null;
 		this.modeT = 1;
 		this.swapped = true;
@@ -162,8 +170,13 @@ export class DotGridEngine {
 		);
 		if (this.modeT < 1) {
 			this.modeT = Math.min(this.modeT + dt / totalTransition, 1);
-			// Swap displayed content early (at midpoint of the base transition)
-			const textMid = (C.transitionDuration * 0.5) / totalTransition;
+			// Swap the displayed content at the point where the fade-out ends
+			// and the fade-in begins — the same instant for every envelope
+			// below. Swapping later than the fade-in starts (it used to be
+			// 50% against a 35% fade-in) meant the incoming screen's first
+			// painted frame was already a quarter to a third opaque: a pop,
+			// not a crossfade.
+			const textMid = (C.transitionDuration * SWAP_AT) / totalTransition;
 			if (!this.swapped && this.modeT >= textMid) {
 				this.swapped = true;
 				if (this.onSwap) this.onSwap(this.mode);
@@ -175,38 +188,55 @@ export class DotGridEngine {
 		const weightT = Math.min((this.modeT * totalTransition) / C.transitionDuration, 1);
 		const eased = sstep(weightT);
 
-		const isCursorMode = (m) => m === CURSOR_MODE;
+		// The cursor (repulsion + spotlight) is not a mode: it follows the
+		// pointer in every state, so it carries no weight here. Only the
+		// mode-owned effects crossfade.
 		const isStretchMode = (m) => m === STRETCH_MODE;
+		// Mode-owned displacements (settings' convergence pull, error/success'
+		// wave). Without a weight these are gated on the current mode alone, so
+		// leaving the mode drops them to zero in a single frame — the grid
+		// visibly jumps. Weighted, they release over the crossfade instead.
+		const hasConvergence = (m) => !!this.modes[m]?.convergenceDuration;
+		const hasWave = (m) => !!this.modes[m]?.waveDarkColor;
 
-		let cursorW, stretchW, titleOpacity, subOpacity;
+		let stretchW, convergenceW, waveW, titleOpacity, subOpacity;
 		if (transitioning) {
-			cursorW = lerp(isCursorMode(this.prevMode) ? 1 : 0, isCursorMode(this.mode) ? 1 : 0, eased);
 			stretchW = lerp(isStretchMode(this.prevMode) ? 1 : 0, isStretchMode(this.mode) ? 1 : 0, eased);
-			// Title: fade out first half, fade in second half
-			titleOpacity = weightT < 0.5 ? 1 - weightT / 0.5 : (weightT - 0.5) / 0.5;
-			// Subtitle/actions: fast fade out (first 35%), smooth fade in (remaining 65%)
-			const subFadeOutEnd = 0.35;
-			if (weightT < subFadeOutEnd) {
-				subOpacity = 1 - weightT / subFadeOutEnd;
+			convergenceW = lerp(hasConvergence(this.prevMode) ? 1 : 0, hasConvergence(this.mode) ? 1 : 0, eased);
+			waveW = lerp(hasWave(this.prevMode) ? 1 : 0, hasWave(this.mode) ? 1 : 0, eased);
+			// One shape for every layer: a quick linear fade-out up to the swap,
+			// then a smooth fade-in over the rest. The title used to fade over
+			// halves while the rest used 35/65, which left the title of the
+			// incoming screen mounted mid-fade-out.
+			if (weightT < SWAP_AT) {
+				titleOpacity = 1 - weightT / SWAP_AT;
+				subOpacity = titleOpacity;
 			} else {
-				subOpacity = (weightT - subFadeOutEnd) / (1 - subFadeOutEnd);
-				subOpacity = sstep(subOpacity);
+				const t = (weightT - SWAP_AT) / (1 - SWAP_AT);
+				titleOpacity = t;
+				subOpacity = sstep(t);
 			}
 		} else {
 			this.prevMode = null;
-			cursorW = isCursorMode(this.mode) ? 1 : 0;
 			stretchW = isStretchMode(this.mode) ? 1 : 0;
+			convergenceW = hasConvergence(this.mode) ? 1 : 0;
+			waveW = hasWave(this.mode) ? 1 : 0;
 			titleOpacity = 1;
 			subOpacity = 1;
 		}
 
-		const frame = this._drawGrid(dt, cursorW, stretchW);
+		const frame = this._drawGrid(dt, stretchW, convergenceW, waveW);
 		this._drawGrain(w, h);
-		this._drawCRT(w, h);
 
 		frame.title.opacity = titleOpacity;
 		frame.subtitle.opacity = subOpacity;
 		frame.actions.opacity = subOpacity;
+		// The CRT itself is a DOM overlay (see dg-app) so the tube encloses the
+		// whole UI and not just the canvas; only its per-frame flicker needs a
+		// value from here.
+		frame.crt = {
+			flicker: C.crt.flickerAmount > 0 ? (Math.random() - 0.5) * C.crt.flickerAmount : 0,
+		};
 		if (this.onFrame) this.onFrame(frame);
 
 		this._raf = requestAnimationFrame(this._boundDraw);
@@ -215,13 +245,12 @@ export class DotGridEngine {
 	// ── Grid rendering ──────────────────────────────────────────
 
 	/** @returns {FrameState} text animation values for this frame */
-	_drawGrid(dt, cursorW, stretchW) {
+	_drawGrid(dt, stretchW, convergenceW, waveW) {
 		const C = this.C;
 		const w = this.canvas.width;
 		const h = this.canvas.height;
 		const cx = w / 2;
 		const cy = h / 2;
-		const centerW = 1 - cursorW; // center-based spotlight weight
 		const offCtx = this.offCtx;
 
 		// Base dot colors for prev and current mode
@@ -229,36 +258,32 @@ export class DotGridEngine {
 		const currMC = this.modes[this.mode] || {};
 		const [prR, prG, prB] = prevMC.dotColor || [255, 255, 255];
 		const [cuR, cuG, cuB] = currMC.dotColor || [255, 255, 255];
-		const globalColorT = sstep(this.modeT);
+
+		// Which mode owns each timed effect. During a transition that is still
+		// the mode being left, so its animation keeps playing while
+		// convergenceW/waveW ease it out — reading these off the current mode
+		// alone is what made the grid snap the instant the mode changed.
+		const convMC = currMC.convergenceDuration ? currMC : prevMC.convergenceDuration ? prevMC : null;
+		const waveMC = currMC.waveDarkColor ? currMC : prevMC.waveDarkColor ? prevMC : null;
 
 		// Wave timer (error/success)
-		if (currMC.waveDelay !== undefined) this.waveTimer += dt;
+		if (waveMC?.waveDelay !== undefined) this.waveTimer += dt;
 
 		// Convergence (settings) pull
 		let convergencePullT = 0;
-		if (currMC.convergenceDuration) {
+		if (convMC) {
 			this.convergenceTimer += dt;
-			if (currMC.convergenceEasing === "ease-in-out") {
-				const raw = (this.convergenceTimer % currMC.convergenceDuration) / currMC.convergenceDuration;
+			if (convMC.convergenceEasing === "ease-in-out") {
+				const raw = (this.convergenceTimer % convMC.convergenceDuration) / convMC.convergenceDuration;
 				convergencePullT = sstep((1 - Math.cos(raw * Math.PI * 2)) * 0.5);
 			} else {
 				convergencePullT =
-					(1 - Math.cos((this.convergenceTimer * Math.PI * 2) / currMC.convergenceDuration)) * 0.5;
+					(1 - Math.cos((this.convergenceTimer * Math.PI * 2) / convMC.convergenceDuration)) * 0.5;
 			}
 		}
-
-		// Animated spotlight gradient (transition between modes)
-		let activeGradient = null;
-		const prevGrad = prevMC.spotlightGradientTarget || C.spotlightGradient;
-		const currGrad = currMC.spotlightGradientTarget || C.spotlightGradient;
-		if (prevGrad !== currGrad || globalColorT < 1) {
-			activeGradient = C.spotlightGradient.map((_, i) => [
-				lerp(prevGrad[i][0], currGrad[i][0], globalColorT),
-				lerp(prevGrad[i][1], currGrad[i][1], globalColorT),
-			]);
-		} else if (currMC.spotlightGradientTarget) {
-			activeGradient = currMC.spotlightGradientTarget;
-		}
+		// Constant for the whole frame: the fraction of its distance from
+		// center each dot is pulled in by, eased out by convergenceW on exit.
+		const convergencePull = convMC ? convMC.convergenceAmount * convergencePullT * convergenceW : 0;
 
 		const maxDist = Math.sqrt(cx * cx + cy * cy);
 
@@ -330,12 +355,9 @@ export class DotGridEngine {
 		// ── Precompute ──
 		const springT = Math.min(Math.abs(this.gridSpring.pos) / C.stretchAmount, 1);
 		const bMax = Math.sqrt(cx * cx + cy * cy) * C.barrelRadius;
-		const spotRxA = w * C.cursorSpotlight.width * 0.5;
-		const spotRyA = h * C.cursorSpotlight.height * 0.5;
-		const spotRangeA = C.cursorSpotlight.range;
-		const spotRxB = w * C.spotlightWidth * 0.5;
-		const spotRyB = h * C.spotlightHeight * 0.5;
-		const spotRangeB = C.spotlightRange;
+		const spotRx = w * C.cursorSpotlight.width * 0.5;
+		const spotRy = h * C.cursorSpotlight.height * 0.5;
+		const spotRange = C.cursorSpotlight.range;
 		const centerCol = (this.cols - 1) / 2;
 		const centerRow = (this.rows - 1) / 2;
 
@@ -384,8 +406,8 @@ export class DotGridEngine {
 			}
 
 			// Blend final position
-			let drawX = dot.x + dot.ox * cursorW + animOffX * stretchW;
-			let drawY = dot.y + dot.oy * cursorW + animOffY * stretchW;
+			let drawX = dot.x + dot.ox + animOffX * stretchW;
+			let drawY = dot.y + dot.oy + animOffY * stretchW;
 
 			// Per-dot color (staggered ripple from center)
 			const ddx = dot.x - cx;
@@ -410,54 +432,48 @@ export class DotGridEngine {
 				cb = Math.round(lerp(cb, currMC.rippleColor[2], rippleBulge));
 			}
 
-			// Wave pulse (error/success)
+			// Wave pulse (error/success). waveW scales colour and displacement
+			// together so the pulse recedes over the crossfade on the way out.
 			let waveT = 0;
-			if (currMC.waveDarkColor) {
-				const waveAge = this.waveTimer - currMC.waveDelay;
+			if (waveMC) {
+				const waveAge = this.waveTimer - waveMC.waveDelay;
 				if (waveAge > 0) {
-					const dotWaveAge = waveAge - distNorm * currMC.wavePeriod;
+					const dotWaveAge = waveAge - distNorm * waveMC.wavePeriod;
 					if (dotWaveAge > 0) {
-						waveT = (1 - Math.cos((dotWaveAge / currMC.wavePeriod) * Math.PI * 2)) * 0.5;
-						cr = Math.round(lerp(cr, currMC.waveDarkColor[0], waveT));
-						cg = Math.round(lerp(cg, currMC.waveDarkColor[1], waveT));
-						cb = Math.round(lerp(cb, currMC.waveDarkColor[2], waveT));
+						waveT = (1 - Math.cos((dotWaveAge / waveMC.wavePeriod) * Math.PI * 2)) * 0.5 * waveW;
+						cr = Math.round(lerp(cr, waveMC.waveDarkColor[0], waveT));
+						cg = Math.round(lerp(cg, waveMC.waveDarkColor[1], waveT));
+						cb = Math.round(lerp(cb, waveMC.waveDarkColor[2], waveT));
 					}
 				}
 			}
 
 			// Wave displacement (push dots radially outward)
-			if (waveT > 0 && currMC.waveDisplacement && dotDist > 0.1) {
-				const pushAmt = currMC.waveDisplacement * waveT;
+			if (waveT > 0 && waveMC.waveDisplacement && dotDist > 0.1) {
+				const pushAmt = waveMC.waveDisplacement * waveT;
 				drawX += (ddx / dotDist) * pushAmt;
 				drawY += (ddy / dotDist) * pushAmt;
 			}
 
 			// Convergence pull (settings — dots creep toward center)
-			if (currMC.convergenceDuration) {
-				const pullAmt = currMC.convergenceAmount * convergencePullT;
-				drawX -= ddx * pullAmt;
-				drawY -= ddy * pullAmt;
+			if (convergencePull !== 0) {
+				drawX -= ddx * convergencePull;
+				drawY -= ddy * convergencePull;
 			}
 
-			// Spotlight visibility (blend cursor + center spotlights)
-			const csdx = (drawX - smx) / spotRxA;
-			const csdy = (drawY - smy) / spotRyA;
-			const cursorVis = hasCursor
-				? sampleGradient(Math.min(Math.sqrt(csdx * csdx + csdy * csdy) / spotRangeA, 1), C.spotlightGradient) *
+			// Spotlight visibility: the pointer's spotlight, in every mode
+			const csdx = (drawX - smx) / spotRx;
+			const csdy = (drawY - smy) / spotRy;
+			const vis = hasCursor
+				? sampleGradient(Math.min(Math.sqrt(csdx * csdx + csdy * csdy) / spotRange, 1), C.spotlightGradient) *
 					this.cursorIntensity
 				: 0;
-			const asdx = (drawX - cx) / spotRxB;
-			const asdy = (drawY - cy) / spotRyB;
-			const animVis = sampleGradient(
-				Math.min(Math.sqrt(asdx * asdx + asdy * asdy) / spotRangeB, 1),
-				activeGradient || C.spotlightGradient
-			);
-			const vis = cursorVis * cursorW + animVis * centerW;
 
 			// Dot radius (with ripple bulge)
-			const modeMaxR = currMC.maxDotRadius
-				? lerp(C.maxDotRadius, currMC.maxDotRadius, dct)
-				: C.maxDotRadius;
+			// Ride the same per-dot ripple as the colour above, from the mode
+			// being left to the one arriving — anchoring the low end at the
+			// default made the enlarged error/success dots snap back on exit.
+			const modeMaxR = lerp(prevMC.maxDotRadius || C.maxDotRadius, currMC.maxDotRadius || C.maxDotRadius, dct);
 			const effectiveMaxR = lerp(modeMaxR, C.rippleMaxDotRadius, rippleBulge);
 			const dotRadius = lerp(C.minDotRadius, effectiveMaxR, vis);
 			const dotOpacity = lerp(C.baseOpacity, 1, vis);
@@ -478,8 +494,8 @@ export class DotGridEngine {
 			const acVx = (rdx / rd) * animCMag;
 			const acVy = (rdy / rd) * animCMag;
 
-			const chromaVecX = ccVx * cursorW + acVx * stretchW;
-			const chromaVecY = ccVy * cursorW + acVy * stretchW;
+			const chromaVecX = ccVx + acVx * stretchW;
+			const chromaVecY = ccVy + acVy * stretchW;
 			const chromaOff = Math.sqrt(chromaVecX * chromaVecX + chromaVecY * chromaVecY);
 			const hasChroma = chromaOff > 0.1;
 			let cnx = 0;
@@ -521,14 +537,10 @@ export class DotGridEngine {
 			}
 		}
 
-		// Blur compositing (blended center, radii, amount)
-		const blurCX = lerp(smx, cx, centerW);
-		const blurCY = lerp(smy, cy, centerW);
-		const blurAlpha = (hasCursor ? 0.7 : 0) * cursorW + springT * stretchW;
-		const blurSRx = lerp(spotRxA, spotRxB, centerW);
-		const blurSRy = lerp(spotRyA, spotRyB, centerW);
-		const blurRange = lerp(spotRangeA, spotRangeB, centerW);
-		this._compositeWithBlur(blurCX, blurCY, w, h, blurAlpha, blurSRx, blurSRy, blurRange, activeGradient);
+		// Blur compositing: the sharp focus follows the pointer; the processing
+		// stretch adds its own blur on top, capped so globalAlpha stays legal.
+		const blurAlpha = Math.min((hasCursor ? 0.7 : 0) + springT * stretchW, 1);
+		this._compositeWithBlur(smx, smy, w, h, blurAlpha, spotRx, spotRy, spotRange);
 
 		return {
 			title: {
@@ -620,53 +632,7 @@ export class DotGridEngine {
 		ctx.restore();
 	}
 
-	_drawCRT(w, h) {
-		const C = this.C.crt;
-		const ctx = this.ctx;
-		// Scanlines are a DOM overlay (see dg-app, so they cover the UI too) —
-		// canvas handles flicker, vignette, and edge-curvature shadows only.
-
-		if (C.flickerAmount > 0) {
-			const flick = (Math.random() - 0.5) * C.flickerAmount;
-			ctx.save();
-			ctx.globalCompositeOperation = flick > 0 ? "lighter" : "multiply";
-			ctx.globalAlpha = Math.abs(flick);
-			ctx.fillStyle = flick > 0 ? "#ffffff" : "#000000";
-			ctx.fillRect(0, 0, w, h);
-			ctx.restore();
-		}
-
-		if (C.vignetteStrength > 0) {
-			const cx = w / 2;
-			const cy = h / 2;
-			const r = Math.sqrt(cx * cx + cy * cy);
-			const vig = ctx.createRadialGradient(cx, cy, r * 0.4, cx, cy, r);
-			vig.addColorStop(0, "rgba(0,0,0,0)");
-			vig.addColorStop(1, `rgba(0,0,0,${C.vignetteStrength})`);
-			ctx.fillStyle = vig;
-			ctx.fillRect(0, 0, w, h);
-		}
-
-		if (C.curvature > 0) {
-			const c = C.curvature;
-			const edges = [
-				// [x, y, w, h, gx0, gy0, gx1, gy1]
-				[0, 0, w, h * c * 4, 0, 0, 0, h * c * 4],
-				[0, h - h * c * 4, w, h * c * 4, 0, h, 0, h - h * c * 4],
-				[0, 0, w * c * 4, h, 0, 0, w * c * 4, 0],
-				[w - w * c * 4, 0, w * c * 4, h, w, 0, w - w * c * 4, 0],
-			];
-			for (const [x, y, ew, eh, gx0, gy0, gx1, gy1] of edges) {
-				const grad = ctx.createLinearGradient(gx0, gy0, gx1, gy1);
-				grad.addColorStop(0, `rgba(0,0,0,${c * 8})`);
-				grad.addColorStop(1, "rgba(0,0,0,0)");
-				ctx.fillStyle = grad;
-				ctx.fillRect(x, y, ew, eh);
-			}
-		}
-	}
-
-	_compositeWithBlur(blurCX, blurCY, w, h, blurAlpha, spotRx, spotRy, spotRange, gradient) {
+	_compositeWithBlur(blurCX, blurCY, w, h, blurAlpha, spotRx, spotRy, spotRange) {
 		const C = this.C;
 		const ctx = this.ctx;
 
@@ -692,8 +658,7 @@ export class DotGridEngine {
 		maskCtx.translate(blurCX, blurCY);
 		maskCtx.scale(1, spotRx / spotRy);
 		const grad = maskCtx.createRadialGradient(0, 0, 0, 0, 0, maxR);
-		const gradPts = gradient || C.spotlightGradient;
-		for (const [pos, opa] of gradPts)
+		for (const [pos, opa] of C.spotlightGradient)
 			grad.addColorStop(Math.min(pos / 100, 1), `rgba(255,255,255,${opa / 100})`);
 		maskCtx.fillStyle = grad;
 		maskCtx.fillRect(-w, -h * (spotRy / spotRx), w * 2, h * 2 * (spotRy / spotRx));

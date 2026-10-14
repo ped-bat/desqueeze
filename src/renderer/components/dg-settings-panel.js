@@ -5,8 +5,12 @@ import { store, StoreController, FACTOR_PRESETS } from "../state/app-state.js";
 import "./dg-dropdown.js";
 
 /**
- * <dg-settings-panel> — sentence-style settings driven by the
- * main-process config (formats + defaults arrive via store.config).
+ * <dg-settings-panel> — sentence-style settings, now a popover anchored to
+ * the top bar's chip rather than a screen the user has to pass through.
+ *
+ * The sentence form is kept — it reads better than a label/field grid for
+ * two settings — but set in sentence case at a readable size instead of
+ * tracked-out uppercase.
  */
 export class DgSettingsPanel extends LitElement {
 	static styles = [
@@ -14,69 +18,107 @@ export class DgSettingsPanel extends LitElement {
 		effects,
 		css`
 			:host {
-				position: relative;
-				display: flex;
-				flex-direction: column;
-				align-items: center;
-				margin-top: 1.2rem;
+				display: block;
+				min-width: 22rem;
+				padding: 16px 18px;
+				border-radius: 10px;
+				border: 1px solid var(--dg-chrome-border);
+				/* Near-solid rather than the bars' 50%: this floats over the file
+				   rows, and without a backdrop blur to soften them a translucent
+				   ground would show filenames through the controls. */
+				background: rgba(10, 10, 12, 0.94);
+				box-shadow: 0 18px 44px -18px rgba(0, 0, 0, 0.9);
 				pointer-events: auto;
-				z-index: 3;
 				font-family: var(--dg-font);
-				font-size: var(--dg-font-size-sub);
-				font-weight: 300;
-				text-transform: uppercase;
-				letter-spacing: var(--dg-tracking);
-				color: var(--dg-fg-mid);
-				text-shadow: var(--dg-glow-white);
+				font-size: var(--dg-ui);
+				font-variation-settings: var(--dg-var-ui);
+				color: var(--dg-fg-strong);
 			}
 
 			.line {
-				white-space: nowrap;
-				line-height: 1.8;
+				display: flex;
+				align-items: center;
+				flex-wrap: wrap;
+				gap: 0.4em;
+				line-height: 2;
 			}
 
 			.line + .line {
-				margin-top: 0.6em;
+				margin-top: 8px;
 			}
 
+			/* Explicit margin: the reset in global.css is light-DOM only, so a
+			   <p> in here still carries the UA's 1em top and bottom, which
+			   was padding the panel out below the last line. */
+			.hint {
+				margin: 12px 0 0;
+				padding-top: 12px;
+				border-top: 1px solid rgba(255, 255, 255, 0.1);
+				font-size: var(--dg-ui-sm);
+				color: var(--dg-fg-faint);
+				line-height: 1.5;
+			}
+
+			.hint.lossy {
+				color: #e8c78b;
+			}
+
+			/* Mirrors dg-dropdown's .toggle exactly - same padding, border,
+			   radius, ground and weight - because the two sit side by side in
+			   the same sentence and any difference reads as a mistake. The
+			   input inside carries no box of its own; the wrapper is the
+			   control. */
 			.input-wrap {
 				display: inline-flex;
 				align-items: center;
-				position: relative;
+				gap: 0.1em;
+				font-family: var(--dg-font);
+				font-size: inherit;
+				/* Matches dg-dropdown's .toggle; see the note there. */
+				line-height: 1.15;
+				font-variation-settings: var(--dg-var-ui-strong);
+				letter-spacing: 0;
+				color: var(--dg-fg-strong);
+				background: rgba(255, 255, 255, 0.07);
+				border: 1px solid rgba(255, 255, 255, 0.22);
+				border-radius: 6px;
+				padding: 0.28em 0.7em;
+				transition:
+					background 0.16s ease,
+					border-color 0.16s ease;
+			}
+
+			.input-wrap:hover {
+				background: rgba(255, 255, 255, 0.12);
+				border-color: rgba(255, 255, 255, 0.34);
 			}
 
 			.input-wrap:focus-within {
-				border-color: rgba(255, 255, 255, 0.5);
-				background: var(--dg-surface-focus);
+				background: rgba(255, 255, 255, 0.12);
+				border-color: var(--dg-accent-ring);
 			}
 
 			.input-wrap[data-suffix]::after {
 				content: attr(data-suffix);
 				font: inherit;
-				font-size: 1em;
-				line-height: 1.6em;
-				color: rgba(255, 255, 255, 0.4);
-				padding-right: 0.8em;
+				color: var(--dg-fg-faint);
 				pointer-events: none;
-				font-variation-settings: var(--dg-font-variation-rest);
-				letter-spacing: var(--dg-tracking);
-				margin-left: -0.1em;
 			}
 
 			.input-wrap input {
 				border: none;
 				background: transparent;
 				outline: none;
-				padding: 0.2em 0.4em 0.2em 0.8em;
-				width: 4em;
-				text-align: center;
-				color: var(--dg-fg);
+				padding: 0;
+				/* Sizes to what is typed, so a 2-digit quality and a 4-digit
+				   factor each get a control only as wide as they need. */
+				field-sizing: content;
+				min-width: 1.1em;
+				max-width: 4em;
+				text-align: right;
+				color: inherit;
 				font: inherit;
-				font-size: 1em;
-				line-height: 1.6em;
-				text-transform: uppercase;
-				letter-spacing: var(--dg-tracking);
-				font-variation-settings: var(--dg-font-variation-rest);
+				line-height: 1.15;
 				appearance: textfield;
 				-moz-appearance: textfield;
 				cursor: text;
@@ -102,20 +144,6 @@ export class DgSettingsPanel extends LitElement {
 		new StoreController(this);
 	}
 
-	firstUpdated() {
-		// The panel is centre-aligned and sized by its widest line, so picking
-		// a shorter option (1.33X -> 2X, or dropping the custom-factor input)
-		// shrank it and slid both edges inward. Pin the width it opens at as a
-		// floor. Measured after fonts settle — Science Gothic loads async and
-		// a fallback-metrics measurement would lock in the wrong number.
-		const lock = () => {
-			const w = this.getBoundingClientRect().width;
-			if (w > 0) this.style.minWidth = `${Math.ceil(w)}px`;
-		};
-		if (document.fonts?.ready) document.fonts.ready.then(lock);
-		else requestAnimationFrame(lock);
-	}
-
 	render() {
 		if (!store.config) return nothing;
 
@@ -134,9 +162,10 @@ export class DgSettingsPanel extends LitElement {
 				></dg-dropdown>
 				${store.factorPreset === "custom"
 					? html`
-							<span class="input-wrap glass" data-suffix="x">
+							<span class="input-wrap" data-suffix="x">
 								<input
 									type="text"
+									aria-label="Custom anamorphic factor"
 									.value=${store.customFactor}
 									@input=${this._filterDecimal}
 									@change=${(e) => this._onCustomFactorChange(e)}
@@ -154,7 +183,22 @@ export class DgSettingsPanel extends LitElement {
 				></dg-dropdown>
 				${this._formatOptions()}
 			</div>
+			<p class="hint ${this._lossy() ? "lossy" : ""}">${this._hint()}</p>
 		`;
+	}
+
+	/** Whether the current format resamples pixel data */
+	_lossy() {
+		if (store.format === "dng") return false;
+		return store.format === "jpg" || (store.format === "webp" && !store.formatOptions.webp?.lossless);
+	}
+
+	_hint() {
+		if (store.format === "dng")
+			return "DNG writes DefaultScale metadata. No pixels are resampled.";
+		return this._lossy()
+			? "Pixel data is resampled and re-compressed for this format."
+			: "Pixel data is resampled for this format.";
 	}
 
 	/** Strip anything but digits as it's typed */
@@ -188,9 +232,10 @@ export class DgSettingsPanel extends LitElement {
 	/** Integer input clamped to [min, max]; non-numeric entries revert. */
 	_numberInput(format, key, value, suffix, min, max) {
 		return html`
-			<span class="input-wrap glass" data-suffix=${suffix || nothing}>
+			<span class="input-wrap" data-suffix=${suffix || nothing}>
 				<input
 					type="text"
+					aria-label=${`${format} ${key}`}
 					.value=${String(value)}
 					@input=${this._filterDigits}
 					@change=${(e) => {
@@ -243,7 +288,6 @@ export class DgSettingsPanel extends LitElement {
 				return nothing;
 		}
 	}
-
 }
 
 customElements.define("dg-settings-panel", DgSettingsPanel);

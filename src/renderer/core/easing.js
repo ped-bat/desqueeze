@@ -42,6 +42,30 @@ export function stepSpring(s, cfg, dt) {
 }
 
 /**
+ * Advance a spring toward an arbitrary target. Mutates s.
+ *
+ * stepSpring above always pulls toward zero, which is all the grid needs.
+ * This tracks the offset from a moving target instead, so the target can
+ * change mid-flight and the velocity carries through it. That is the whole
+ * point: a fixed-duration transition interrupted halfway restarts its timing
+ * from wherever it happened to be, which is what makes flicking the pointer
+ * on and off a row stutter. A spring just bends.
+ *
+ * @param {{value: number, vel: number}} s
+ * @param {number} target
+ * @param {{stiffness: number, damping: number}} cfg
+ * @param {number} dt seconds
+ * @returns {boolean} true once settled on the target
+ */
+export function stepSpringTo(s, target, cfg, dt) {
+	const offset = { pos: s.value - target, vel: s.vel };
+	const settled = stepSpring(offset, cfg, dt);
+	s.vel = offset.vel;
+	s.value = settled ? target : target + offset.pos;
+	return settled;
+}
+
+/**
  * Sample a spotlight gradient at normalized distance t (0=center, 1=edge).
  * @param {number} t
  * @param {Array<[number, number]>} gradient [position%, opacity%] stops

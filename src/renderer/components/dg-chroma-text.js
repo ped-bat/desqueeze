@@ -27,22 +27,41 @@ export class DgChromaText extends LitElement {
 		.stack {
 			position: relative;
 			font-family: var(--dg-font);
+			/* The engine drives opacity every frame. Without a hidden resting
+			   state the element paints at full opacity for the frame between
+			   mounting and its first applyFrame — which is what made the hero
+			   flash when Clear dropped the list and remounted the stage
+			   mid-transition. */
+			opacity: 0;
+		}
+
+		/* Uppercase is display treatment, applied to the one short hero line.
+		   The subtitle below it is a sentence and stays in sentence case. */
+		:host([variant="title"]) .stack {
 			text-transform: uppercase;
 		}
 
+		/* No scaleX here any more. Scaling the rendered glyph stretched the
+		   vertical stems 50% heavier than the horizontal crossbars, which is
+		   what made the display line read as broken rather than wide. The
+		   width now comes from the font's own wdth axis, driven by the
+		   engine (see ENGINE_CONFIG.fontWidth), which widens the letterforms
+		   while holding stroke weight even. */
 		:host([variant="title"]) .stack {
-			transform: scaleX(1.5);
-			font-weight: 600;
+			font-weight: 480;
 			font-size: var(--dg-font-size-title);
 			letter-spacing: var(--dg-tracking-tight);
 		}
 
 		:host([variant="subtitle"]) .stack {
 			font-size: var(--dg-font-size-sub);
-			font-weight: 300;
-			letter-spacing: var(--dg-tracking);
-			white-space: nowrap;
+			font-weight: 320;
+			letter-spacing: 0;
 			text-align: center;
+			/* Was nowrap: a sentence long enough to say what is supported
+			   overflows the 720px minimum window. */
+			text-wrap: balance;
+			max-width: 32ch;
 		}
 
 		.layer {
@@ -56,6 +75,10 @@ export class DgChromaText extends LitElement {
 			position: absolute;
 			left: 0;
 			top: 0;
+			/* The R and B layers are taken out of flow, so they need the
+			   stack's width explicitly or they wrap at a different point
+			   than the G layer and the channels separate. */
+			width: 100%;
 		}
 
 		.layer-g {
@@ -105,18 +128,14 @@ export class DgChromaText extends LitElement {
 	 * @param {{opacity:number, wght:number, wdth:number, letterSpacing:number,
 	 *          chromaOffset:number, intensity?:number}} f
 	 */
-	/**
-	 * Start hidden. A mode swap mounts a fresh node that would otherwise
-	 * paint at full opacity for one frame before the engine's next frame
-	 * sets it — which reads as a flicker rather than a crossfade.
-	 */
-	hide() {
-		const stack = this.renderRoot?.querySelector(".stack");
-		if (stack) stack.style.opacity = "0";
-	}
-
 	applyFrame(f) {
-		if (!this.hasUpdated) return;
+		if (!this.hasUpdated) {
+			// Hold it rather than drop it: the very first frame after the
+			// element mounts is the one that decides whether it appears at
+			// the engine's opacity or flashes at the CSS default.
+			this._pending = f;
+			return;
+		}
 		const { stack, r, g, b } = this._els;
 
 		stack.style.opacity = f.opacity;
@@ -155,6 +174,14 @@ export class DgChromaText extends LitElement {
 		const off = f.chromaOffset;
 		r.style.transform = off > 0.1 ? `translateX(${off}px)` : "";
 		b.style.transform = off > 0.1 ? `translateX(${-off}px)` : "";
+	}
+
+	firstUpdated() {
+		if (this._pending) {
+			const f = this._pending;
+			this._pending = null;
+			this.applyFrame(f);
+		}
 	}
 
 	updated() {

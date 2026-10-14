@@ -1,33 +1,45 @@
-import { LitElement, html, css, nothing } from "lit";
+import { LitElement, html, css, nothing, unsafeCSS } from "lit";
 import { store, StoreController } from "../state/app-state.js";
 import { ipc } from "../services/ipc.js";
+import { ENGINE_CONFIG } from "../core/config.js";
 import "./dg-canvas.js";
 import "./dg-chroma-text.js";
 import "./dg-settings-panel.js";
 import "./dg-actions.js";
-import "./dg-letterbox.js";
-
-/** Title label per mode */
-const TITLES = {
-	ready: "Desqueeze.io",
-	settings: "Settings",
-	processing: "Processing",
-	error: "Error!",
-	success: "Success!",
-};
+import "./dg-top-bar.js";
+import "./dg-file-list.js";
+import "./dg-footer-bar.js";
 
 /**
- * <dg-app> — root component. Owns the store lifecycle, the drop zone,
- * and bridges the engine's frame/swap callbacks to the text components.
+ * The CRT tube, built from the same numbers the engine used to paint onto
+ * the canvas: a vignette from 40% of the half-diagonal out to the corners,
+ * plus a curvature shadow banding each edge.
+ */
+const CRT = ENGINE_CONFIG.crt;
+const crtEdge = (dir) =>
+	`linear-gradient(to ${dir}, rgba(0, 0, 0, ${CRT.curvature * 8}) 0%, rgba(0, 0, 0, 0) ${CRT.curvature * 400}%)`;
+const CRT_BACKGROUND = [
+	`radial-gradient(circle farthest-corner at 50% 50%, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, ${CRT.vignetteStrength}) 100%)`,
+	crtEdge("bottom"),
+	crtEdge("top"),
+	crtEdge("right"),
+	crtEdge("left"),
+].join(", ");
+
+/**
+ * <dg-app> — root component.
  *
- * `store.mode` drives the engine transition; `displayMode` (what text is
- * currently shown) lags behind and flips at the transition midpoint via
- * the engine's onSwap callback, matching the original crossfade.
+ * The window is a persistent working surface: a top bar carrying the
+ * wordmark and live settings, a body, and a footer action bar. The body is
+ * the ceremony while nothing is queued, and the file list from the moment
+ * something is. The dot grid keeps running full-bleed behind both, knocked
+ * back by a scrim over the body — in every state, so the bars sit over the
+ * same darker field on both screens and read identically.
  */
 export class DgApp extends LitElement {
 	static properties = {
 		displayMode: { type: String, state: true },
-		captionText: { type: String, state: true },
+		dragging: { type: Boolean, state: true },
 	};
 
 	static styles = css`
@@ -38,94 +50,174 @@ export class DgApp extends LitElement {
 			overflow: hidden;
 		}
 
-		/* The CRT scanlines are a screen-wide overlay: they have to fall across
-		   the buttons, letterbox bars and text, not just the dot grid. Living
-		   inside dg-canvas put them under every one of those layers. */
-		.scanlines {
+		.shell {
 			position: absolute;
 			inset: 0;
-			z-index: 100;
+			z-index: 6;
+			display: flex;
+			flex-direction: column;
+			min-height: 0;
+		}
+
+		/* ── The CRT ──────────────────────────────────────────────
+		   Three screen-wide layers. The scanlines and the flicker sit above
+		   everything — the shell, the drop wash, the settings popover — so
+		   the beam falls across the bars, the rows and the buttons, not just
+		   the dot grid. The vignette and edge curvature sit BELOW the shell:
+		   they darken the grid and the scrim towards the corners, but a
+		   button in a corner ("Desqueeze more") must stay as bright as one in
+		   the middle, so text and controls are never under them. */
+		.scanlines,
+		.crt,
+		.flicker {
+			position: absolute;
+			inset: 0;
 			pointer-events: none;
+		}
+
+		.scanlines {
+			z-index: 100;
 			background: repeating-linear-gradient(
 				to bottom,
 				transparent 0px,
-				transparent 1px,
-				rgba(0, 0, 0, 0.14) 1px,
-				rgba(0, 0, 0, 0.14) 2px
+				transparent 0.5px,
+				rgba(0, 0, 0, 0.14) 0.5px,
+				rgba(0, 0, 0, 0.14) 1.5px
 			);
 		}
 
-		.titlebar-drag {
-			-webkit-app-region: drag;
-			height: 48px;
-			position: absolute;
-			top: 0;
-			left: 0;
-			right: 0;
-			z-index: 50;
+		.crt {
+			z-index: 5;
+			background: ${unsafeCSS(CRT_BACKGROUND)};
 		}
 
-		.content {
-			position: absolute;
-			top: 50%;
-			left: 50%;
-			transition: top 0.3s ease;
-			transform: translate(-50%, -50%);
+		/* Tube flicker, driven per frame from the engine. */
+		.flicker {
+			z-index: 102;
+			opacity: 0;
+		}
+
+		.body {
+			/* Anchors the drop wash. */
+			position: relative;
+			flex: 1;
+			min-height: 0;
+			display: flex;
+			flex-direction: column;
+			/* Matches the bars' horizontal padding so the file rows line up
+			   with the wordmark above and the summary below. */
+			padding: 16px var(--dg-bar-pad);
+			/* The scrim is on in every state, not only behind filenames. The
+			   bars themselves render identically on both screens, but with the
+			   scrim only under the rows they read as lighter frosted strips on
+			   the list page and as dark bands on the empty one; the same
+			   darker field under both makes them read the same. The bars keep
+			   the full-strength grid behind them. */
+			background-color: var(--dg-body-scrim);
+		}
+
+		/* ── Empty state ───────────────────────────────────────
+		   No resting outline: the whole window is the drop target, and
+		   drawing a box around the hero only fenced it in. Drag feedback
+		   is the body wash below, the same cue the file list gets, so both
+		   states answer a drag the same way. */
+		.stage {
+			flex: 1;
+			min-height: 0;
 			display: flex;
 			flex-direction: column;
 			align-items: center;
-			pointer-events: none;
-			/* Above the letterbox bars — their backdrop blur must soften the
-			   dot grid, never the title, subtitle or buttons in front of it. */
-			z-index: 6;
+			justify-content: center;
+			gap: 1.1rem;
+			text-align: center;
+			padding: 2rem;
 		}
 
 		dg-chroma-text[variant="subtitle"] {
-			margin-top: 1.5rem;
-			z-index: 2;
+			margin-top: 0.2rem;
 		}
 
-		.actions-slot {
-			position: absolute;
-			top: 100%;
-			left: 0;
-			right: 0;
-			display: flex;
-			justify-content: center;
-			margin-top: 2.4em;
-			font-size: var(--dg-font-size-sub);
-			/* The offset differs per mode; without this the buttons jump to
-			   their new height while the rest of the screen is still fading. */
-			transition: margin-top 0.3s ease;
+		.stage dg-actions {
+			margin-top: 0.8rem;
 		}
 
-		.actions-slot.ready {
-			/* vh cap keeps the button clear of the bottom caption in short windows */
-			margin-top: min(4.4em, 10vh);
-		}
-
-		.actions-slot.in-flow {
-			position: relative;
-			top: auto;
-			margin-top: 2.4em;
-		}
-
-		/* Ready only: slightly above center so the actions keep clear of the
-		   bottom caption. Other modes stay dead-centered. */
-		.content.raised {
-			top: 46.5%;
-		}
-
-		/* Caption crossfade timed to the engine's content fades:
-		   fast fade-out (~first third of the 0.3s transition), text swap at
-		   the midpoint, slower fade-in through the rest. */
-		dg-letterbox[position="bottom"] {
-			transition: opacity 0.2s ease;
-		}
-
-		dg-letterbox[position="bottom"].caption-fade {
+		/* Resting hidden. _applyFrame writes an opacity to each of these every
+		   frame; without a hidden resting state a screen mounted at the
+		   transition midpoint paints at full opacity for the one frame before
+		   its first value lands, which is the flash the hero used to have. */
+		dg-file-list,
+		.stage dg-actions {
 			opacity: 0;
-			transition: opacity 0.12s ease;
+		}
+
+		/* Drop feedback in every state: a wash over the body, the same rounded
+		   field the hero sits in, so a drag lights up the place the files
+		   will land and nothing else. There used to be a ring on the window
+		   edge as well, which drew a frame around the whole app; the frame
+		   went, the wash stayed. Positioned inside .body at the body's own
+		   padding, so it tracks the bars whatever their height. Kept mounted
+		   and faded by attribute, so it eases out as well as in. */
+		.dropwash {
+			position: absolute;
+			inset: 16px var(--dg-bar-pad);
+			z-index: 20;
+			border-radius: 10px;
+			pointer-events: none;
+			background: var(--dg-drop-wash);
+			opacity: 0;
+			transition: opacity 0.18s ease;
+		}
+
+		:host([dragging]) .dropwash {
+			opacity: 1;
+		}
+
+		/* ── Settings popover ────────────────────────────────────
+		   The wrapper only positions. The fade and the scale live on the
+		   panel itself. (That split was originally forced by the panel's
+		   backdrop blur — an ancestor with opacity below 1 forms a backdrop
+		   root — and stays now the blur is gone because it costs nothing.)
+		   Kept mounted and toggled by class, so there is something to
+		   animate out from. */
+		.popover {
+			position: absolute;
+			top: calc(var(--dg-bar-h) + 6px);
+			right: var(--dg-bar-pad);
+			z-index: 40;
+		}
+
+		.popover dg-settings-panel {
+			display: block;
+			transform-origin: top right;
+			opacity: 0;
+			visibility: hidden;
+			transform: translateY(-6px) scale(0.97);
+			pointer-events: none;
+			transition:
+				opacity 0.14s ease,
+				transform 0.14s ease,
+				visibility 0s linear 0.14s;
+		}
+
+		.popover.open dg-settings-panel {
+			opacity: 1;
+			visibility: visible;
+			transform: translateY(0) scale(1);
+			pointer-events: auto;
+			transition:
+				opacity 0.16s ease,
+				transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+				visibility 0s;
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			.popover dg-settings-panel,
+			.popover.open dg-settings-panel {
+				transform: none;
+				transition:
+					opacity 0.01s linear,
+					visibility 0s;
+			}
 		}
 	`;
 
@@ -133,200 +225,197 @@ export class DgApp extends LitElement {
 		super();
 		new StoreController(this);
 		this.displayMode = "ready";
-		this.captionText = "Images processed in this machine, nothing is uploaded";
+		this.dragging = false;
+		this._dragDepth = 0;
 		this._prevent = this._prevent.bind(this);
 		this._onDropBound = (e) => this._onDrop(e);
+		this._onDragEnter = (e) => {
+			this._prevent(e);
+			this._dragDepth++;
+			if (store.mode !== "processing") this.dragging = true;
+		};
+		this._onDragLeave = (e) => {
+			this._prevent(e);
+			this._dragDepth = Math.max(0, this._dragDepth - 1);
+			if (this._dragDepth === 0) this.dragging = false;
+		};
+		this._onDocClick = () => {
+			if (store.settingsOpen) store.toggleSettings(false);
+		};
+		this._onKey = (e) => {
+			if (e.key === "Escape" && store.settingsOpen) store.toggleSettings(false);
+		};
 	}
 
 	connectedCallback() {
 		super.connectedCallback();
 		store.init();
 		// Drop zone covers the whole window, overlays included
-		this.addEventListener("dragenter", this._prevent);
+		this.addEventListener("dragenter", this._onDragEnter);
 		this.addEventListener("dragover", this._prevent);
+		this.addEventListener("dragleave", this._onDragLeave);
 		this.addEventListener("drop", this._onDropBound);
+		document.addEventListener("click", this._onDocClick);
+		document.addEventListener("keydown", this._onKey);
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
-		this.removeEventListener("dragenter", this._prevent);
+		this.removeEventListener("dragenter", this._onDragEnter);
 		this.removeEventListener("dragover", this._prevent);
+		this.removeEventListener("dragleave", this._onDragLeave);
 		this.removeEventListener("drop", this._onDropBound);
-		clearTimeout(this._captionTimer);
+		document.removeEventListener("click", this._onDocClick);
+		document.removeEventListener("keydown", this._onKey);
+	}
+
+	updated(changed) {
+		if (changed.has("dragging")) this.toggleAttribute("dragging", this.dragging);
 	}
 
 	render() {
+		// Keyed off displayMode, not store.mode: displayMode flips at the
+		// engine's transition midpoint, so a screen is swapped while it is
+		// faded out instead of being replaced between two visible frames.
+		// dg-canvas below still takes the live store.mode — the engine has to
+		// start the transition that displayMode is waiting on.
+		const showList = this.displayMode !== "ready" && store.files.length > 0;
+
 		return html`
 			<dg-canvas
 				.mode=${store.mode}
 				.onFrame=${(f) => this._applyFrame(f)}
-				.onSwap=${(m) => (this.displayMode = m)}
+				.onSwap=${(m) => this._swap(m)}
 			></dg-canvas>
 
 			<div class="scanlines"></div>
+			<div class="crt"></div>
+			<div class="flicker" id="flicker"></div>
 
-			<div class="titlebar-drag"></div>
+			<div class="shell">
+				<dg-top-bar
+					.open=${store.settingsOpen}
+					@toggle-settings=${() => store.toggleSettings()}
+				></dg-top-bar>
 
-			<dg-letterbox position="top"></dg-letterbox>
+				<div class="body">
+					${showList
+						? html`<dg-file-list
+								id="filelist"
+								@reveal=${(e) => store.revealFile(e.detail.path)}
+								@remove=${(e) => store.removeFile(e.detail.path)}
+							></dg-file-list>`
+						: this._stage()}
+					<div class="dropwash"></div>
+				</div>
 
-			<dg-letterbox position="bottom">
-				<span>${this.captionText}</span>
-			</dg-letterbox>
-
-			<div class="content ${this.displayMode === "ready" ? "raised" : ""}">
-				<dg-chroma-text
-					id="title"
-					variant="title"
-					.text=${TITLES[this.displayMode]}
-				></dg-chroma-text>
-
-				${this.displayMode === "settings"
-					? html`<dg-settings-panel id="settings"></dg-settings-panel>`
-					: html`
-							<dg-chroma-text
-								id="subtitle"
-								variant="subtitle"
-								.text=${this._subtitle()}
-							></dg-chroma-text>
-						`}
-
-				<div class="actions-slot ${this.displayMode === "settings" ? "in-flow" : this.displayMode}">
-					<dg-actions
-						id="actions"
+				<dg-footer-bar id="footer" .mode=${this.displayMode}>
+					${showList
+						? html`<dg-actions
+						slot="actions"
 						.mode=${this.displayMode}
-						.pendingCount=${store.pendingFiles.length}
+						.pendingCount=${store.actionable.length}
+						.failedCount=${store.failedFiles.length}
+						.successCount=${store.result?.successCount ?? 0}
 						.cancelling=${store.cancelRequested}
 						@browse=${this._onBrowse}
 						@start=${() => store.processPending()}
-						@back=${() => store.cancelPending()}
+						@clear=${() => store.clearFiles()}
 						@cancel=${() => store.cancelProcessing()}
-						@retry=${() => store.setMode("ready")}
+						@retry-failed=${() => store.retryFailed()}
+						@save-log=${() => store.saveErrorLog()}
 						@show-result=${() => store.revealResult()}
-						@desqueeze-more=${() => store.setMode("ready")}
-					></dg-actions>
-				</div>
+						@desqueeze-more=${() => store.clearFiles()}
+					></dg-actions>`
+						: nothing}
+				</dg-footer-bar>
+			</div>
+
+			<div
+				class="popover ${store.settingsOpen ? "open" : ""}"
+				?inert=${!store.settingsOpen}
+				@click=${(e) => e.stopPropagation()}
+			>
+				<dg-settings-panel></dg-settings-panel>
 			</div>
 		`;
 	}
 
-	// ── Subtitle content per display mode ──
-
-	_subtitle() {
-		const plural = (n) => (n === 1 ? "image" : "images");
-		switch (this.displayMode) {
-			case "ready":
-				return "Lossless anamorphic image processor";
-			case "processing": {
-				const { done, total } = store.progress;
-				return `${done} out of ${total} ${plural(total)}`;
-			}
-			case "error": {
-				const r = store.result;
-				if (!r) return "Something went wrong";
-				const ok = r.successCount > 0 ? ` (${r.successCount} succeeded)` : "";
-				const msg = r.firstError ? ` — ${r.firstError}` : "";
-				return `${r.failedCount} ${plural(r.failedCount)} failed${ok}${msg}`;
-			}
-			case "success": {
-				const r = store.result;
-				if (!r) return "";
-				if (r.successCount === 0 && r.cancelledCount > 0)
-					return `Cancelled — ${r.cancelledCount} ${plural(r.cancelledCount)} not processed`;
-				if (r.successCount === 0)
-					return `${r.skippedCount} ${plural(r.skippedCount)} already desqueezed`;
-				const skipped = r.skippedCount > 0 ? `, ${r.skippedCount} already desqueezed` : "";
-				const cancelled = r.cancelledCount > 0 ? `, ${r.cancelledCount} cancelled` : "";
-				return `${r.successCount} ${plural(r.successCount)} desqueezed to ${r.factor}x${skipped}${cancelled}`;
-			}
-			default:
-				return "";
-		}
-	}
-
-	// ── Bottom caption ──
-	// captionText lags the computed target by a fade-out so any change —
-	// mode switch or a settings-hint change — crossfades instead of
-	// hard-swapping (see updated()).
-
-	_captionFor(mode) {
-		switch (mode) {
-			case "settings":
-				return this._hint();
-			case "processing":
-				// Show the file currently being converted so big batches
-				// (or one huge RAW) don't look frozen
-				return store.currentFile;
-			case "error": {
-				const failures = store.result?.failures || [];
-				if (failures.length === 0) return "";
-				const names = failures.slice(0, 3).map((f) => f.name).join(", ");
-				const more = failures.length > 3 ? ` and ${failures.length - 3} more` : "";
-				return `Failed: ${names}${more}`;
-			}
-			case "success": {
-				const r = store.result;
-				return r && r.successCount > 0 ? `Processed in ${this._formatTime(r.elapsed)}` : "";
-			}
-			default:
-				return "Images processed in this machine, nothing is uploaded";
-		}
-	}
-
-	updated(changed) {
-		// A mode swap tears down the subtitle or the settings panel and mounts
-		// the other one. The new node paints at full opacity for a frame before
-		// the engine's next frame drives it, so hide it now and let the engine
-		// fade it in with everything else.
-		if (changed?.has("displayMode")) {
-			const settings = this.renderRoot.getElementById("settings");
-			if (settings) settings.style.opacity = "0";
-			this.renderRoot.getElementById("subtitle")?.hide();
-		}
-
-		// Keyed off store.mode (not displayMode) so the fade-out starts the
-		// moment a transition begins, in sync with the engine's content fades.
-		const target = this._captionFor(store.mode);
-		if (target === this.captionText) return;
-		const box = this.renderRoot.querySelector('dg-letterbox[position="bottom"]');
-		box?.classList.add("caption-fade");
-		clearTimeout(this._captionTimer);
-		this._captionTimer = setTimeout(() => {
-			// Recompute — the target may have changed again mid-fade
-			this.captionText = this._captionFor(store.mode);
-			box?.classList.remove("caption-fade");
-		}, 120);
-	}
-
-	_hint() {
-		if (store.format === "dng") return "These settings are lossless";
-		const lossy = store.format === "jpg" || (store.format === "webp" && !store.formatOptions.webp.lossless);
-		return lossy
-			? "Pixel data is resampled — these settings are lossy"
-			: "Pixel data is resampled for this format";
-	}
-
-	_formatTime(seconds) {
-		if (seconds < 1) return `${(seconds * 1000).toFixed(0)}ms`;
-		if (seconds < 60) return `${seconds.toFixed(2)}s`;
-		return `${Math.floor(seconds / 60)}m ${(seconds % 60).toFixed(0)}s`;
+	/** The empty state: the ceremony, with the drop target made visible. */
+	_stage() {
+		return html`
+			<div class="stage">
+				<dg-chroma-text id="title" variant="title" text="Drop images here"></dg-chroma-text>
+				<dg-chroma-text
+					id="subtitle"
+					variant="subtitle"
+					text="RAW, JPG, PNG, TIFF or WebP - folders work too"
+				></dg-chroma-text>
+				<dg-actions
+					id="actions"
+					mode="ready"
+					@browse=${this._onBrowse}
+				></dg-actions>
+			</div>
+		`;
 	}
 
 	// ── Engine frame bridge ──
 
+	/** displayMode flips at the transition midpoint; remember where it came from. */
+	_swap(mode) {
+		this._lastMode = this.displayMode;
+		this.displayMode = mode;
+	}
+
+	/**
+	 * Is the running transition one that mounts or unmounts the list — i.e.
+	 * does it start or end on the empty stage? Before the midpoint the origin
+	 * is still displayMode; after it, the mode we just left.
+	 */
+	_listSwapping() {
+		const to = store.mode;
+		const from = this.displayMode === to ? this._lastMode : this.displayMode;
+		return to === "ready" || from === "ready";
+	}
+
+	/**
+	 * Only the display text takes per-frame typography from the engine.
+	 * The chrome does not: the engine emits stretch values for weight,
+	 * width, tracking and scaleX, and applying those to buttons pulled
+	 * their labels apart mid-transition. Opacity is the one value the
+	 * action row still takes, so it fades with the rest of the content.
+	 */
 	_applyFrame(f) {
 		const $ = (id) => this.renderRoot.getElementById(id);
 		$("title")?.applyFrame(f.title);
 		$("subtitle")?.applyFrame(f.subtitle);
 
+		// One crossfade envelope for everything that swaps on a mode change:
+		// the hero's own layers take theirs above, and the list and the
+		// footer's contents ride the same curve, so one screen fades out and
+		// the next fades in instead of toggling between frames.
+		const o = f.actions.opacity;
 		const actions = $("actions");
-		if (actions) {
-			actions.style.opacity = f.actions.opacity;
-			actions.style.fontVariationSettings = `'wght' ${f.actions.wght}, 'wdth' ${f.actions.wdth}`;
-			actions.style.letterSpacing = `${f.actions.letterSpacing}px`;
-			actions.style.transform = `scaleX(${f.actions.scaleX})`;
+		if (actions) actions.style.opacity = o;
+
+		// The list rides the envelope only when it is the thing being
+		// swapped — arriving from the empty stage or leaving for it. Between
+		// its own states (queued, converting, done) it persists, and fading it
+		// out and back in on every mode change read as the whole screen
+		// blinking. The rows hold still; the footer's summary and buttons are
+		// what changes, and they crossfade.
+		const list = $("filelist");
+		if (list && this._listSwapping()) list.style.opacity = o;
+
+		$("footer")?.style.setProperty("--dg-content-opacity", o);
+
+		const flicker = $("flicker");
+		if (flicker) {
+			const amount = f.crt?.flicker || 0;
+			flicker.style.opacity = Math.abs(amount);
+			flicker.style.background = amount > 0 ? "#ffffff" : "#000000";
 		}
-		const settings = $("settings");
-		if (settings) settings.style.opacity = f.subtitle.opacity;
 	}
 
 	// ── File intake ──
@@ -344,6 +433,8 @@ export class DgApp extends LitElement {
 
 	async _onDrop(e) {
 		this._prevent(e);
+		this._dragDepth = 0;
+		this.dragging = false;
 		if (store.mode === "processing") return;
 
 		const paths = Array.from(e.dataTransfer.files)
@@ -358,7 +449,6 @@ export class DgApp extends LitElement {
 		}
 		store.queueFiles(expanded);
 	}
-
 }
 
 customElements.define("dg-app", DgApp);
