@@ -24,8 +24,18 @@ jobs:
           cache: npm
           cache-dependency-path: landing/package-lock.json
 
-      - run: npm ci
-      - run: npm run build
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build site
+        run: npm run build
+
+      # Never sync a missing or partial build: the FTP action mirrors
+      # local-dir onto the server, so an empty dist/ would wipe the live site
+      - name: Check build output
+        run: |
+          test -f dist/index.html || { echo "::error::dist/index.html missing - build failed"; exit 1; }
+          ls -R dist
 
       - name: Sync files over FTPS
         uses: SamKirkland/FTP-Deploy-Action@v4.4.0
