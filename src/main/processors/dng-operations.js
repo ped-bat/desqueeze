@@ -20,6 +20,8 @@ import {
 	isPlaceholderNeutral,
 	gainsFromWbTags,
 	neutralFromGains,
+	residualFromSonyTags,
+	splitPreBalanced,
 	formatTriplet,
 } from "../analyzers/white-balance.js";
 
@@ -121,7 +123,10 @@ class DngOperations {
 	 *    is true, and the gains the camera applied belong in AnalogBalance,
 	 *    which the editor folds into its colour transform. Writing the
 	 *    camera-space neutral instead applies the gains a second time and
-	 *    the image goes magenta — measured, not guessed.
+	 *    the image goes magenta — measured, not guessed. When Sony's tag
+	 *    0x7039 says the data was balanced with other gains than the as-shot
+	 *    ones, that difference moves from AnalogBalance into AsShotNeutral,
+	 *    exactly as Adobe DNG Converter writes it.
 	 *
 	 *  - Bayer (CFA) data is in camera space, so "1 1 1" is a placeholder and
 	 *    AsShotNeutral gets the camera-space neutral.
@@ -163,9 +168,12 @@ class DngOperations {
 				log.warn(`Linear raw data from ${make || "an unknown make"} with no white balance; not guessing whether it is pre-balanced.`);
 				return "kept";
 			}
-			const value = formatTriplet(gains);
-			log.info(`Pre-balanced linear raw: declaring the camera's gains as AnalogBalance ${value}`);
-			await this._exiftool.write(dngPath, { AsShotNeutral: "1 1 1", AnalogBalance: value }, ["-overwrite_original"]);
+			// Exif_0x7039 is unknown to exiftool, so it only comes back with -u.
+			const sony = await this._exiftool.read(sourcePath, ["-n", "-u", "-Exif_0x7039"]);
+			const { analogBalance, neutral } = splitPreBalanced(gains, residualFromSonyTags(sony));
+			const tags = { AsShotNeutral: formatTriplet(neutral), AnalogBalance: formatTriplet(analogBalance) };
+			log.info(`Pre-balanced linear raw: AnalogBalance ${tags.AnalogBalance}, AsShotNeutral ${tags.AsShotNeutral}`);
+			await this._exiftool.write(dngPath, tags, ["-overwrite_original"]);
 			return "analog-balance";
 		}
 

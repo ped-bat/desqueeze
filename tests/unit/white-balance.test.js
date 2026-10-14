@@ -5,6 +5,8 @@ import {
 	gainsFromWbTags,
 	neutralFromGains,
 	neutralFromWbTags,
+	residualFromSonyTags,
+	splitPreBalanced,
 	formatTriplet,
 } from "../../src/main/analyzers/white-balance.js";
 
@@ -82,6 +84,30 @@ describe("gainsFromWbTags", () => {
 		expect(gainsFromWbTags({ WB_RGGBLevels: "0 1024 1024 1584" })).toBeNull();
 		expect(gainsFromWbTags({ WB_RGGBLevels: "1 1024 1024 1584" })).toBeNull(); // 1/1024 gain
 		expect(gainsFromWbTags({ WB_RGGBLevels: "abc" })).toBeNull();
+	});
+});
+
+describe("residualFromSonyTags / splitPreBalanced", () => {
+	it("reads tag 0x7039 normalised to green", () => {
+		expect(residualFromSonyTags({ Exif_0x7039: "1.292974589 1 0.7361614071" })).toEqual([1.292974589, 1, 0.7361614071]);
+		expect(residualFromSonyTags({ Exif_0x7039: "2 2 1" })).toEqual([1, 1, 0.5]);
+	});
+	it("is the identity when the tag is absent, malformed or implausible", () => {
+		expect(residualFromSonyTags({})).toEqual([1, 1, 1]);
+		expect(residualFromSonyTags(undefined)).toEqual([1, 1, 1]);
+		expect(residualFromSonyTags({ Exif_0x7039: "1 0 1" })).toEqual([1, 1, 1]);
+		expect(residualFromSonyTags({ Exif_0x7039: "100 1 1" })).toEqual([1, 1, 1]);
+	});
+	it("leaves the gains whole when nothing was held back", () => {
+		expect(splitPreBalanced([2.5, 1, 1.5], [1, 1, 1])).toEqual({ analogBalance: [2.5, 1, 1.5], neutral: [1, 1, 1] });
+	});
+	it("matches Adobe DNG Converter on a mildly held-back frame (_DSC1829)", () => {
+		const gains = gainsFromWbTags({ WB_RGGBLevels: "1951 1024 1024 2228" });
+		const { analogBalance, neutral } = splitPreBalanced(gains, residualFromSonyTags({ Exif_0x7039: "1.003600823 1 0.9959767546" }));
+		expect(formatTriplet(analogBalance)).toBe("1.898438 1 2.18457");
+		// Adobe: 0.992403 0.995977 1 — same direction, scaled to max 1
+		expect(neutral[0] / neutral[2]).toBeCloseTo(0.992403, 5);
+		expect(neutral[1] / neutral[2]).toBeCloseTo(0.995977, 5);
 	});
 });
 

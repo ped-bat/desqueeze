@@ -114,6 +114,46 @@ export function neutralFromGains(gains) {
 	return [1 / gains[0], 1, 1 / gains[2]];
 }
 
+/**
+ * The part of the as-shot white balance Sony did NOT bake into its
+ * pre-balanced linear data, from the undocumented tag 0x7039 in the ARW's
+ * raw IFD ("r 1 b", exiftool -u calls it Exif_0x7039).
+ *
+ * Usually "1 1 1": the stored data was balanced with exactly the as-shot
+ * gains. But the camera can store data balanced with other gains and record
+ * the difference here — measured on an ILCE-7CM2 batch where every frame read
+ * ≈ "1.29 1 0.74". Adobe DNG Converter divides it out of the gains for
+ * AnalogBalance and writes its inverse as AsShotNeutral (matched to six
+ * digits on four files); ignoring it leaves the picture ~29% too red and
+ * ~26% too blue-starved at any temperature and tint.
+ *
+ * @param {Record<string, unknown>} tags - exiftool's -u read of the source
+ * @returns {[number, number, number]} [1, 1, 1] when absent or unreadable
+ */
+export function residualFromSonyTags(tags) {
+	const n = parseNumbers(tags?.Exif_0x7039);
+	if (n.length < 3 || !(n[1] > 0)) return [1, 1, 1];
+	const residual = [n[0] / n[1], 1, n[2] / n[1]];
+	// Same sanity window as the gains: outside it the tag means something else.
+	if (!residual.every((v) => v >= 0.05 && v <= 20)) return [1, 1, 1];
+	return residual;
+}
+
+/**
+ * Split the camera's as-shot gains over pre-balanced data: what the stored
+ * values already carry (AnalogBalance) and what still remains (the neutral).
+ * The two multiply back to the as-shot gains, so As Shot temperature and
+ * tint are the same either way; only the split changes the colours.
+ * @param {[number, number, number]} gains - from gainsFromWbTags
+ * @param {[number, number, number]} residual - from residualFromSonyTags
+ */
+export function splitPreBalanced(gains, residual) {
+	return {
+		analogBalance: [gains[0] / residual[0], 1, gains[2] / residual[2]],
+		neutral: [1 / residual[0], 1, 1 / residual[2]],
+	};
+}
+
 /** Convenience: AsShotNeutral straight from the source's tags, or null */
 export function neutralFromWbTags(tags) {
 	const gains = gainsFromWbTags(tags);

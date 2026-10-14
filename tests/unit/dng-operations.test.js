@@ -43,6 +43,26 @@ describe("DngOperations.repairWhiteBalance", () => {
 		expect(args).toContain("-overwrite_original");
 	});
 
+	it("moves Sony's unapplied balance (tag 0x7039) into AsShotNeutral, as Adobe DNG Converter does", async () => {
+		// _DSC9092: an anamorphic ILCE-7CM2 frame. Adobe 18.7 writes
+		// AnalogBalance 1.306641 1 3.775391, AsShotNeutral 0.569355 0.736161 1.
+		const source = {
+			...SONY_ARW,
+			WB_RGGBLevels: "1730 1024 1024 2846",
+			Exif_0x7039: "1.292974589 1 0.7361614071",
+		};
+		const exif = fakeExif({ [DNG]: dngTags("1 1 1", LINEAR_RAW), [SOURCE]: source });
+		const ops = new DngOperations({ exifToolService: exif, commandRunner: {} });
+
+		await expect(ops.repairWhiteBalance(SOURCE, DNG)).resolves.toBe("analog-balance");
+
+		const [, tags] = exif.write.mock.calls[0];
+		expect(tags).toEqual({ AsShotNeutral: "0.77341 1 1.358398", AnalogBalance: "1.306641 1 3.775391" });
+		// Adobe's neutral is the same direction, scaled to max 1
+		const [r, , b] = tags.AsShotNeutral.split(" ").map(Number);
+		expect(r / b).toBeCloseTo(0.569355 / 1, 4);
+	});
+
 	it("writes the camera-space neutral on Bayer data, where 1 1 1 is a placeholder", async () => {
 		const exif = fakeExif({ [DNG]: dngTags("1 1 1", CFA), [SOURCE]: SONY_ARW });
 		const ops = new DngOperations({ exifToolService: exif, commandRunner: {} });
