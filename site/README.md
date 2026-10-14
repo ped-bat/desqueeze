@@ -58,9 +58,10 @@ borrows from the renderer rather than approximating it:
   the first 600px of scroll (`initGridFocus` in `js/site.js`). It is also
   knocked back (lower base and ceiling opacity, softer glow, a darker
   canvas ground) so it stays a backdrop behind a page of text.
-- **Before and after** (`.compare`, in the hero) is one photo rendered
-  twice from the same ARW decode, as shot and stretched 1.33x
-  (`assets/photo/`), split along a diagonal from the bottom-left to the
+- **Before and after** (`.compare`, in the hero) is one 1.5x anamorphic
+  photo in two versions, desqueezed and squeezed back to ⅔ width as shot
+  (`assets/photo/`, 2160×944 and 1440×944 for 2x screens, with 1x
+  variants in `srcset`), split along a diagonal from the bottom-left to the
   top-right: as shot above and left of it, desqueezed below and right.
   On entry the split eases to the pointer on a spring, then tracks it
   directly, and stays where it was left. The squeezed frame is narrower,

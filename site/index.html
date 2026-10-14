@@ -209,27 +209,56 @@
 						id="compare-view"
 						tabindex="0"
 						role="group"
-						aria-label="Before and after. The RAW as shot in the top-left, the same RAW desqueezed at 1.33x in the bottom-right, split along a diagonal. Move the pointer across the photo, or use the arrow keys, to change where the two meet."
+						aria-label="Before and after. The RAW as shot in the top-left, the same RAW desqueezed at 1.5x in the bottom-right, split along a diagonal. Move the pointer across the photo, or use the arrow keys, to change where the two meet."
 					>
 						<picture class="compare-after">
-							<source type="image/webp" srcset="assets/photo/arcade-dng.webp" />
+							<source
+								type="image/webp"
+								srcset="
+									assets/photo/anamorphic-photo-1.5x-desqueezed-street-silhouettes-1080w.webp 1080w,
+									assets/photo/anamorphic-photo-1.5x-desqueezed-street-silhouettes.webp       2160w
+								"
+								sizes="(max-width: 1080px) 100vw, 1080px"
+							/>
 							<img
-								src="assets/photo/arcade-dng.jpg"
-								width="1796"
-								height="900"
-								alt="A covered shopping arcade shot through an anamorphic lens, desqueezed to its true proportions"
+								src="assets/photo/anamorphic-photo-1.5x-desqueezed-street-silhouettes.jpg"
+								srcset="
+									assets/photo/anamorphic-photo-1.5x-desqueezed-street-silhouettes-1080w.jpg 1080w,
+									assets/photo/anamorphic-photo-1.5x-desqueezed-street-silhouettes.jpg       2160w
+								"
+								sizes="(max-width: 1080px) 100vw, 1080px"
+								width="2160"
+								height="944"
+								alt="Silhouetted people walking past a glowing teal glass wall at night, shot through a 1.5x anamorphic lens and desqueezed to its true widescreen proportions"
 							/>
 						</picture>
 						<div class="compare-before">
 							<picture>
-								<source type="image/webp" srcset="assets/photo/arcade-arw.webp" />
-								<img src="assets/photo/arcade-arw.jpg" width="1350" height="900" alt="" />
+								<source
+									type="image/webp"
+									srcset="
+										assets/photo/anamorphic-photo-1.5x-squeezed-street-silhouettes-720w.webp   720w,
+										assets/photo/anamorphic-photo-1.5x-squeezed-street-silhouettes.webp       1440w
+									"
+									sizes="(max-width: 1080px) 67vw, 720px"
+								/>
+								<img
+									src="assets/photo/anamorphic-photo-1.5x-squeezed-street-silhouettes.jpg"
+									srcset="
+										assets/photo/anamorphic-photo-1.5x-squeezed-street-silhouettes-720w.jpg   720w,
+										assets/photo/anamorphic-photo-1.5x-squeezed-street-silhouettes.jpg       1440w
+									"
+									sizes="(max-width: 1080px) 67vw, 720px"
+									width="1440"
+									height="944"
+									alt=""
+								/>
 							</picture>
 						</div>
 						<div class="compare-line" aria-hidden="true"></div>
 						<span class="compare-handle" aria-hidden="true"></span>
 						<span class="compare-tag top" aria-hidden="true"><code>arw</code> Raw as shot</span>
-						<span class="compare-tag bottom" aria-hidden="true"><code>dng</code> Raw desqueezed at 1.33x</span>
+						<span class="compare-tag bottom" aria-hidden="true"><code>dng</code> Raw desqueezed at 1.5x</span>
 					</div>
 				</div>
 			</section>

@@ -593,7 +593,6 @@ section > * {
 .compare {
 	--split: 50%;
 	position: relative;
-	aspect-ratio: 1796 / 900;
 	border-radius: var(--site-r-lg);
 	overflow: hidden;
 	border: 1px solid var(--dg-chrome-border);
@@ -617,15 +616,15 @@ section > * {
 	display: block;
 }
 
+/* The desqueezed frame sets the box's height from its own proportions,
+   so the full photo always shows, never cropped to a fixed ratio */
 .compare-after {
-	position: absolute;
-	inset: 0;
+	display: block;
 }
 
 .compare-after img {
 	width: 100%;
-	height: 100%;
-	object-fit: cover;
+	height: auto;
 }
 
 /* The squeezed frame is narrower: same height, centred, dark either side.
