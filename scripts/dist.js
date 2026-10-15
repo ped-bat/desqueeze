@@ -251,8 +251,6 @@ async function main() {
 			}
 		} else if (platform === "darwin") {
 			execSync(`open "${notesPath}"`, { stdio: "ignore" });
-		} else if (platform === "linux") {
-			execSync(`xdg-open "${notesPath}"`, { stdio: "ignore" });
 		} else if (platform === "win32") {
 			execSync(`start "" "${notesPath}"`, { stdio: "ignore" });
 		}

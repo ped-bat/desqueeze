@@ -1,7 +1,7 @@
 # Desqueeze
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey)]()
+[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows-lightgrey)]()
 
 **Desktop app for desqueezing anamorphic photos and RAW files.**
 
@@ -34,7 +34,7 @@ Common anamorphic squeeze factors:
 - **Bitmap support** — converts JPG, PNG, TIFF, WebP to DNG with proper color profiles
 - **Batch processing** — drag-and-drop entire folders, process multiple files in parallel
 - **Color-accurate** — dual-illuminant DNG profiles for proper D65↔D50 chromatic adaptation
-- **Cross-platform** — macOS, Windows, and Linux, each with its own bundled binaries
+- **Cross-platform** — macOS and Windows, each with its own bundled binaries
 
 <!-- BEGIN:RAW_FORMATS -->
 ### Supported RAW Formats
@@ -60,15 +60,14 @@ Common anamorphic squeeze factors:
 |---|---|
 | macOS (Apple Silicon) | [Desqueeze-macOS-arm64.dmg](https://github.com/ped-bat/desqueeze/releases/latest/download/Desqueeze-macOS-arm64.dmg) |
 | Windows (x64) | [Desqueeze-Windows-x64.exe](https://github.com/ped-bat/desqueeze/releases/latest/download/Desqueeze-Windows-x64.exe) |
-| Linux (x86_64) | [Desqueeze-Linux-x86_64.AppImage](https://github.com/ped-bat/desqueeze/releases/latest/download/Desqueeze-Linux-x86_64.AppImage) |
 
 Or browse [all releases](https://github.com/ped-bat/desqueeze/releases/latest).
 
 ## Using the App
 
-Open the DMG and drag Desqueeze to Applications (macOS), run the installer
-(Windows), or `chmod +x` the AppImage and run it (Linux). DNGLab,
-`dcraw_emu`, and ExifTool are bundled — nothing else to install.
+Open the DMG and drag Desqueeze to Applications (macOS), or run the
+installer (Windows). DNGLab, `dcraw_emu`, and ExifTool are bundled —
+nothing else to install.
 
 1. **Drop files** — Drag and drop image files or folders anywhere in the window (or browse)
 2. **Pick your settings** — Choose the squeeze factor preset (1.33×, 1.5×, 2×, or custom) and the output format (DNG, JPEG, PNG, TIFF, WebP)
@@ -91,8 +90,7 @@ Requires **Node.js ≥ 18**.
 ```bash
 npm install
 npm run setup   # downloads dnglab from its official release and bundles
-                # dcraw_emu (brew install libraw on macOS; on Linux run
-                # scripts/build-libraw-linux.sh first)
+                # dcraw_emu (brew install libraw on macOS first)
 npm run dev
 ```
 
@@ -116,7 +114,6 @@ built on its own platform, since the bundled binaries are platform-specific
 |---|---|
 | macOS | `.dmg` (signed + notarized when credentials are configured) |
 | Windows | `.exe` (NSIS installer) |
-| Linux | `.AppImage` |
 
 ### Code signing & notarization (macOS)
 
@@ -139,15 +136,6 @@ Verify a finished build with:
 
 ```bash
 spctl -a -vv "dist/mac-arm64/Desqueeze.app"   # expect: accepted / Notarized Developer ID
-```
-
-### Linux build note
-
-Ubuntu's `libraw-bin` package is too old for recent cameras, so build
-LibRaw from source before `npm run setup`:
-
-```bash
-bash scripts/build-libraw-linux.sh
 ```
 
 ---
@@ -220,7 +208,7 @@ animated dot-grid engine.
 | `npm run setup` | Update bundled binaries + camera support list |
 | `npm run dist` | Full release flow: binaries, version bump, notes, build |
 
-Testing the Windows and Linux builds from a Mac is covered in
+Testing the Windows build from a Mac is covered in
 [docs/vm-testing.md](docs/vm-testing.md).
 
 

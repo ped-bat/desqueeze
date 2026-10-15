@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+        os: [macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -32,13 +32,6 @@ jobs:
       - name: Install LibRaw (macOS)
         if: runner.os == 'macOS'
         run: brew install libraw
-
-      # Ubuntu's libraw-bin is 0.21.x and rejects newer camera raws (e.g.
-      # Sony "Lossless Compressed RAW 2"). Build from source so Linux ships
-      # the same LibRaw version as macOS and Windows.
-      - name: Build LibRaw from source (Linux)
-        if: runner.os == 'Linux'
-        run: bash scripts/build-libraw-linux.sh
 
       - name: Acquire bundled binaries
         run: node scripts/setup-binaries.js
@@ -73,6 +66,5 @@ jobs:
           path: |
             dist/*.dmg
             dist/*.exe
-            dist/*.AppImage
           if-no-files-found: error
           retention-days: 14

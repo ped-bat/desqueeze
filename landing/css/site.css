@@ -1058,9 +1058,7 @@ section > * {
 }
 
 .dl-block:has(.dl[data-os="windows"]:hover) .download-note[data-for="windows"],
-.dl-block:has(.dl[data-os="windows"]:focus-visible) .download-note[data-for="windows"],
-.dl-block:has(.dl[data-os="linux"]:hover) .download-note[data-for="linux"],
-.dl-block:has(.dl[data-os="linux"]:focus-visible) .download-note[data-for="linux"] {
+.dl-block:has(.dl[data-os="windows"]:focus-visible) .download-note[data-for="windows"] {
 	opacity: 1;
 	visibility: visible;
 	transform: translate(-50%, 0);

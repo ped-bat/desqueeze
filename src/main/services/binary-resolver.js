@@ -38,7 +38,7 @@ class BinaryResolver {
 	}
 
 	/** Platforms the app ships binaries for */
-	static SUPPORTED_PLATFORMS = new Set(["darwin", "win32", "linux"]);
+	static SUPPORTED_PLATFORMS = new Set(["darwin", "win32"]);
 
 	/**
 	 * Build the absolute path to a bundled binary.
@@ -49,7 +49,7 @@ class BinaryResolver {
 		if (!BinaryResolver.SUPPORTED_PLATFORMS.has(this._platform)) {
 			throw new Error(
 				`Unsupported platform "${this._platform}" — Desqueeze bundles ` +
-				`binaries for macOS, Windows, and Linux only.`
+				`binaries for macOS and Windows only.`
 			);
 		}
 		const binaryName = this._platform === "win32" ? `${name}.exe` : name;
