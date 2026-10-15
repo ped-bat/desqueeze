@@ -24,18 +24,12 @@ published release, so these URLs never need updating:
 ```
 https://github.com/ped-bat/desqueeze/releases/latest/download/Desqueeze-macOS-arm64.dmg
 https://github.com/ped-bat/desqueeze/releases/latest/download/Desqueeze-Windows-x64.exe
-https://github.com/ped-bat/desqueeze/releases/latest/download/Desqueeze-Linux-x86_64.AppImage
 ```
 
 This works because `artifactName` in `package.json` is pinned to a
 **version-less** filename per platform. Don't reintroduce `${version}` into
 those patterns — `latest/download/<name>` matches on the exact filename, so
 a versioned name would break every link on the next release.
-
-> Note the Linux name is `x86_64`, not `x64`: electron-builder rewrites the
-> `${arch}` macro to `x86_64` for AppImage (and `amd64` for deb), while DMG
-> and NSIS keep `x64`/`arm64`. Confirm the exact asset names on the release
-> page after the first run before wiring up the landing page buttons.
 
 A "just take me to the downloads" link:
 

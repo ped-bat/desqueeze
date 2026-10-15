@@ -242,7 +242,6 @@ const SPRITE = "assets/icons.svg";
 const OS = {
 	macos: { label: "Download for macOS", icon: "i-apple" },
 	windows: { label: "Download for Windows", icon: "i-windows" },
-	linux: { label: "Download for Linux", icon: "i-linux" },
 };
 
 function detectOS() {
@@ -250,7 +249,6 @@ function detectOS() {
 	const platform = (navigator.platform || "").toLowerCase();
 	if (/mac|iphone|ipad|ipod/.test(platform) || /mac os/.test(ua)) return "macos";
 	if (/win/.test(platform) || /windows/.test(ua)) return "windows";
-	if (/linux|x11/.test(platform) || /linux/.test(ua)) return "linux";
 	return null;
 }
 
@@ -271,8 +269,8 @@ function initDownloads() {
 		const own = alt.querySelector(`a[data-os="${os}"]`);
 		if (own) {
 			own.hidden = true;
-			// Drop one adjacent separator too, so the remaining two keep
-			// exactly one dot between them.
+			// Drop the adjacent separator too, so the remaining link has
+			// no stray dot beside it.
 			const next = own.nextElementSibling;
 			const prev = own.previousElementSibling;
 			const sep = next?.classList.contains("alt-sep") ? next : prev?.classList.contains("alt-sep") ? prev : null;

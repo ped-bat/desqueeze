@@ -14,14 +14,6 @@
 			"win32-x64": {
 				"url": "https://github.com/dnglab/dnglab/releases/download/v{{version}}/dnglab-win-x64_v{{version}}.zip",
 				"find": "dnglab.exe"
-			},
-			"linux-x64": {
-				"url": "https://github.com/dnglab/dnglab/releases/download/v{{version}}/dnglab_linux_x64",
-				"raw": true
-			},
-			"linux-arm64": {
-				"url": "https://github.com/dnglab/dnglab/releases/download/v{{version}}/dnglab_linux_aarch64",
-				"raw": true
 			}
 		},
 		"versionCommand": "--version",
@@ -38,8 +30,7 @@
 		"repo": "LibRaw/LibRaw",
 		"binary": "dcraw_emu",
 		"installHint": {
-			"darwin": "brew install libraw",
-			"linux": "bash scripts/build-libraw-linux.sh (apt's libraw-bin is too old for recent cameras)"
+			"darwin": "brew install libraw"
 		},
 		"assets": {
 			"win32-x64": {

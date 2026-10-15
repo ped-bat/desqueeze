@@ -8,18 +8,14 @@
  *      the binary (plus sibling DLLs on Windows) — fully reproducible,
  *      no system install needed.
  *   3. Otherwise fall back to copying the system-installed binary
- *      (brew on macOS, apt on Linux) into resources/bin/{platform}/,
- *      then make it self-contained:
- *        - macOS: bundle Homebrew dylibs into lib/ and rewrite install
- *          names to @executable_path/lib/…
- *        - Linux: bundle non-glibc shared objects into lib/ and set
- *          rpath to $ORIGIN/lib (requires patchelf)
+ *      (brew on macOS) into resources/bin/{platform}/, then make it
+ *      self-contained: bundle Homebrew dylibs into lib/ and rewrite
+ *      install names to @executable_path/lib/…
  *   4. Update dependencies.json manifest
  *
  * Exports:
  *   updateBinaries()          — runs the full flow, returns summary
  *   makeSelfContained()       — dylib bundling step for a single macOS binary
- *   makeSelfContainedLinux()  — shared-object bundling for a Linux binary
  */
 
 import fs from "fs";
@@ -354,78 +350,6 @@ export function makeSelfContained(binPath) {
 	return { bundled: [...copied.keys()], offenders };
 }
 
-// ── Self-contained shared-object bundling (Linux) ──────────
-
-/**
- * Libraries guaranteed on any Linux system the app can run on — bundling
- * these (especially glibc) breaks more than it fixes, so they stay system.
- */
-const LINUX_SYSTEM_LIBS =
-	/^(linux-vdso|ld-linux|libc\.so|libm\.so|libpthread\.so|libdl\.so|librt\.so|libgcc_s\.so|libstdc\+\+\.so|libz\.so)/;
-
-/** Parse `ldd` output into [soname, resolvedPath] pairs */
-function getLinkedSharedObjects(binPath) {
-	let out;
-	try {
-		out = execSync(`ldd "${binPath}"`, { encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"] });
-	} catch {
-		return []; // static binary — nothing to bundle
-	}
-	return out
-		.split("\n")
-		.map((line) => line.match(/^\s*(\S+)\s+=>\s+(\S+)/))
-		.filter(Boolean)
-		.map((m) => [m[1], m[2]]);
-}
-
-/**
- * Make a Linux binary self-contained: copy every non-system shared object
- * in its dependency closure into {binDir}/lib/ and set rpath to
- * $ORIGIN/lib so the loader finds the bundled copies. Requires patchelf.
- *
- * @param {string} binPath - Absolute path to the copied binary
- * @returns {{bundled: string[], offenders: string[]}}
- */
-export function makeSelfContainedLinux(binPath) {
-	const libDir = path.join(path.dirname(binPath), DYLIB_DIR_NAME);
-
-	const copied = new Map(); // soname → copied path
-	const queue = [binPath];
-	while (queue.length > 0) {
-		const file = queue.shift();
-		for (const [soname, resolved] of getLinkedSharedObjects(file)) {
-			if (LINUX_SYSTEM_LIBS.test(soname) || copied.has(soname)) continue;
-			if (!fs.existsSync(resolved)) continue;
-			const dst = path.join(libDir, soname);
-			if (!fs.existsSync(libDir)) fs.mkdirSync(libDir, { recursive: true });
-			if (fs.existsSync(dst)) fs.unlinkSync(dst);
-			fs.copyFileSync(fs.realpathSync(resolved), dst);
-			fs.chmodSync(dst, 0o755);
-			copied.set(soname, dst);
-			queue.push(dst);
-		}
-	}
-
-	if (copied.size === 0) return { bundled: [], offenders: [] };
-
-	// rpath: the executable looks in ./lib, bundled libs look next to themselves
-	execSync(`patchelf --set-rpath '$ORIGIN/${DYLIB_DIR_NAME}' "${binPath}"`, { stdio: ["pipe", "pipe", "pipe"] });
-	for (const dst of copied.values()) {
-		execSync(`patchelf --set-rpath '$ORIGIN' "${dst}"`, { stdio: ["pipe", "pipe", "pipe"] });
-	}
-
-	// Verify: every non-system dep should now resolve into our lib dir
-	const offenders = [];
-	for (const [soname, resolved] of getLinkedSharedObjects(binPath)) {
-		if (LINUX_SYSTEM_LIBS.test(soname)) continue;
-		if (!resolved.startsWith(libDir)) {
-			offenders.push(`${path.basename(binPath)} → ${soname} (${resolved})`);
-		}
-	}
-
-	return { bundled: [...copied.keys()], offenders };
-}
-
 // ── Main flow ──────────────────────────────────────────────
 
 /**
@@ -534,12 +458,9 @@ export async function updateBinaries() {
 			console.log(`  ${GREEN}✓${RESET} ${finalVersion} (${size} MB)`);
 
 			// ── Step 3a: Make the copy self-contained ───────
-			if (currentPlatform === "darwin" || currentPlatform === "linux") {
+			if (currentPlatform === "darwin") {
 				try {
-					const { bundled, offenders } =
-						currentPlatform === "darwin"
-							? makeSelfContained(binPath)
-							: makeSelfContainedLinux(binPath);
+					const { bundled, offenders } = makeSelfContained(binPath);
 					if (bundled.length > 0) {
 						console.log(`  ${GREEN}✓${RESET} Bundled ${bundled.length} lib(s): ${bundled.join(", ")}`);
 					}

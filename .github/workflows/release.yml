@@ -24,7 +24,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+        os: [macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -43,10 +43,6 @@ jobs:
       - name: Install LibRaw (macOS)
         if: runner.os == 'macOS'
         run: brew install libraw
-
-      - name: Build LibRaw from source (Linux)
-        if: runner.os == 'Linux'
-        run: bash scripts/build-libraw-linux.sh
 
       - name: Acquire bundled binaries
         run: node scripts/setup-binaries.js
@@ -86,7 +82,7 @@ jobs:
           fi
           npx electron-builder --mac --publish never
 
-      - name: Package installer (Windows/Linux)
+      - name: Package installer (Windows)
         if: runner.os != 'macOS'
         env:
           USE_HARD_LINKS: "false"
@@ -98,7 +94,7 @@ jobs:
           mkdir -p out-release
           # Installers only — skip unpacked dirs, blockmaps and metadata
           find dist -maxdepth 1 -type f \
-            \( -name "*.dmg" -o -name "*.exe" -o -name "*.AppImage" \) \
+            \( -name "*.dmg" -o -name "*.exe" \) \
             -exec cp {} out-release/ \;
           ls -la out-release/
 

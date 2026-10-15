@@ -30,7 +30,7 @@ class AppManager {
 	 * Create the main browser window and wire up all services.
 	 */
 	createWindow() {
-		// Frameless chrome with vibrancy is macOS-only; Windows/Linux get a
+		// Frameless chrome with vibrancy is macOS-only; Windows gets a
 		// standard frame so the window still has close/minimize controls.
 		const platformWindowOptions =
 			process.platform === "darwin"
